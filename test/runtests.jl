@@ -54,5 +54,6 @@ for i in eachindex(f.params)
 end
 #prob = ODEProblem(f,u0)
 sol_optimized = solve(prob,tspan)
-plot(sol_optimized)
+plot(sol_optimized,leg=false)
 scatter!(t,plotseries)
+plot!(sol)
