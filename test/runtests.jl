@@ -1,5 +1,9 @@
-using ParameterEstimation, OrdinaryDiffEq, ParameterizedFunctions
+using ParameterEstimation, OrdinaryDiffEq, ParameterizedFunctions,
+      DiffEqBase, RecursiveArrayTools
 using Base.Test
+
+
+# Here's the problem to solve
 
 f = @ode_def_nohes LotkaVolterraTest begin
   dx = a*x - b*x*y
@@ -8,7 +12,6 @@ end a=>1.5 b=1.0 c=3.0 d=1.0
 
 u0 = [1.0;1.0]
 tspan = [0;10.0]
-
 prob = ODEProblem(f,u0)
 sol = solve(prob,tspan)
 
@@ -16,21 +19,22 @@ sol = solve(prob,tspan)
 #gr()
 #plot(sol)
 
+# Generate random data based off of the known solution
+
 t = collect(linspace(0,10,200))
 randomized = [(sol(t[i]) + .01randn(2)) for i in 1:length(t)]
+data = vecvec_to_mat(randomized)
 
-data = Matrix{Float64}(length(randomized),length(u0))
-for i in 1:length(randomized)
-  data[i,:] = randomized[i]
-end
 #scatter!(t,data)
 #scatter(t,data)
 
+# See how far we get off even with small changes to the parameter
 f = LotkaVolterraTest(a=1.42)
 prob = ODEProblem(f,u0)
 sol = solve(prob,tspan)
 #plot!(sol)
 
+# Use LM to fit the parameter
 fit = lm_fit(prob,tspan,t,vec(data),[1.49],show_trace=true,lambda=10000.0)
 param = fit.param
 # @test param[1] ≈ 1.5 # Fails because Optim's fails...
@@ -45,7 +49,7 @@ param = fit.param
 
 ### Optim Method
 using Optim
-cost_function = build_optim_objective(prob,tspan,t,data)
+cost_function = build_optim_objective(prob,tspan,t,data,alg=:Vern6)
 
 result = optimize(cost_function, 0.0, 10.0)
 @test 1.5 - result.minimum[1] < 0.01

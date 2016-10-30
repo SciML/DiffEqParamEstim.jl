@@ -3,3 +3,4 @@ OrdinaryDiffEq
 LsqFit
 DiffEqBase
 LossFunctions
+RecursiveArrayTools
