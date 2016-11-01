@@ -1,4 +1,4 @@
-using ParameterEstimation, OrdinaryDiffEq, ParameterizedFunctions,
+using DiffEqParamEstim, OrdinaryDiffEq, ParameterizedFunctions,
       DiffEqBase, RecursiveArrayTools
 using Base.Test
 

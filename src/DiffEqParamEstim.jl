@@ -1,4 +1,4 @@
-module ParameterEstimation
+module DiffEqParamEstim
 
 using DiffEqBase, LsqFit, OrdinaryDiffEq, LossFunctions, RecursiveArrayTools
 
