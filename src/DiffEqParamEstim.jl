@@ -29,6 +29,19 @@ using DiffEqBase, LsqFit, OrdinaryDiffEq, LossFunctions, RecursiveArrayTools
       norm(value(loss_func(),vec(y),vec(data)))
     end
   end
-export lm_fit, build_optim_objective
+
+  function build_lsoptim_objective(prob::DEProblem,tspan,t,data;kwargs...)
+    cost_function = function (p,out)
+      f = (t,u,du) -> prob.f(t,u,du,p)
+      uEltype = eltype(p)
+      u₀ = [uEltype(prob.u₀[i]) for i in 1:length(prob.u₀)]
+      temp_prob = ODEProblem(f,u₀)
+      sol = solve(temp_prob,tspan;kwargs...)
+      y = vecvec_to_mat(sol(t))
+      out[:] = vec(y.-data)
+    end
+  end
+
+  export lm_fit, build_optim_objective, build_lsoptim_objective
 
 end # module

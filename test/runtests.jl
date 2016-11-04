@@ -63,21 +63,21 @@ result = optimize(cost_function, [1.42], BFGS())
 #sol_optimized2 = solve(prob,tspan)
 #plot!(sol_optimized2,leg=false)
 
-#=
-### SciPy
-model = function (t,p)
-  for i in eachindex(f.params)
-    setfield!(f,f.params[i],p[i])
-  end
-  sol = solve(prob,tspan)
-  vecout = sol(t)
-  y = Matrix{Float64}(length(t),length(prob.u₀))
-  for i in 1:length(t)
-    y[i,:] = vecout[i]
-  end
-  vec(y)
-end
-using PyCall
-@pyimport scipy.optimize as opt
-opt.curve_fit(model,PyObject(t),PyObject(data))
-=#
+using LeastSquaresOptim
+cost_function = build_lsoptim_objective(prob,tspan,t,data,alg=:Vern6)
+x = [1.0]
+res = optimize!(LeastSquaresProblem(x = x, f! = cost_function,
+                output_length = length(t)*length(prob.u₀)),
+                LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR(),
+                ftol=1e-14,xtol=1e-15,iterations=100,grtol=1e-14)
+
+@test res.minimizer[1] - 1.52332 < 1e-4
+
+f = LotkaVolterraTest(a=res.minimizer[1])
+prob = ODEProblem(f,u0)
+sol = solve(prob,tspan)
+
+#using Plots
+#gr()
+#plot(sol)
+#scatter!(t,data)
