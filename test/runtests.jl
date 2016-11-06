@@ -58,7 +58,7 @@ sol_optimized = solve(prob,tspan)
 #scatter!(t,data)
 #plot!(sol)
 
-result = optimize(cost_function, [1.42], BFGS())
+result = optimize(cost_function, [1.45], BFGS())
 @test 1.5 - result.minimum[1] < 0.01
 #sol_optimized2 = solve(prob,tspan)
 #plot!(sol_optimized2,leg=false)
