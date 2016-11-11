@@ -10,7 +10,7 @@ f = @ode_def_nohes LotkaVolterraTest begin
 end a=>1.5 b=1.0 c=3.0 d=1.0
 
 u0 = [1.0;1.0]
-tspan = [0;10.0]
+tspan = (0.0,10.0)
 prob = ODEProblem(f,u0,tspan)
 sol = solve(prob)
 
