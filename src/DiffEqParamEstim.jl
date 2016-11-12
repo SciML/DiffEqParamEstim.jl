@@ -42,7 +42,7 @@ using DiffEqBase, LsqFit, OrdinaryDiffEq, LossFunctions, RecursiveArrayTools
 
   function build_lsoptim_objective(prob::DEProblem,t,data,alg=nothing;kwargs...)
     cost_function = function (p,out)
-      f = (t,u,du) -> prob.f(t,u,du,p)
+      f = (t,u,du) -> prob.f(t,u,p,du)
       uEltype = eltype(p)
       u0 = [uEltype(prob.u0[i]) for i in 1:length(prob.u0)]
       tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))

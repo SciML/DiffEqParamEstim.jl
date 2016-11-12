@@ -33,7 +33,7 @@ prob = ODEProblem(f,u0,tspan)
 sol = solve(prob)
 #plot!(sol)
 
-# Use LM to fit the parameter
+println("Use LM to fit the parameter")
 fit = lm_fit(prob,t,vec(data),[1.49],show_trace=true,lambda=10000.0)
 param = fit.param
 # @test param[1] ≈ 1.5 # Fails because Optim's fails...
@@ -48,8 +48,9 @@ param = fit.param
 
 ### Optim Method
 using Optim
-cost_function = build_optim_objective(prob,t,data)
+cost_function = build_optim_objective(prob,t,data,maxiters=10000)
 
+println("Use Optim Brent to fit the parameter")
 result = optimize(cost_function, 1.0, 10.0)
 @test 1.5 - result.minimum[1] < 0.01
 sol_optimized = solve(prob)
@@ -57,12 +58,14 @@ sol_optimized = solve(prob)
 #scatter!(t,data)
 #plot!(sol)
 
+println("Use Optim BFGS to fit the parameter")
 result = optimize(cost_function, [1.45], BFGS())
 @test 1.5 - result.minimum[1] < 0.2
 #sol_optimized2 = solve(prob)
 #plot!(sol_optimized2,leg=false)
 
 using LeastSquaresOptim
+println("Use LeastSquaresOptim to fit the parameter")
 cost_function = build_lsoptim_objective(prob,t,data)
 x = [1.0]
 res = optimize!(LeastSquaresProblem(x = x, f! = cost_function,
