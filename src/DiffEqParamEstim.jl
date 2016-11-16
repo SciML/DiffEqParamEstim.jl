@@ -1,6 +1,6 @@
 module DiffEqParamEstim
 
-using DiffEqBase, LsqFit, OrdinaryDiffEq, LossFunctions, RecursiveArrayTools
+using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools
 
 
   ### LsqFit Method
