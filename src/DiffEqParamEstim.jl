@@ -4,43 +4,35 @@ using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools
 
 
   ### LsqFit Method
-  function lm_fit(prob::DEProblem,t,data,p0,alg=nothing;kwargs...)
+  function lm_fit(prob::DEProblem,t,data,p0,alg;kwargs...)
     f = prob.f
 
     model = function (t,p)
       for i in eachindex(f.params)
         setfield!(f,f.params[i],p[i])
       end
-      if alg == nothing
-        sol = solve(prob)
-      else
-        sol = solve(prob,alg)
-      end
+      sol = solve(prob,alg)
       y = vecvec_to_mat(sol(t))
       vec(y)
     end
     curve_fit(model,t,vec(data),p0;kwargs...)
   end
 
-  function build_optim_objective(prob::DEProblem,t,data,alg=nothing;loss_func = L2DistLoss,kwargs...)
+  function build_optim_objective(prob::DEProblem,t,data,alg;loss_func = L2DistLoss,kwargs...)
     f = prob.f
     cost_function = function (p)
       for i in eachindex(f.params)
         setfield!(f,f.params[i],p[i])
       end
 
-      if alg == nothing
-        sol = solve(prob;kwargs...)
-      else
-        sol = solve(prob,alg;kwargs...)
-      end
+      sol = solve(prob,alg;kwargs...)
 
       y = vecvec_to_mat(sol(t))
       norm(value(loss_func(),vec(y),vec(data)))
     end
   end
 
-  function build_lsoptim_objective(prob::DEProblem,t,data,alg=nothing;kwargs...)
+  function build_lsoptim_objective(prob::DEProblem,t,data,alg;kwargs...)
     cost_function = function (p,out)
       f = (t,u,du) -> prob.f(t,u,p,du)
       uEltype = eltype(p)
