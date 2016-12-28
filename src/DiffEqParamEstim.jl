@@ -18,7 +18,7 @@ using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools
     curve_fit(model,t,vec(data),p0;kwargs...)
   end
 
-  function build_optim_objective(prob::DEProblem,t,data,alg;loss_func = L2DistLoss,kwargs...)
+  function build_optim_objective(prob::DEProblem,t,data,alg;loss_func = L2DistLoss(),kwargs...)
     f = prob.f
     cost_function = function (p)
       for i in eachindex(f.params)
@@ -32,7 +32,7 @@ using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools
         #push!(sol.u,zeros(prob.u0))
       end
       y = vec(vecvec_to_mat(sol.u))
-      norm(value(loss_func(),vec(y),vec(data)))
+      norm(value(loss_func,vec(y),vec(data)))
     end
   end
 
