@@ -11,8 +11,8 @@ using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools
       for i in eachindex(f.params)
         setfield!(f,f.params[i],p[i])
       end
-      sol = solve(prob,alg)
-      y = vecvec_to_mat(sol(t))
+      sol = solve(prob,alg;saveat=t,save_timeseries=false,dense=false,kwargs...)
+      y = vecvec_to_mat(sol.u)
       vec(y)
     end
     curve_fit(model,t,vec(data),p0;kwargs...)
@@ -25,14 +25,19 @@ using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools
         setfield!(f,f.params[i],p[i])
       end
 
-      sol = solve(prob,alg;kwargs...)
-
-      y = vecvec_to_mat(sol(t))
+      sol = solve(prob,alg;saveat=t,save_timeseries=false,dense=false,kwargs...)
+      fill_length = length(t)-length(sol)
+      for i in 1:fill_length
+        push!(sol.u,fill(NaN,size(prob.u0)))
+        #push!(sol.u,zeros(prob.u0))
+      end
+      y = vec(vecvec_to_mat(sol.u))
       norm(value(loss_func(),vec(y),vec(data)))
     end
   end
 
   function build_lsoptim_objective(prob::DEProblem,t,data,alg;kwargs...)
+    internal_data = vec(data)
     cost_function = function (p,out)
       f = (t,u,du) -> prob.f(t,u,p,du)
       uEltype = eltype(p)
@@ -40,12 +45,17 @@ using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools
       tspan = (uEltype(prob.tspan[1]),uEltype(prob.tspan[2]))
       temp_prob = ODEProblem(f,u0,tspan)
       if alg == nothing
-        sol = solve(temp_prob;kwargs...)
+        sol = solve(temp_prob;saveat=t,save_timeseries=false,dense=false,kwargs...)
       else
-        sol = solve(temp_prob,alg;kwargs...)
+        sol = solve(temp_prob,alg;saveat=t,save_timeseries=false,dense=false,kwargs...)
       end
-      y = vecvec_to_mat(sol(t))
-      out[:] = vec(y.-data)
+      fill_length = length(t)-length(sol)
+      for i in 1:fill_length
+        push!(sol.u,fill(NaN,size(prob.u0)))
+        #push!(sol.u,zeros(prob.u0))
+      end
+      y = vec(vecvec_to_mat(sol.u))
+      out .= y.-internal_data
     end
   end
 
