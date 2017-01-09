@@ -9,5 +9,3 @@ DiffEqParamEstim.jl is a component package in the DifferentialEquations ecosyste
 parameter estimation tools. While completely independent
 and usable on its own, users interested in using this
 functionality should check out [DifferentialEquations.jl](https://github.com/JuliaDiffEq/DifferentialEquations.jl).
-
-Note: This repository is a work-in-progress.
