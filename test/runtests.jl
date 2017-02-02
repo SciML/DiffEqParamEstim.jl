@@ -124,14 +124,15 @@ param = fit.param
 @test_approx_eq_eps param [1.5;1.0;3.0;1.0] 1e-2
 
 println("Use Optim BFGS to fit the parameter")
-cost_function = build_optim_objective(prob,t,data,Tsit5(),maxiters=10000)
-result = optimize(cost_function, [1.3,0.8,2.6,1.2], BFGS())
+cost_function = build_loss_objective(prob,t,data,Tsit5(),maxiters=10000)
+result = Optim.optimize(cost_function, [1.3,0.8,2.6,1.2], Optim.BFGS())
 @test_approx_eq_eps result.minimizer [1.5;1.0;3.0;1.0] 3e-1
 
 println("Use LeastSquaresOptim to fit the parameter")
 cost_function = build_lsoptim_objective(prob,t,data,Tsit5())
 x = [1.3,0.8,2.8,1.2]
-res = optimize!(LeastSquaresProblem(x = x, f! = cost_function,
+res = LeastSquaresOptim.optimize!(LeastSquaresOptim.LeastSquaresProblem(
+                x = x, f! = cost_function,
                 output_length = length(t)*length(prob.u0)),
                 LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR(),
                 ftol=1e-14,xtol=1e-15,iterations=100,grtol=1e-14)
