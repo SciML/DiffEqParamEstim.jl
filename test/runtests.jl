@@ -25,25 +25,50 @@ fit = lm_fit(prob,t,vec(data),[1.0],Tsit5(),show_trace=true,lambda=10000.0)
 param = fit.param
 @test_approx_eq_eps param[1] 1.5 1e-3
 
+### General Loss
+obj = build_loss_objective(prob,t,data,Tsit5(),maxiters=10000)
+
+using NLopt
+
+opt = Opt(:LN_COBYLA, 1)
+min_objective!(opt, obj)
+(minf,minx,ret) = NLopt.optimize(opt,[1.3])
+
+opt = Opt(:GN_ESCH, 1)
+min_objective!(opt, obj.cost_function2)
+lower_bounds!(opt,[0.0])
+upper_bounds!(opt,[5.0])
+xtol_rel!(opt,1e-3)
+maxeval!(opt, 10000)
+(minf,minx,ret) = NLopt.optimize(opt,[1.3])
+
+opt = Opt(:GN_ISRES, 1)
+min_objective!(opt, obj.cost_function2)
+lower_bounds!(opt,[-1.0])
+upper_bounds!(opt,[5.0])
+xtol_rel!(opt,1e-3)
+maxeval!(opt, 100000)
+(minf,minx,ret) = NLopt.optimize(opt,[0.2])
+
 ### Optim Method
-using Optim
-cost_function = build_optim_objective(prob,t,data,Tsit5(),maxiters=10000)
+import Optim
 
 println("Use Optim Brent to fit the parameter")
-result = optimize(cost_function, 1.0, 10.0)
+result = Optim.optimize(obj, 1.0, 10.0)
 @test_approx_eq_eps result.minimizer[1] 1.5 3e-1
 
 println("Use Optim BFGS to fit the parameter")
-result = optimize(cost_function, [1.0], BFGS())
+result = Optim.optimize(obj, [1.0], Optim.BFGS())
 @test_approx_eq_eps result.minimizer[1] 1.5 3e-1
 #sol_optimized2 = solve(prob)
 #plot!(sol_optimized2,leg=false)
 
-using LeastSquaresOptim
+import LeastSquaresOptim
 println("Use LeastSquaresOptim to fit the parameter")
 cost_function = build_lsoptim_objective(prob,t,data,Tsit5())
 x = [1.0]
-res = optimize!(LeastSquaresProblem(x = x, f! = cost_function,
+res = LeastSquaresOptim.optimize!(LeastSquaresOptim.LeastSquaresProblem(x = x,
+                f! = cost_function,
                 output_length = length(t)*length(prob.u0)),
                 LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR(),
                 ftol=1e-14,xtol=1e-15,iterations=100,grtol=1e-14)
@@ -65,17 +90,18 @@ prob = ODEProblem(f2,u0,tspan)
 println("Use LM to fit the parameter")
 fit = lm_fit(prob,t,vec(data),[1.3,2.6],Tsit5(),show_trace=true,lambda=10000.0)
 param = fit.param
-@test_approx_eq_eps param [1.5;3.0] 1e-3
+@test_approx_eq_eps param [1.5;3.0] 2e-3
 
 println("Use Optim BFGS to fit the parameter")
-cost_function = build_optim_objective(prob,t,data,Tsit5(),maxiters=10000)
-result = optimize(cost_function, [1.0,2.5], BFGS())
+cost_function = build_loss_objective(prob,t,data,Tsit5(),maxiters=10000)
+result = Optim.optimize(cost_function, [1.0,2.5], Optim.BFGS())
 @test_approx_eq_eps result.minimizer [1.5;3.0] 3e-1
 
 println("Use LeastSquaresOptim to fit the parameter")
 cost_function = build_lsoptim_objective(prob,t,data,Tsit5())
 x = [1.3,2.7]
-res = optimize!(LeastSquaresProblem(x = x, f! = cost_function,
+res = LeastSquaresOptim.optimize!(LeastSquaresOptim.LeastSquaresProblem(x = x,
+                f! = cost_function,
                 output_length = length(t)*length(prob.u0)),
                 LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR(),
                 ftol=1e-14,xtol=1e-15,iterations=100,grtol=1e-14)
