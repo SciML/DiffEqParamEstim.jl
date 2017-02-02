@@ -2,3 +2,4 @@ Optim
 ParameterizedFunctions 0.4.0
 LeastSquaresOptim
 OrdinaryDiffEq 0.1.1
+NLopt
