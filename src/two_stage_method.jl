@@ -40,6 +40,7 @@ function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
         fff = (t,u) -> prob.f(t,u,p)
         p -> cost_function2(p,tpoints,data,b0,b1,fff)
     end
+    return cost_function3(p)
 end
 
 
