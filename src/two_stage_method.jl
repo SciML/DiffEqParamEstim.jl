@@ -14,7 +14,7 @@ function cost_function1(b,t0,tpoints,data)
 end
 
 # Step - 2
-function cost_function4(p,tpoints,data,fff)
+function cost_function4(p,tpoints,data,b0,b1,fff)
     err = 0
     #du = zeros(length(tpoints))
     for i in 1:length(tpoints)
@@ -37,7 +37,7 @@ function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
         push!(b1,result.minimizer[2])
     end
 
-    return p->cost_function4(p,tpoints,data,fff)
+    return p->cost_function4(p,tpoints,data,b0,b1,fff)
 end
 
 
@@ -47,7 +47,9 @@ end
 
 # pf = ParameterizedFunction(pf_func,[2])
 
-
+# u0 = [1.0]
+# tspan = (0.0,1.0)
+# prob = ODEProblem(pf,u0,tspan)
 
 
 # result = optimize(two_stage_method(prob,tpoints,data), 0.0, 20.0)
