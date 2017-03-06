@@ -24,8 +24,6 @@ function cost_function2(p,tpoints,data,b0,b1,fff)
 end
 
 function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
-    #tpoints = [0.0,0.5,1.0]
-    #data  = [1,exp(1),exp(2)]
     f = prob.f
     b0 = []
     b1 = []
@@ -40,9 +38,11 @@ function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
         fff = (t,u) -> prob.f(t,u,p)
         p -> cost_function2(p,tpoints,data,b0,b1,fff)
     end
-    return cost_function3(p)
+    #return cost_function3(p)
 end
 
+# tpoints = [0.0,0.5,1.0]
+# data  = [1,exp(1),exp(2)]
 
 # pf_func = function (t,u,p)
 #     p*u
