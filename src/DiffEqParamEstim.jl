@@ -1,9 +1,6 @@
 module DiffEqParamEstim
-
-include("two_stage_method.jl")
-
 using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools, ForwardDiff, Calculus
-
+include("two_stage_method.jl")
 
   ### LsqFit Method
   function lm_fit(prob::DEProblem,t,data,p0,alg;kwargs...)
