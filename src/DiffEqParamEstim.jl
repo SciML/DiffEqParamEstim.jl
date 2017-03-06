@@ -1,5 +1,7 @@
 module DiffEqParamEstim
 
+include("two_stage_method.jl")
+
 using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools, ForwardDiff, Calculus
 
 
