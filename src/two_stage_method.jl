@@ -36,25 +36,25 @@ function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
     
     cost_function3 = function (p)
         fff = (t,u) -> prob.f(t,u,p)
-        p -> cost_function2(p,tpoints,data,b0,b1,fff)
+        cost_function2(p,tpoints,data,b0,b1,fff)
     end
     #return cost_function3(p)
 end
 
-# tpoints = [0.0,0.5,1.0]
-# data  = [1,exp(1),exp(2)]
+tpoints = [0.0,0.5,1.0]
+data  = [1,exp(1),exp(2)]
 
-# pf_func = function (t,u,p)
-#     p*u
-#  end
+pf_func = function (t,u,p)
+    p*u
+ end
 
-# pf = ParameterizedFunction(pf_func,[2])
+pf = ParameterizedFunction(pf_func,[2])
 
-# u0 = [1.0]
-# tspan = (0.0,1.0)
-# prob = ODEProblem(pf,u0,tspan)
+u0 = [1.0]
+tspan = (0.0,1.0)
+prob = ODEProblem(pf,u0,tspan)
 
 
-# result = optimize(two_stage_method(prob,tpoints,data), 0.0, 20.0)
+result = optimize(two_stage_method(prob,tpoints,data), 0.0, 20.0)
 # result = optimize(p->cost_function3(p,tpoints,data,pf), 0.0, 20.0)
 # result.minimizer[1]
