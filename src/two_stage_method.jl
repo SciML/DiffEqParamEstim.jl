@@ -1,5 +1,7 @@
 using Optim
 
+export two_stage_method
+
 # Step - 1
 function cost_function1(b,t0,tpoints,data)
     err = 0
