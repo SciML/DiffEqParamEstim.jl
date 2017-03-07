@@ -23,15 +23,16 @@ function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
         push!(b1,result.minimizer[2])
     end
 
+    
     # Step - 2
     cost_function2 = function (p)
-        f = (t,u) -> prob.f(t,u,p)
+        ff = (t,u) -> prob.f(t,u,p)
         err = 0
         #du = zeros(length(tpoints))
         for i in 1:length(tpoints)
-            err = err + (b1[i] - f(tpoints[i],b0[i]))^2
+            err = err + (ff(tpoints[i],b0[i]) - b1[i])^2
         end
-        err
+        return err
     end
 end
 
