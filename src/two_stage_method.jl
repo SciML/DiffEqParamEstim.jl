@@ -4,8 +4,8 @@ export two_stage_method
 function cost_function1(b,t0,tpoints,data)
     err = 0
     for i in 1:length(tpoints)
-        w_i = exp(tpoints[i]-t0)
-        temp_f = b[1]-b[2]*(tpoints[i]-t0)
+        w_i = exp((tpoints[i]-t0)^2)
+        temp_f = b[1]-(b[2]*(tpoints[i]-t0))
         err = err + w_i*(temp_f-data[i])^2
     end
     return err
@@ -18,7 +18,7 @@ function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
     b1 = []
     for i in 1:length(tpoints)
         t0 = tpoints[i]
-        result = optimize(b->cost_function1(b,t0,tpoints,data), [0.0,0.0])
+        result = optimize(b->cost_function1(b,t0,tpoints,data), [1.0,1.0])
         push!(b0,result.minimizer[1])
         push!(b1,result.minimizer[2])
     end
@@ -52,6 +52,6 @@ end
 # prob = ODEProblem(pf,u0,tspan)
 
 # cost_function = two_stage_method(prob,tpoints,data)
-# result = optimize(cost_function, 0.0, 20.0)
+# result = optimize(cost_function, -20.0, 20.0)
 # result.minimizer[1]
 
