@@ -6,7 +6,7 @@ function cost_function1(b,t0,tpoints,data)
     for i in 1:length(tpoints)
         w_i = exp((tpoints[i]-t0)^2)
         temp_f = b[1]-(b[2]*(tpoints[i]-t0))
-        err = err + w_i*(temp_f-data[i])^2
+        err += w_i*(temp_f-data[i])^2
     end
     return err
 end
@@ -41,8 +41,8 @@ end
 # tpoints = [0.0,0.5,1.0]
 # data  = [1,exp(1),exp(2)]
 
-# pf_func = function (t,u,p)
-#     p*u
+# pf_func = function (t,u,p,du)
+#     du = p*u
 #  end
 
 # pf = ParameterizedFunction(pf_func,[2])
