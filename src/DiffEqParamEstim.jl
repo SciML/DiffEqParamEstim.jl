@@ -1,5 +1,5 @@
 module DiffEqParamEstim
-using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools, ForwardDiff, Calculus
+using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools, ForwardDiff, Calculus, Optim
 
 
 include("lm_fit.jl")
