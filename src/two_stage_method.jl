@@ -26,11 +26,11 @@ function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
     
     # Step - 2
     cost_function2 = function (p)
-        ff = (t,u) -> prob.f(t,u,p)
+        ff = (t,u,du) -> prob.f(t,u,p,du)
         err = 0
         #du = zeros(length(tpoints))
         for i in 1:length(tpoints)
-            err = err + (ff(tpoints[i],b0[i]) - b1[i])^2
+            err += (ff(tpoints[i],b0[i],b1[i]) - b1[i])^2
         end
         return err
     end
@@ -53,5 +53,5 @@ end
 
 # cost_function = two_stage_method(prob,tpoints,data)
 # result = optimize(cost_function, -20.0, 20.0)
-# result.minimizer[1]
+# approximate_estimate = result.minimizer[1]
 
