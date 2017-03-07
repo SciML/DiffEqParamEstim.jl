@@ -1,5 +1,3 @@
-using Optim
-
 export two_stage_method
 
 # Step - 1
@@ -13,7 +11,7 @@ function cost_function1(b,t0,tpoints,data)
     return err
 end
 
-# Step - 2
+
 # function cost_function2(p,tpoints,data,b0,b1,fff)
 #     err = 0
 #     #du = zeros(length(tpoints))
@@ -33,7 +31,7 @@ function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
         push!(b0,result.minimizer[1])
         push!(b1,result.minimizer[2])
     end
-    
+    # Step - 2
     cost_function2 = function (p)
         fff = (t,u) -> prob.f(t,u,p)
         err = 0
@@ -46,22 +44,22 @@ function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
     #return cost_function3(p)
 end
 
-# using DifferentialEquations
-# using Optim
-# tpoints = [0.0,0.5,1.0]
-# data  = [1,exp(1),exp(2)]
+using DifferentialEquations
+using Optim
+tpoints = [0.0,0.5,1.0]
+data  = [1,exp(1),exp(2)]
 
-# pf_func = function (t,u,p)
-#     p*u
-#  end
+pf_func = function (t,u,p)
+    p*u
+ end
 
-# pf = ParameterizedFunction(pf_func,[2])
+pf = ParameterizedFunction(pf_func,[2])
 
-# u0 = [1.0]
-# tspan = (0.0,1.0)
-# prob = ODEProblem(pf,u0,tspan)
+u0 = [1.0]
+tspan = (0.0,1.0)
+prob = ODEProblem(pf,u0,tspan)
 
-
-# result = optimize(two_stage_method(prob,tpoints,data), 0.0, 20.0)
-# result = optimize(p->cost_function3(p,tpoints,data,pf), 0.0, 20.0)
+cost_function = two_stage_method(prob,tpoints,data)
+result = optimize(cost_function, 0.0, 20.0)
+result = optimize(p->cost_function3(p,tpoints,data,pf), 0.0, 20.0)
 # result.minimizer[1]
