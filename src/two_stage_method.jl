@@ -14,14 +14,14 @@ function cost_function1(b,t0,tpoints,data)
 end
 
 # Step - 2
-function cost_function2(p,tpoints,data,b0,b1,fff)
-    err = 0
-    #du = zeros(length(tpoints))
-    for i in 1:length(tpoints)
-        err = err + (b1[i] - fff(tpoints[i],b0[i]))^2
-    end
-    return err
-end
+# function cost_function2(p,tpoints,data,b0,b1,fff)
+#     err = 0
+#     #du = zeros(length(tpoints))
+#     for i in 1:length(tpoints)
+#         err = err + (b1[i] - fff(tpoints[i],b0[i]))^2
+#     end
+#     return err
+# end
 
 function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
     f = prob.f
@@ -34,9 +34,14 @@ function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
         push!(b1,result.minimizer[2])
     end
     
-    cost_function3 = function (p)
+    cost_function2 = function (p)
         fff = (t,u) -> prob.f(t,u,p)
-        cost_function2(p,tpoints,data,b0,b1,fff)
+        err = 0
+        #du = zeros(length(tpoints))
+        for i in 1:length(tpoints)
+            err = err + (b1[i] - fff(tpoints[i],b0[i]))^2
+        end
+        err
     end
     #return cost_function3(p)
 end
