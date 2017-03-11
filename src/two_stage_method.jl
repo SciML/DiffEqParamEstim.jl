@@ -3,10 +3,13 @@ export two_stage_method
 # Step - 1
 function cost_function1(b,t0,tpoints,data)
     err = 0
+    size_two = size(data)[2]
     for i in 1:length(tpoints)
         w_i = exp((tpoints[i]-t0)^2)
-        temp_f = b[1]-(b[2]*(tpoints[i]-t0))
-        err += w_i*(temp_f-data[i])^2
+        for j in 1:size_two
+            temp_f = b[1,j]-(b[2,j]*(tpoints[i]-t0))
+            err += w_i*(temp_f-data[i,j])^2
+        end
     end
     return err
 end
@@ -14,8 +17,8 @@ end
 
 function two_stage_method(prob::DEProblem,tpoints,data;kwargs...)
     f = prob.f
-    b0 = []
-    b1 = []
+    b0 = typeof(data)
+    b1 = typeof(data)
     for i in 1:length(tpoints)
         t0 = tpoints[i]
         result = optimize(b->cost_function1(b,t0,tpoints,data), [1.0,1.0])
@@ -39,13 +42,13 @@ end
 # using DifferentialEquations
 # using Optim
 # tpoints = [0.0,0.5,1.0]
-# data  = [1,exp(1),exp(2)]
+# data  = [1,exp(0.5),exp(1)]
 
 # pf_func = function (t,u,p,du)
 #     du = p*u
 #  end
 
-# pf = ParameterizedFunction(pf_func,[2])
+# pf = ParameterizedFunction(pf_func,[1])
 
 # u0 = [1.0]
 # tspan = (0.0,1.0)
