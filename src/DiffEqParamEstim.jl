@@ -2,6 +2,50 @@ module DiffEqParamEstim
 
 using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools, ForwardDiff, Calculus
 
+  ### Two-Stage Method
+  function lm2s_fit(prob::DEProblem,t,data,p0,alg,k;kwargs...)
+    f = prob.f
+    data = vec(data)
+    cols = Int(length(data) / length(t)) # number of columns orginally ie. before flattening
+
+    get_params = function(t,t_i,data,p)
+      t = t-t_i
+      wtlst = function (t,p)
+        val = zeros(data)
+        for i in 1:length(t)
+          for j in 1:cols
+            idx = (i-1)*cols + j
+            val[idx] = exp(-((t[i])^2)/2*k)*(data[idx]-p[2*j-1]+p[2*j]*(t[i])).^2
+          end
+        end
+        return val
+      end
+      curve_fit(wtlst,t,vec(data),p).param
+    end
+
+    xpts = zeros(data)
+    ypts = zeros(data)
+
+    for i in 1:length(t)
+      params = get_params(t, t[i], data, [0.1,0.1,0.2,0.2])
+        for j in 1:cols
+          idx = (i-1)*cols + j
+          xpts[idx] = params[2*j-1]
+          ypts[idx] = params[2*j]
+        end
+    end
+
+    model = function (t,p)
+      for i in eachindex(f.params)
+        setfield!(f,f.params[i],p[i])
+      end
+      sol = solve(prob,alg;saveat=t,save_timeseries=false,dense=false,kwargs...)
+      y = vecvec_to_mat(sol.u)
+      vec(y)
+    end
+    curve_fit(model,t,vec(ypts),p0;kwargs...)
+  end
+
 
   ### LsqFit Method
   function lm_fit(prob::DEProblem,t,data,p0,alg;kwargs...)
@@ -68,7 +112,7 @@ using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools, ForwardDiff, Calcu
       if length(grad)>0
         g!(p,grad)
       end
-      
+
       if verbose
         count::Int += 1
         if mod(count,verbose_steps) == 0
@@ -104,6 +148,6 @@ using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools, ForwardDiff, Calcu
     end
   end
 
-  export lm_fit, build_loss_objective, build_lsoptim_objective, DiffEqObjective
+  export lm2s_fit, lm_fit, build_loss_objective, build_lsoptim_objective, DiffEqObjective
 
 end # module
