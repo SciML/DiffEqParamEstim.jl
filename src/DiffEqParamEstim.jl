@@ -1,3 +1,5 @@
+__precompile__()
+
 module DiffEqParamEstim
 
 using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools, ForwardDiff, Calculus
@@ -68,7 +70,7 @@ using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools, ForwardDiff, Calcu
       if length(grad)>0
         g!(p,grad)
       end
-      
+
       if verbose
         count::Int += 1
         if mod(count,verbose_steps) == 0
