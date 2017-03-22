@@ -83,15 +83,15 @@ function two_stage_method(prob::DEProblem,tpoints,data,kernel="Epanechnikov";los
     du = similar(prob.u0)
     cost_function = function (p)
         ff = (t,u,du) -> prob.f(t,u,p,du)
-        sol = eltype(prob.u0)[]
+        sol = typeof(prob.u0)[]
         for i in 1:n
-            ff(tpoints[i],estimated_solution[i,:],du)
-            push!(sol,du)
+          ff(tpoints[i],estimated_solution[i,:],du)
+          push!(sol,du)
         end
         out = vecvec_to_mat(sol)
-        norm(value(loss_func(),vec(sol),vec(estimated_derivative)))
+        norm(value(loss_func(),vec(out),vec(estimated_derivative)))
     end
-    return cost_function
+    #return cost_function
 end
 
 
