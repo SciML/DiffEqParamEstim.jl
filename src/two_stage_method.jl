@@ -82,10 +82,8 @@ function two_stage_method(prob::DEProblem,tpoints,data,kernel="Epanechnikov";kwa
     # Step - 2
     cost_function = function (p)
         ff = (t,u,du) -> prob.f(t,u,p,du)
-        err = 0
-        sol = ff(tpoints,estimated_solution,estimated_derivative)
-
-        #du = zeros(length(tpoints))
+        #err = 0
+        sol = []
         for i in 1:n
             push!(sol,ff(tpoints[i],estimated_solution[i,:],estimated_derivative[i,:]))
         end
