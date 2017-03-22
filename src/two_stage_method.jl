@@ -1,7 +1,7 @@
 export two_stage_method
 
 # Step - 1
-function cost_function1(b,t0,tpoints,data)
+function cost_function1(b::Array{Float64,2},t0,tpoints,data)
     err = 0
     size_two = size(data)[2]
     for i in 1:length(tpoints)
@@ -53,6 +53,8 @@ end
 # u0 = [1.0]
 # tspan = (0.0,1.0)
 # prob = ODEProblem(pf,u0,tspan)
+# using RecursiveArrayTools
+# data = vecvec_to_mat(data)
 
 # cost_function = two_stage_method(prob,tpoints,data)
 # result = optimize(cost_function, -20.0, 20.0)
