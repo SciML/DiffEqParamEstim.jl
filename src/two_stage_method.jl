@@ -60,7 +60,7 @@ function construct_w(t,tpoints,h,kernel_function)
 end
 
 
-function two_stage_method(prob::DEProblem,tpoints,data,kernel="Epanechnikov";loss_func = L2DistLoss;kwargs...)
+function two_stage_method(prob::DEProblem,tpoints,data,kernel="Epanechnikov";loss_func = L2DistLoss,kwargs...)
     f = prob.f
     n = length(tpoints)
     h = (n^(-1/5))*(n^(-3/35))*((log(n))^(-1/16))
