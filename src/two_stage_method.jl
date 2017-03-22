@@ -85,7 +85,7 @@ function two_stage_method(prob::DEProblem,tpoints,data,kernel="Epanechnikov";kwa
         err = 0
         #du = zeros(length(tpoints))
         for i in 1:n
-            err += (ff(tpoints[i],estimated_solution[i],estimated_derivative[i,:]) - estimated_derivative[i,:])^2
+            err += (ff(tpoints[i],estimated_solution[i,:],estimated_derivative[i,:]) - estimated_derivative[i,:])^2
         end
         return err
     end
