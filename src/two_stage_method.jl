@@ -86,7 +86,7 @@ function two_stage_method(prob::DEProblem,tpoints,data,kernel="Epanechnikov";los
         for i in 1:n
             push!(sol,ff(tpoints[i],estimated_solution[i,:],estimated_derivative[i,:]))
         end
-        norm(value(loss_func(),vec(sol),vec(estimated_derivative)))
+        norm(value(loss_func(),vec(sol),vec(estimated_derivative[:,2])))
     end
     return cost_function
 end
