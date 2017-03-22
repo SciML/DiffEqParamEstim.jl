@@ -80,6 +80,7 @@ function two_stage_method(prob::DEProblem,tpoints,data,kernel="Epanechnikov";los
 
     
     # Step - 2
+    du = similar(prob.u0)
     cost_function = function (p)
         ff = (t,u,du) -> prob.f(t,u,p,du)
         sol = eltype(prob.u0)[]
