@@ -60,7 +60,7 @@ function construct_w(t,tpoints,h,kernel_function)
 end
 
 
-function two_stage_method(prob::DEProblem,tpoints,data,kernel="Epanechnikov";kwargs...)
+function two_stage_method(prob::DEProblem,tpoints,data,kernel="Epanechnikov";loss_func = L2DistLoss;kwargs...)
     f = prob.f
     n = length(tpoints)
     h = (n^(-1/5))*(n^(-3/35))*((log(n))^(-1/16))
@@ -82,10 +82,9 @@ function two_stage_method(prob::DEProblem,tpoints,data,kernel="Epanechnikov";kwa
     # Step - 2
     cost_function = function (p)
         ff = (t,u,du) -> prob.f(t,u,p,du)
-        #err = 0
-        sol = []
+        sol = eltype(prob.u0)[]
         for i in 1:n
-            push!(sol,ff(tpoints[i],estimated_solution[i,:],estimated_derivative[i,:]))
+            push!(sol,ff(tpoints[i],estimated_solution[i,:]))
         end
         norm(value(loss_func(),vec(sol),vec(estimated_derivative)))
     end
