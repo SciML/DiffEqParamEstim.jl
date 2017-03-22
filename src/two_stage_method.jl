@@ -80,19 +80,20 @@ function two_stage_method(prob::DEProblem,tpoints,data,kernel="Epanechnikov";kwa
 
     
     # Step - 2
-    cost_function2 = function (p)
+    cost_function = function (p)
         ff = (t,u,du) -> prob.f(t,u,p,du)
         err = 0
         #du = zeros(length(tpoints))
         for i in 1:n
-            err += (ff(tpoints[i],estimated_solution[i],estimated_derivative[i]) - estimated_derivative[i])^2
+            err += (ff(tpoints[i],estimated_solution[i],estimated_derivative[i,:]) - estimated_derivative[i,:])^2
         end
         return err
     end
+    return cost_function
 end
 
 
-# cost_function = two_stage_method(prob,tpoints,data)
+# cost_function = two_stage_method(prob,t,data)
 # result = optimize(cost_function, -20.0, 20.0)
 # approximate_estimate = result.minimizer[1]
 
