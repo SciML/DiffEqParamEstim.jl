@@ -2,8 +2,8 @@
 export lm_fit
 
 function lm_fit(prob::DEProblem,t,data,p0,alg;kwargs...)
-  f = prob.f
-  model = function (t,p)
+    f = prob.f
+    model = function (t,p)
     for i in eachindex(f.params)
       setfield!(f,f.params[i],p[i])
     end
@@ -13,5 +13,6 @@ function lm_fit(prob::DEProblem,t,data,p0,alg;kwargs...)
   end
   curve_fit(model,t,vec(data),p0;kwargs...)
 end
+
 
   
