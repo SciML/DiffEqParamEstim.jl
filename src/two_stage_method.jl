@@ -6,6 +6,9 @@ immutable TwoStageCost{F,D}
   estimated_solution::D 
   estimated_derivative::D
 end
+
+(t::TwoStageCost)(p) = t.cost_function(p)
+
 # Step - 1
 function decide_kernel(kernel)
     if kernel == :Epanechnikov
