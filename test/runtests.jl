@@ -138,3 +138,9 @@ res = LeastSquaresOptim.optimize!(LeastSquaresOptim.LeastSquaresProblem(
                 ftol=1e-14,xtol=1e-15,iterations=100,grtol=1e-14)
 
 @test_approx_eq_eps res.minimizer [1.5;1.0;3.0;1.0] 3e-1
+
+
+println("Use Two Stage Method to fit the parameter")
+cost_function = two_stage_method(prob,t,data)
+result = Optim.optimize(cost_function.cost_function, 0.0, 10.0)
+@test_approx_eq_eps result.minimizer [1.5] 3e-1
