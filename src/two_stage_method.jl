@@ -1,7 +1,7 @@
 export TwoStageCost, two_stage_method
 
 
-immutable TwoStageCost{F,D}
+immutable TwoStageCost{F,D} <: Function
   cost_function::F
   estimated_solution::D 
   estimated_derivative::D
