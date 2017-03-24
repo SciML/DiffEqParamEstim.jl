@@ -91,7 +91,7 @@ function two_stage_method(prob::DEProblem,tpoints,data,kernel= :Epanechnikov;los
         out = vecvec_to_mat(sol)
         norm(value(loss_func(),vec(out),vec(estimated_derivative)))
     end
-    #return cost_function
+    return cost_function, estimated_solution, estimated_derivative
 end
 
 
