@@ -1,14 +1,15 @@
 export TwoStageCost, two_stage_method
 
 
-immutable TwoStageCost{F,D} <: Function
+immutable TwoStageCost{F,F2,D} <: Function
   cost_function::F
-  estimated_solution::D 
+  cost_function2::F2
+  estimated_solution::D
   estimated_derivative::D
 end
 
 (f::TwoStageCost)(p) = f.cost_function(p)
-
+(f::TwoStageCost)(p,g) = f.cost_function2(p,g)
 
 function decide_kernel(kernel)
     if kernel == :Epanechnikov
@@ -69,7 +70,7 @@ function construct_w(t,tpoints,h,kernel_function)
 end
 
 
-function two_stage_method(prob::DEProblem,tpoints,data,kernel= :Epanechnikov;loss_func = L2DistLoss,kwargs...)
+function two_stage_method(prob::DEProblem,tpoints,data,kernel= :Epanechnikov;loss_func = L2DistLoss,mpg_autodiff = false,verbose = false,verbose_steps = 100)
     f = prob.f
     n = length(tpoints)
     h = (n^(-1/5))*(n^(-3/35))*((log(n))^(-1/16))
@@ -87,7 +88,7 @@ function two_stage_method(prob::DEProblem,tpoints,data,kernel= :Epanechnikov;los
         estimated_derivative[i,:] = e2'*inv(T2'*W*T2)T2'*W*data
     end
 
-    
+
     # Step - 2
     du = similar(prob.u0)
     cost_function = function (p)
@@ -100,5 +101,28 @@ function two_stage_method(prob::DEProblem,tpoints,data,kernel= :Epanechnikov;los
         out = vecvec_to_mat(sol)
         norm(value(loss_func(),vec(out),vec(estimated_derivative)))
     end
-    return TwoStageCost(cost_function, estimated_solution, estimated_derivative)
+
+    if mpg_autodiff
+      gcfg = ForwardDiff.GradientConfig(zeros(length(f.syms)))
+      g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
+    else
+      g! = (x, out) -> Calculus.finite_difference!(cost_function,x,out,:central)
+    end
+    if verbose
+      count = 0 # keep track of # function evaluations
+    end
+    cost_function2 = function (p,grad)
+      if length(grad)>0
+        g!(p,grad)
+      end
+      if verbose
+        count::Int += 1
+        if mod(count,verbose_steps) == 0
+          println("f_$count($p)")
+        end
+      end
+      cost_function(p)
+    end
+
+    return TwoStageCost(cost_function, cost_function2, estimated_solution, estimated_derivative)
 end
