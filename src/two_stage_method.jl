@@ -7,9 +7,9 @@ immutable TwoStageCost{F,D}
   estimated_derivative::D
 end
 
-(t::TwoStageCost)(p) = t.cost_function(p)
+(f::TwoStageCost)(p) = f.cost_function(p)
 
-# Step - 1
+
 function decide_kernel(kernel)
     if kernel == :Epanechnikov
         return Epanechnikov_kernel
@@ -102,6 +102,3 @@ function two_stage_method(prob::DEProblem,tpoints,data,kernel= :Epanechnikov;los
     end
     return TwoStageCost(cost_function, estimated_solution, estimated_derivative)
 end
-
-(t::TwoStageCost)(p) = t.cost_function(p)
-
