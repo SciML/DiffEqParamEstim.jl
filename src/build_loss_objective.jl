@@ -29,7 +29,7 @@ function build_loss_objective(prob::DEProblem,t,data,alg;loss_func = L2DistLoss,
     y = vec(vecvec_to_mat(sol.u))
     norm(value(loss_func(),vec(data),vec(y)))
   end
-  
+
   if mpg_autodiff
     gcfg = ForwardDiff.GradientConfig(zeros(length(f.syms)))
     g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
@@ -37,7 +37,7 @@ function build_loss_objective(prob::DEProblem,t,data,alg;loss_func = L2DistLoss,
     g! = (x, out) -> Calculus.finite_difference!(cost_function,x,out,:central)
   end
   if verbose
-  count = 0 # keep track of # function evaluations
+    count = 0 # keep track of # function evaluations
   end
   cost_function2 = function (p,grad)
     if length(grad)>0
@@ -53,5 +53,3 @@ function build_loss_objective(prob::DEProblem,t,data,alg;loss_func = L2DistLoss,
   end
   DiffEqObjective(cost_function,cost_function2)
 end
-
-  
