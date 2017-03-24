@@ -1,4 +1,4 @@
-export two_stage_method
+export TwoStageCost, two_stage_method
 
 
 immutable TwoStageCost{F,D}
