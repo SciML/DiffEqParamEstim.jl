@@ -1,5 +1,11 @@
 export two_stage_method
 
+
+immutable TwoStageCost{F,D}
+  cost_function::F
+  estimated_solution::D 
+  estimated_derivative::D
+end
 # Step - 1
 function decide_kernel(kernel)
     if kernel == :Epanechnikov
@@ -91,11 +97,8 @@ function two_stage_method(prob::DEProblem,tpoints,data,kernel= :Epanechnikov;los
         out = vecvec_to_mat(sol)
         norm(value(loss_func(),vec(out),vec(estimated_derivative)))
     end
-    return cost_function, estimated_solution, estimated_derivative
+    return TwoStageCost(cost_function, estimated_solution, estimated_derivative)
 end
 
-
-# cost_function = two_stage_method(prob,t,data)
-# result = optimize(cost_function, -20.0, 20.0)
-# approximate_estimate = result.minimizer[1]
+(t::TwoStageCost)(p) = t.cost_function(p)
 
