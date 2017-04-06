@@ -4,15 +4,14 @@ export lm_fit
 function lm_fit(prob::DEProblem,t,data,p0,alg;kwargs...)
     f = prob.f
     model = function (t,p)
-    for i in eachindex(f.params)
-      setfield!(f,f.params[i],p[i])
+      tmp_prob = problem_new_parameters(prob,p)
+      if alg == nothing
+        sol = solve(tmp_prob;saveat=t,save_timeseries=false,dense=false,kwargs...)
+      else
+        sol = solve(tmp_prob,alg;saveat=t,save_timeseries=false,dense=false,kwargs...)
+      end
+      y = vecvec_to_mat(sol.u)
+      vec(y)
     end
-    sol = solve(prob,alg;saveat=t,save_timeseries=false,dense=false,kwargs...)
-    y = vecvec_to_mat(sol.u)
-    vec(y)
-  end
-  curve_fit(model,t,vec(data),p0;kwargs...)
+    curve_fit(model,t,vec(data),p0;kwargs...)
 end
-
-
-  
