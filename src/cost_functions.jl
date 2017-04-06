@@ -1,5 +1,3 @@
-@compat abstract type DECostFunction end
-
 type CostVData{T,D,L} <: DECostFunction
   t::T
   data::D
