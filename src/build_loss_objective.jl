@@ -8,22 +8,24 @@ end
 (f::DiffEqObjective)(x) = f.cost_function(x)
 (f::DiffEqObjective)(x,y) = f.cost_function2(x,y)
 
-function build_loss_objective(prob::DEProblem,t,data,alg;loss_func = L2DistLoss,mpg_autodiff = false,verbose = false,verbose_steps = 100,kwargs...)
+function build_loss_objective(prob::DEProblem,alg,loss;mpg_autodiff = false,verbose = false,verbose_steps = 100,kwargs...)
   f = prob.f
   cost_function = function (p)
     tmp_prob = problem_new_parameters(prob,p)
     if alg == nothing
-      sol = solve(tmp_prob;saveat=t,save_timeseries=false,dense=false,kwargs...)
+      if typeof(loss) <: CostVData
+        sol = solve(tmp_prob;saveat=loss.t,save_timeseries=false,dense=false,kwargs...)
+      else
+        sol = solve(tmp_prob;kwargs...)
+      end
     else
-      sol = solve(tmp_prob,alg;saveat=t,save_timeseries=false,dense=false,kwargs...)
+      if typeof(loss) <: CostVData
+        sol = solve(tmp_prob,alg;saveat=loss.t,save_timeseries=false,dense=false,kwargs...)
+      else
+        sol = solve(tmp_prob,alg;kwargs...)
+      end
     end
-    fill_length = length(t)-length(sol)
-    for i in 1:fill_length
-      push!(sol.u,fill(NaN,size(prob.u0)))
-      #push!(sol.u,zeros(prob.u0))
-    end
-    y = vec(vecvec_to_mat(sol.u))
-    norm(value(loss_func(),vec(data),vec(y)))
+    loss(sol)
   end
 
   if mpg_autodiff

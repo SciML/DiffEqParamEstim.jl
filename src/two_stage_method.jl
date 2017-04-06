@@ -51,7 +51,6 @@ function construct_t1(t,tpoints)
         push!(T1,[1 tpoints[i]-t])
     end
     foldl(vcat,T1)
-    #print(T1)
 end
 function construct_t2(t,tpoints)
     T2 = []

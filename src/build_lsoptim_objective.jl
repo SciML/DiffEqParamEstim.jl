@@ -12,7 +12,6 @@ function build_lsoptim_objective(prob::DEProblem,t,data,alg;kwargs...)
   fill_length = length(t)-length(sol)
   for i in 1:fill_length
     push!(sol.u,fill(NaN,size(prob.u0)))
-    #push!(sol.u,zeros(prob.u0))
   end
   y = vec(vecvec_to_mat(sol.u))
   out .= y.-internal_data

@@ -26,7 +26,7 @@ param = fit.param
 @test_approx_eq_eps param[1] 1.5 1e-3
 
 ### General Loss
-obj = build_loss_objective(prob,t,data,Tsit5(),maxiters=10000)
+obj = build_loss_objective(prob,Tsit5(),CostVData(t,data),maxiters=10000)
 
 using NLopt
 
@@ -99,7 +99,7 @@ param = fit.param
 @test_approx_eq_eps param [1.5;3.0] 2e-3
 
 println("Use Optim BFGS to fit the parameter")
-cost_function = build_loss_objective(prob,t,data,Tsit5(),maxiters=10000)
+cost_function = build_loss_objective(prob,Tsit5(),CostVData(t,data),maxiters=10000)
 result = Optim.optimize(cost_function, [1.0,2.5], Optim.BFGS())
 @test_approx_eq_eps result.minimizer [1.5;3.0] 3e-1
 
@@ -131,7 +131,7 @@ param = fit.param
 @test_approx_eq_eps param [1.5;1.0;3.0;1.0] 1e-2
 
 println("Use Optim BFGS to fit the parameter")
-cost_function = build_loss_objective(prob,t,data,Tsit5(),maxiters=10000)
+cost_function = build_loss_objective(prob,Tsit5(),CostVData(t,data),maxiters=10000)
 result = Optim.optimize(cost_function, [1.3,0.8,2.6,1.2], Optim.BFGS())
 @test_approx_eq_eps result.minimizer [1.5;1.0;3.0;1.0] 3e-1
 
