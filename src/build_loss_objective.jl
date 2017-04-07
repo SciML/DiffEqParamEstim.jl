@@ -8,9 +8,17 @@ end
 (f::DiffEqObjective)(x) = f.cost_function(x)
 (f::DiffEqObjective)(x,y) = f.cost_function2(x,y)
 
-function build_loss_objective(prob::DEProblem,alg,loss;mpg_autodiff = false,verbose = false,verbose_steps = 100,kwargs...)
-  f = prob.f
+function build_loss_objective(prob::DEProblem,alg,loss;mpg_autodiff = false,verbose_opt = false,verbose_steps = 100,kwargs...)
+  if verbose_opt
+    count = 0 # keep track of # function evaluations
+  end
   cost_function = function (p)
+    if verbose_opt
+      count::Int += 1
+      if mod(count,verbose_steps) == 0
+        println("f_$count($p)")
+      end
+    end
     tmp_prob = problem_new_parameters(prob,p)
     if alg == nothing
       if typeof(loss) <: CostVData
@@ -29,23 +37,14 @@ function build_loss_objective(prob::DEProblem,alg,loss;mpg_autodiff = false,verb
   end
 
   if mpg_autodiff
-    gcfg = ForwardDiff.GradientConfig(zeros(length(f.syms)))
+    gcfg = ForwardDiff.GradientConfig(zeros(num_params(prob)))
     g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
   else
     g! = (x, out) -> Calculus.finite_difference!(cost_function,x,out,:central)
   end
-  if verbose
-    count = 0 # keep track of # function evaluations
-  end
   cost_function2 = function (p,grad)
     if length(grad)>0
       g!(p,grad)
-    end
-    if verbose
-      count::Int += 1
-      if mod(count,verbose_steps) == 0
-        println("f_$count($p)")
-      end
     end
     cost_function(p)
   end
