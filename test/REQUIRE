@@ -4,3 +4,4 @@ LeastSquaresOptim
 OrdinaryDiffEq 0.1.1
 StochasticDiffEq
 NLopt
+DiffEqMonteCarlo

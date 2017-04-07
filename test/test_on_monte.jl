@@ -1,5 +1,5 @@
 using DiffEqParamEstim, OrdinaryDiffEq, StochasticDiffEq, ParameterizedFunctions,
-      DiffEqBase, RecursiveArrayTools
+      DiffEqBase, RecursiveArrayTools, DiffEqMonteCarlo
 using Base.Test
 
 pf_func = function (t,u,p,du)
