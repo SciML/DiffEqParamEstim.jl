@@ -131,6 +131,7 @@ param = fit.param
 @test_approx_eq_eps param [1.5;1.0;3.0;1.0] 1e-2
 
 println("Use Optim BFGS to fit the parameter")
+srand(200)
 cost_function = build_loss_objective(prob,Tsit5(),CostVData(t,data),maxiters=10000)
 result = Optim.optimize(cost_function, [1.3,0.8,2.8,1.2], Optim.BFGS())
 @test_approx_eq_eps result.minimizer [1.5;1.0;3.0;1.0] 5e-1
