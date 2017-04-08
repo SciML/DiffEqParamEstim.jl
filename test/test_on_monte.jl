@@ -36,7 +36,7 @@ sol = solve(prob,SRIW1())
 monte_prob = MonteCarloProblem(prob)
 
 srand(200)
-obj = build_loss_objective(monte_prob,SRIW1(),CostVData(t,data),maxiters=500,
+obj = build_loss_objective(monte_prob,SRIW1(),CostVData(t,data),maxiters=1000,
                            verbose=false,verbose_opt=false,verbose_steps=1,num_monte=50)
 
 result = Optim.optimize(obj, [1.4,0.95], Optim.BFGS())
