@@ -21,7 +21,7 @@ monte_prob = MonteCarloProblem(prob)
 obj = build_loss_objective(monte_prob,Tsit5(),CostVData(t,data),maxiters=10000,verbose=false,num_monte=5)
 
 import Optim
-result = Optim.optimize(obj, [1.0,0.8], Optim.BFGS())
+result = Optim.optimize(obj, [1.3,0.8], Optim.BFGS())
 @test_approx_eq_eps result.minimizer [1.5,1.0] 3e-1
 
 pg_func = function (t,u,p,du)
