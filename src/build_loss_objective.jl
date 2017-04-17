@@ -22,13 +22,13 @@ function build_loss_objective(prob::DEProblem,alg,loss;mpg_autodiff = false,verb
     tmp_prob = problem_new_parameters(prob,p)
     if alg == nothing
       if typeof(loss) <: CostVData
-        sol = solve(tmp_prob;saveat=loss.t,save_timeseries=false,dense=false,kwargs...)
+        sol = solve(tmp_prob;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
       else
         sol = solve(tmp_prob;kwargs...)
       end
     else
       if typeof(loss) <: CostVData
-        sol = solve(tmp_prob,alg;saveat=loss.t,save_timeseries=false,dense=false,kwargs...)
+        sol = solve(tmp_prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
       else
         sol = solve(tmp_prob,alg;kwargs...)
       end
