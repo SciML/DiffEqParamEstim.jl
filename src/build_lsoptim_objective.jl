@@ -1,9 +1,11 @@
 export build_lsoptim_objective
 
-function build_lsoptim_objective(prob::DEProblem,t,data,alg;kwargs...)
+function build_lsoptim_objective(prob::DEProblem,t,data,alg;
+                                 prob_generator = problem_new_parameters,
+                                 kwargs...)
   internal_data = vec(data)
   cost_function = function (p,out)
-  tmp_prob = problem_new_parameters(prob,p)
+  tmp_prob = prob_generator(prob,p)
   if alg == nothing
     sol = solve(tmp_prob;saveat=t,save_everystep=false,dense=false,kwargs...)
   else

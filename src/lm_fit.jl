@@ -1,10 +1,12 @@
 ### LsqFit Method
 export lm_fit
 
-function lm_fit(prob::DEProblem,t,data,p0,alg;kwargs...)
+function lm_fit(prob::DEProblem,t,data,p0,alg;
+                prob_generator = problem_new_parameters,
+                kwargs...)
     f = prob.f
     model = function (t,p)
-      tmp_prob = problem_new_parameters(prob,p)
+      tmp_prob = prob_generator(prob,p)
       if alg == nothing
         sol = solve(tmp_prob;saveat=t,save_everystep=false,dense=false,kwargs...)
       else

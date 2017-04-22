@@ -8,7 +8,10 @@ end
 (f::DiffEqObjective)(x) = f.cost_function(x)
 (f::DiffEqObjective)(x,y) = f.cost_function2(x,y)
 
-function build_loss_objective(prob::DEProblem,alg,loss;mpg_autodiff = false,verbose_opt = false,verbose_steps = 100,kwargs...)
+function build_loss_objective(prob::DEProblem,alg,loss;mpg_autodiff = false,
+                              verbose_opt = false,verbose_steps = 100,
+                              prob_generator = problem_new_parameters,
+                              kwargs...)
   if verbose_opt
     count = 0 # keep track of # function evaluations
   end
@@ -19,7 +22,7 @@ function build_loss_objective(prob::DEProblem,alg,loss;mpg_autodiff = false,verb
         println("f_$count($p)")
       end
     end
-    tmp_prob = problem_new_parameters(prob,p)
+    tmp_prob = prob_generator(prob,p)
     if alg == nothing
       if typeof(loss) <: CostVData
         sol = solve(tmp_prob;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
