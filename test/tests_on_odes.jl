@@ -23,7 +23,7 @@ data = vecvec_to_mat(randomized)
 println("Use LM to fit the parameter")
 fit = lm_fit(prob,t,vec(data),[1.0],Tsit5(),show_trace=true,lambda=10000.0)
 param = fit.param
-@test_approx_eq_eps param[1] 1.5 1e-3
+@test param[1] ≈ 1.5 atol=1e-3
 
 ### General Loss
 obj = build_loss_objective(prob,Tsit5(),CostVData(t,data),maxiters=10000)
@@ -55,11 +55,11 @@ import Optim
 
 println("Use Optim Brent to fit the parameter")
 result = Optim.optimize(obj, 1.0, 10.0)
-@test_approx_eq_eps result.minimizer[1] 1.5 3e-1
+@test result.minimizer[1] ≈ 1.5 atol=3e-1
 
 println("Use Optim BFGS to fit the parameter")
 result = Optim.optimize(obj, [1.0], Optim.BFGS())
-@test_approx_eq_eps result.minimizer[1] 1.5 3e-1
+@test result.minimizer[1] ≈ 1.5 atol=3e-1
 #sol_optimized2 = solve(prob)
 #plot!(sol_optimized2,leg=false)
 
@@ -74,13 +74,13 @@ res = LeastSquaresOptim.optimize!(LeastSquaresOptim.LeastSquaresProblem(x = x,
                 LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR(),
                 ftol=1e-14,xtol=1e-15,iterations=100,grtol=1e-14)
 
-@test_approx_eq_eps result.minimizer[1] 1.5 3e-1
+@test result.minimizer[1] ≈ 1.5 atol=3e-1
 =#
 
 println("Use Two Stage Method to fit the parameter")
 cost_function = two_stage_method(prob,t,data)
 result = Optim.optimize(cost_function, 0.0, 10.0)
-@test_approx_eq_eps result.minimizer[1] 1.5 3e-1
+@test result.minimizer[1] ≈ 1.5 atol=3e-1
 
 println("Multivariate")
 
@@ -96,12 +96,12 @@ prob = ODEProblem(f2,u0,tspan)
 println("Use LM to fit the parameter")
 fit = lm_fit(prob,t,vec(data),[1.3,2.6],Tsit5(),show_trace=true,lambda=10000.0)
 param = fit.param
-@test_approx_eq_eps param [1.5;3.0] 2e-3
+@test param ≈ [1.5; 3.0] atol=0.002
 
 println("Use Optim BFGS to fit the parameter")
 cost_function = build_loss_objective(prob,Tsit5(),CostVData(t,data),maxiters=10000)
 result = Optim.optimize(cost_function, [1.0,2.5], Optim.BFGS())
-@test_approx_eq_eps result.minimizer [1.5;3.0] 3e-1
+@test result.minimizer ≈ [1.5;3.0] atol=3e-1
 
 #=
 println("Use LeastSquaresOptim to fit the parameter")
@@ -113,7 +113,7 @@ res = LeastSquaresOptim.optimize!(LeastSquaresOptim.LeastSquaresProblem(x = x,
                 LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR(),
                 ftol=1e-14,xtol=1e-15,iterations=100,grtol=1e-14)
 
-@test_approx_eq_eps res.minimizer [1.5;3.0] 3e-1
+@test res.minimizer ≈ [1.5;3.0] atol=3e-1
 =#
 
 f2 = @ode_def_nohes LotkaVolterraAll begin
@@ -128,13 +128,13 @@ prob = ODEProblem(f2,u0,tspan)
 println("Use LM to fit the parameter")
 fit = lm_fit(prob,t,vec(data),[1.3,0.8,2.6,1.2],Tsit5(),show_trace=true,lambda=10000.0)
 param = fit.param
-@test_approx_eq_eps param [1.5;1.0;3.0;1.0] 1e-2
+@test param ≈ [1.5;1.0;3.0;1.0] atol=1e-2
 
 println("Use Optim BFGS to fit the parameter")
 srand(200)
 cost_function = build_loss_objective(prob,Tsit5(),CostVData(t,data),maxiters=10000)
 result = Optim.optimize(cost_function, [1.3,0.8,2.8,1.2], Optim.BFGS())
-@test_approx_eq_eps result.minimizer [1.5;1.0;3.0;1.0] 5e-1
+@test result.minimizer ≈ [1.5;1.0;3.0;1.0] atol=5e-1
 
 #=
 println("Use LeastSquaresOptim to fit the parameter")
@@ -146,5 +146,5 @@ res = LeastSquaresOptim.optimize!(LeastSquaresOptim.LeastSquaresProblem(
                 LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR(),
                 ftol=1e-14,xtol=1e-15,iterations=100,grtol=1e-14)
 
-@test_approx_eq_eps res.minimizer [1.5;1.0;3.0;1.0] 3e-1
+@test res.minimizer ≈ [1.5;1.0;3.0;1.0] atol=3e-1
 =#
