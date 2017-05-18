@@ -132,7 +132,7 @@ obj = build_loss_objective(prob,Euler(),L2Loss(t,data),tstops = t)
 res1 = bboptimize(obj;SearchRange = Xiang2015Bounds, MaxSteps = 8e3)
 # Once again, Euler fails to convergence its error is too high
 
-obj = build_loss_objective(prob_short,Tsit5(),L2Loss(t_short,data),reltol=1e-9)
+obj = build_loss_objective(prob,Tsit5(),L2Loss(t,data),reltol=1e-9)
 res1 = bboptimize(obj;SearchRange = Xiang2015Bounds, MaxSteps = 8e3)
 # BB with Tsit5 converges just fine in 14.5 seconds
 
