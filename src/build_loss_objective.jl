@@ -23,18 +23,10 @@ function build_loss_objective(prob::DEProblem,alg,loss;mpg_autodiff = false,
       end
     end
     tmp_prob = prob_generator(prob,p)
-    if alg == nothing
-      if typeof(loss) <: Union{CostVData,L2Loss}
-        sol = solve(tmp_prob;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
-      else
-        sol = solve(tmp_prob;kwargs...)
-      end
+    if typeof(loss) <: Union{CostVData,L2Loss}
+      sol = solve(tmp_prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
     else
-      if typeof(loss) <: Union{CostVData,L2Loss}
-        sol = solve(tmp_prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
-      else
-        sol = solve(tmp_prob,alg;kwargs...)
-      end
+      sol = solve(tmp_prob,alg;kwargs...)
     end
     loss(sol)
   end
