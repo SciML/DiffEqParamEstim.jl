@@ -1,4 +1,4 @@
-julia 0.5
+julia 0.6-pre
 LsqFit 0.0.2
 DiffEqBase 1.7.0
 LossFunctions 0.0.2
