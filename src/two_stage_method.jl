@@ -16,31 +16,24 @@ function decide_kernel(kernel)
         return Epanechnikov_kernel
     elseif kernel == :Uniform
         return Uniform_kernel
-    else
+    elseif kernel == :TriTriangular
         return Triangular_kernel
-    end
-end
-function Epanechnikov_kernel(t)
-    if abs(t) > 1
-        return 0
+    elseif kernel == :Quartic
+      return Quartic_Kernel
+    elseif kernel == :Triweight
+      return Triweight_Kernel
+    elseif kernel == :Tricube
+      return Tricube_Kernel
+    elseif kernel == :Gaussian
+      return Gaussian_Kernel
+    elseif kernel == :Cosine
+      return Cosine_Kernel
+    elseif kernel == :Logistic
+      return Logistic_Kernel
+    elseif kernel == :Sigmoid
+      return Sigmoid_Kernel
     else
-        return 0.75*(1-t^2)
-    end
-end
-
-function Uniform_kernel(t)
-    if abs(t) > 1
-        return 0
-    else
-        return 0.5
-    end
-end
-
-function Triangular_kernel(t)
-    if abs(t) > 1
-        return 0
-    else
-        return (1-abs(t))
+      return Silverman_Kernel
     end
 end
 
