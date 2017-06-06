@@ -60,7 +60,7 @@ function construct_w(t,tpoints,h,kernel_function)
     end
     diagm(W)
 end
-function construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,e1,e2,kernel_function,tpoints,h,n)
+function construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,e1,e2,data,kernel_function,tpoints,h,n)
   for i in 1:n
       T1 = construct_t1(tpoints[i],tpoints)
       T2 = construct_t2(tpoints[i],tpoints)
@@ -81,7 +81,7 @@ function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
     kernel_function = decide_kernel(kernel)
     e1 = [1;0]
     e2 = [0;1;0]
-    construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,e1,e2,kernel_function,tpoints,h,n)
+    construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,e1,e2,data,kernel_function,tpoints,h,n)
 
 
     # Step - 2
