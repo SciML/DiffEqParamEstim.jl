@@ -60,7 +60,15 @@ function construct_w(t,tpoints,h,kernel_function)
     end
     diagm(W)
 end
-
+function construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,kernel_function,tpoints,h,n)
+  for i in 1:n
+      T1 = construct_t1(tpoints[i],tpoints)
+      T2 = construct_t2(tpoints[i],tpoints)
+      W = construct_w(tpoints[i],tpoints,h,kernel_function)
+      estimated_solution[i,:] = e1'*inv(T1'*W*T1)*T1'*W*data
+      estimated_derivative[i,:] = e2'*inv(T2'*W*T2)T2'*W*data
+  end
+end
 
 function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
                           loss_func = L2DistLoss,mpg_autodiff = false,
@@ -73,14 +81,7 @@ function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
     kernel_function = decide_kernel(kernel)
     e1 = [1;0]
     e2 = [0;1;0]
-
-    for i in 1:n
-        T1 = construct_t1(tpoints[i],tpoints)
-        T2 = construct_t2(tpoints[i],tpoints)
-        W = construct_w(tpoints[i],tpoints,h,kernel_function)
-        estimated_solution[i,:] = e1'*inv(T1'*W*T1)*T1'*W*data
-        estimated_derivative[i,:] = e2'*inv(T2'*W*T2)T2'*W*data
-    end
+    construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,kernel_function,tpoints,h,n)
 
 
     # Step - 2
