@@ -1,5 +1,4 @@
 using BlackBoxOptim
-include("test_problems.jl")
 
 println("Use BlackBoxOptim to fit the parameter")
 cost_function = build_loss_objective(prob1,Tsit5(),CostVData(t,data),maxiters=10000)
@@ -7,7 +6,6 @@ bound1 = Tuple{Float64, Float64}[(1, 2)]
 result = bboptimize(cost_function;SearchRange = bound1, MaxSteps = 11e3)
 @test result.archive_output.best_candidate[1] ≈ 1.5 atol=3e-1
 
-println("Multivariate")
 cost_function = build_loss_objective(prob2,Tsit5(),CostVData(t,data),maxiters=10000)
 bound2 = Tuple{Float64, Float64}[(1, 2),(2, 4)]
 result = bboptimize(cost_function;SearchRange = bound2, MaxSteps = 11e3)

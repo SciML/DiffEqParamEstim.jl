@@ -1,9 +1,7 @@
-using DiffEqParamEstim, Base.Test, NLopt
-include("test_examples.jl")
+using NLopt
 
 println("Use NLOpt to fit the parameter")
 
-### General Loss
 obj = build_loss_objective(prob1,Tsit5(),CostVData(t,data),maxiters=10000)
 
 opt = Opt(:LN_COBYLA, 1)

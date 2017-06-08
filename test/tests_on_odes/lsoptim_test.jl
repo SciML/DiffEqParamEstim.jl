@@ -1,7 +1,5 @@
 using LeastSquaresOptim
 
-include("test_problems.jl")
-
 println("Use LeastSquaresOptim to fit the parameter")
 cost_function = build_lsoptim_objective(prob1,t,data,Tsit5())
 x = [1.0]
@@ -13,7 +11,6 @@ res = LeastSquaresOptim.optimize!(LeastSquaresOptim.LeastSquaresProblem(x = x,
 
 @test result.minimizer[1] ≈ 1.5 atol=3e-1
 
-println("Multivariate")
 cost_function = build_lsoptim_objective(prob2,t,data,Tsit5())
 x = [1.3,2.7]
 res = LeastSquaresOptim.optimize!(LeastSquaresOptim.LeastSquaresProblem(x = x,

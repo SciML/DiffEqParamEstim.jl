@@ -1,9 +1,5 @@
 using Optim
-
-include("test_problems.jl")
-
-### General Loss
-obj = build_loss_objective(prob1,Tsit5(),CostVData(t,data),maxiters=10000
+obj = build_loss_objective(prob1,Tsit5(),CostVData(t,data),maxiters=10000)
 
 ### Optim Method
 
@@ -17,7 +13,6 @@ result = Optim.optimize(obj, [1.0], Optim.BFGS())
 #sol_optimized2 = solve(prob)
 #plot!(sol_optimized2,leg=false)
 
-println("Mutivariate")
 cost_function = build_loss_objective(prob2,Tsit5(),CostVData(t,data),maxiters=10000)
 result = Optim.optimize(cost_function, [1.0,2.5], Optim.BFGS())
 @test result.minimizer ≈ [1.5;3.0] atol=3e-1
