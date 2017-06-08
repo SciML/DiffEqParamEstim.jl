@@ -1,5 +1,7 @@
 using OrdinaryDiffEq, ParameterizedFunctions, DiffEqBase, RecursiveArrayTools
 
+using Base.Test
+
 # Here are the problems to solve
 
 f1 = @ode_def_nohes LotkaVolterraTest begin

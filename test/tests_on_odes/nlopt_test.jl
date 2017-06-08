@@ -1,4 +1,5 @@
 using DiffEqParamEstim, Base.Test, NLopt
+include("test_examples.jl")
 
 println("Use NLOpt to fit the parameter")
 
