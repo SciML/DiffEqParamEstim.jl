@@ -1,4 +1,4 @@
-The ParameterEstimation.jl package is licensed under the MIT "Expat" License:
+The DiffEqParamEstim.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2016: ChrisRackauckas.
 > 
