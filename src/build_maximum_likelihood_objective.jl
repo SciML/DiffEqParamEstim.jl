@@ -1,14 +1,14 @@
-export DiffEqMaximumLikelihood, build_maximum_likelihood_objective
+export DiffEqMaximumlikelihood, build_maximum_likelihood_objective
 
-immutable DiffEqMaximumLikelihood{F,F2} <: Function
+immutable DiffEqMaximumlikelihood{F,F2} <: Function
   maximum_likelihood_function::F
   maximum_likelihood_function2::F2
 end
 
-(f::DiffEqMaximumLikelihood)(x) = f.maximum_likelihood_function(x)
-(f::DiffEqMaximumLikelihood)(x,y) = f.maximum_likelihood_function2(x,y)
+(f::DiffEqMaximumlikelihood)(x) = f.maximum_likelihood_function(x)
+(f::DiffEqMaximumlikelihood)(x,y) = f.maximum_likelihood_function2(x,y)
 
-function build_maximum_likelihood_objective(prob::DEProblem,alg,likelihood;mpg_autodiff = false, verbose_opt = false,verbose_steps = 100, prob_generator = problem_new_parameters, kwargs...)
+function build_maximum_likelihood_objective(prob::DEProblem,alg,loss;mpg_autodiff = false, verbose_opt = false,verbose_steps = 100, prob_generator = problem_new_parameters, kwargs...)
   if verbose_opt
     count = 0 # keep track of # function evaluations
   end
@@ -20,8 +20,8 @@ function build_maximum_likelihood_objective(prob::DEProblem,alg,likelihood;mpg_a
       end
     end
     tmp_prob = prob_generator(prob,p)
-    sol = solve(tmp_prob,alg;saveat=likelihood.t,save_everystep=false,dense=false,kwargs...)
-    likelihood(sol)
+    sol = solve(tmp_prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
+    loss(sol)
   end
 
   if mpg_autodiff
@@ -36,8 +36,5 @@ function build_maximum_likelihood_objective(prob::DEProblem,alg,likelihood;mpg_a
     end
     maximum_likelihood_function(p)
   end
-  DiffEqMaximumLikelihood(maximum_likelihood_function,maximum_likelihood_function2)
-
-
-
+  DiffEqMaximumlikelihood(maximum_likelihood_function,maximum_likelihood_function2)
 end

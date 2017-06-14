@@ -1,3 +1,5 @@
+export DECostFunction, CostVData, L2Loss, MaximumLikelihood
+
 type CostVData{T,D,L} <: DECostFunction
   t::T
   data::D
@@ -56,8 +58,9 @@ function (f::MaximumLikelihood)(sol::DESolution)
   for i in 1:fill_length
     push!(sol.u,fill(Inf,size(sol[1])))
   end
-  prod = 1.0
-  @inbounds for i in 1:length(sol)
+  prod = one(eltype(sol.u))
+
+  @fastmath @inbounds for i in 1:length(sol)
     for j in 1:length(sol[i])
       prod *= exp(((data[j,i] - sol[j,i])^2)/(-2*variance[j,i]))/(sqrt(2*π*variance[j,i]))
     end

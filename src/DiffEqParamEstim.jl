@@ -12,6 +12,5 @@ include("build_lsoptim_objective.jl")
 include("build_maximum_likelihood_objective.jl")
 include("two_stage_method.jl")
 include("kernels.jl")
-export DECostFunction, CostVData, L2Loss, MaximumLikelihood
 
 end # module
