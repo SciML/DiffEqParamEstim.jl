@@ -42,3 +42,25 @@ end
 function (f::L2Loss)(sol::AbstractMonteCarloSolution)
   mean(f.(sol.u))
 end
+
+type MaximumLikelihood{T,D,V} <: DECostFunction
+  t::T
+  data::D
+  variance::V
+end
+
+function (f::MaximumLikelihood)(sol::DESolution)
+  data = f.data
+  variance = f.variance
+  fill_length = length(f.t)-length(sol)
+  for i in 1:fill_length
+    push!(sol.u,fill(Inf,size(sol[1])))
+  end
+  prod = 1.0
+  @inbounds for i in 1:length(sol)
+    for j in 1:length(sol[i])
+      prod *= exp(((data[j,i] - sol[j,i])^2)/(-2*variance[j,i]))/(sqrt(2*π*variance[j,i]))
+    end
+  end
+  prod
+end
