@@ -1,4 +1,15 @@
-export DECostFunction, CostVData, L2Loss, MaximumLikelihood
+export DECostFunction, CostVData, L2Loss, MaximumLikelihood, Regularization
+
+type Regularization{L,P} <: DECostFunction
+  λ::L
+  penalty::P
+end
+
+function (f::Regularization)(p)
+  f.λ* value(f.penalty, p)
+end
+
+Regularization(λ;penalty = MahalanobisPenalty) = Regularization(λ, penalty)
 
 type CostVData{T,D,L} <: DECostFunction
   t::T
