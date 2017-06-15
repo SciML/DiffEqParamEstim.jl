@@ -6,7 +6,7 @@ type Regularization{L,P} <: DECostFunction
 end
 
 function (f::Regularization)(p)
-  f.λ* value(f.penalty, vec([p]))
+  f.λ*value(f.penalty, vec(p))
 end
 
 
@@ -68,7 +68,7 @@ function (f::MaximumLikelihood)(sol::DESolution)
   for i in 1:fill_length
     push!(sol.u,fill(Inf,size(sol[1])))
   end
-  prod = one(eltype(sol.u))
+  prod = one(eltype(sol.u[1]))
 
   @fastmath @inbounds for i in 1:length(sol)
     for j in 1:length(sol[i])
