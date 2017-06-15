@@ -16,6 +16,8 @@ for i in 1:size(original_solution_matrix_form)[1]
 end
 #variance
 data = original_solution_matrix_form + error
-
+W = eye(1)
+using PenaltyFunctions
+penalty = MahalanobisPenalty(W)
 cost_function = build_loss_objective(prob,Tsit5(),MaximumLikelihood(t,data,variance),Regularization(0,penalty),maxiters=10000)
 #maximum_likelihood_function
