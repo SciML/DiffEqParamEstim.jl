@@ -17,5 +17,5 @@ end
 #variance
 data = original_solution_matrix_form + error
 
-maximum_likelihood_function = build_maximum_likelihood_objective(prob,Tsit5(),MaximumLikelihood(t,data,variance),maxiters=10000)
-maximum_likelihood_function
+cost_function = build_loss_objective(prob,Tsit5(),MaximumLikelihood(t,data,variance),Regularization(0,penalty),maxiters=10000)
+#maximum_likelihood_function

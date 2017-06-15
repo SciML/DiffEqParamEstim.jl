@@ -6,10 +6,9 @@ type Regularization{L,P} <: DECostFunction
 end
 
 function (f::Regularization)(p)
-  f.λ* value(f.penalty, vec(p))
+  f.λ* value(f.penalty, vec([p]))
 end
 
-Regularization(λ;penalty = MahalanobisPenalty) = Regularization(λ, penalty)
 
 type CostVData{T,D,L} <: DECostFunction
   t::T
