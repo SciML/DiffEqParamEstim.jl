@@ -76,8 +76,8 @@ function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
     f = prob.f
     n = length(tpoints)
     h = (n^(-1/5))*(n^(-3/35))*((log(n))^(-1/16))
-    estimated_solution = zeros(n,size(data)[2])
-    estimated_derivative = zeros(n,size(data)[2])
+    estimated_solution = zeros(size(data))
+    estimated_derivative = zeros(size(data))
     kernel_function = decide_kernel(kernel)
     e1 = [1;0]
     e2 = [0;1;0]
@@ -93,8 +93,7 @@ function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
           ff(tpoints[i],estimated_solution[i,:],du)
           push!(sol,copy(du))
         end
-        out = vecvec_to_mat(sol)
-        norm(value(loss_func(),vec(out),vec(estimated_derivative)))
+        norm(value(loss_func(),vec(sol),vec(estimated_derivative)))
     end
 
     if mpg_autodiff

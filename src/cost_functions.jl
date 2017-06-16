@@ -9,8 +9,7 @@ function (f::CostVData)(sol::DESolution)
   for i in 1:fill_length
     push!(sol.u,fill(Inf,size(sol[1])))
   end
-  y = vec(vecvec_to_mat(sol.u))
-  norm(value(f.loss_func(),vec(f.data),vec(y)))
+  norm(value(f.loss_func(),vec(f.data),vec(sol)))
 end
 
 function (f::CostVData)(sol::AbstractMonteCarloSolution)
