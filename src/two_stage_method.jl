@@ -88,13 +88,12 @@ function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
     du = similar(prob.u0)
     cost_function = function (p)
         ff = (t,u,du) -> prob.f(t,u,p,du)
-        sol = typeof(prob.u0)[]
+        sol = Vector{typeof(prob.u0)}(n)
         for i in 1:n
           ff(tpoints[i],estimated_solution[i,:],du)
-          push!(sol,copy(du))
+          sol[i] = copy(du)
         end
-        out = vecarr_to_arr(sol)
-        norm(value(loss_func(),vec(out'),vec(estimated_derivative)))
+        norm(value(loss_func(),vec(estimated_derivative'),vec(VectorOfArray(sol))))
     end
 
     if mpg_autodiff
