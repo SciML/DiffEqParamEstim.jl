@@ -25,5 +25,5 @@ prob3 = ODEProblem(f3,u0,tspan)
 # Generate random data based off of the known solution
 sol = solve(prob1,Tsit5())
 t = collect(linspace(0,10,200))
-randomized = [(sol(t[i]) + .01randn(2)) for i in 1:length(t)]
-data = vecarr_to_arr(randomized)
+randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
+data = convert(Array,randomized)

@@ -27,8 +27,8 @@ tinterval_short = 0:h:tstop
 t_short = collect(tinterval_short)
 
 # Generate Data
-data_short = vecarr_to_arr(solve(prob_short,Euler(),tstops=t_short))
-data = vecarr_to_arr(solve(prob,Euler(),tstops=t))
+data_short = convert(Array,solve(prob_short,Euler(),tstops=t_short))
+data = convert(Array,solve(prob,Euler(),tstops=t))
 
 # Use BlackBoxOptim
 obj_short = build_loss_objective(prob_short,Euler(),L2Loss(t_short,data_short),tstops=t_short,dense=false)
