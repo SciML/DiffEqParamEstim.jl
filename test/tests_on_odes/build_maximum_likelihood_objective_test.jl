@@ -21,10 +21,10 @@ maximum_likelihood_cost_function = build_loss_objective(prob1,Tsit5(),MaximumLik
 
 using NLopt
 opt = Opt(:GN_ESCH, 1)
-max_objective!(opt, maximum_likelihood_cost_function.cost_function2)
+min_objective!(opt, maximum_likelihood_cost_function.cost_function2)
 lower_bounds!(opt,[0.0])
 upper_bounds!(opt,[5.0])
 xtol_rel!(opt,1e-3)
 maxeval!(opt, 10000)
-(maxf,maxx,ret) = NLopt.optimize(opt,[1.3])
+(minf,minx,ret) = NLopt.optimize(opt,[1.3])
 @test minx[1] ≈ 1.3 atol=1e-1

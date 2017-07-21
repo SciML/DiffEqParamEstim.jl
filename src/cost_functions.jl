@@ -68,7 +68,7 @@ function (f::MaximumLikelihood)(sol::DESolution)
   for i in 1:fill_length
     push!(sol.u,fill(Inf,size(sol[1])))
   end
-  prod = -1*one(eltype(sol.u[1]))
+  prod = -one(eltype(sol.u[1]))
 
   @fastmath @inbounds for i in 1:length(sol)
     for j in 1:length(sol[i])
