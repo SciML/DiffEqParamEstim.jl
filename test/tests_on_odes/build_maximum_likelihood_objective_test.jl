@@ -17,7 +17,14 @@ end
 #variance
 maximum_likelihood_data = original_solution_matrix_form + error
 #maximum_likelihood_function
-maximum_likelihood_cost_function = build_loss_objective(prob1,Tsit5(),MaximumLikelihood(t,maximum_likelihood_data,variance),regularization = Regularization(0,penalty),maxiters=10000)
+maximum_likelihood_cost_function = build_loss_objective(prob1,Tsit5(),MaximumLikelihood(t,maximum_likelihood_data,variance),maxiters=10000)
 
-using Optim
-result2 = optimize(maximum_likelihood_cost_function, [1.42], BFGS())
+using NLopt
+opt = Opt(:GN_ESCH, 1)
+max_objective!(opt, maximum_likelihood_cost_function.cost_function2)
+lower_bounds!(opt,[0.0])
+upper_bounds!(opt,[5.0])
+xtol_rel!(opt,1e-3)
+maxeval!(opt, 10000)
+(maxf,maxx,ret) = NLopt.optimize(opt,[1.3])
+@test minx[1] ≈ 1.3 atol=1e-1
