@@ -23,7 +23,7 @@ function build_loss_objective(prob::DEProblem,alg,loss,regularization=nothing;mp
       end
     end
     tmp_prob = prob_generator(prob,p)
-    if typeof(loss) <: Union{CostVData,L2Loss,MaximumLikelihood}
+    if typeof(loss) <: Union{CostVData,L2Loss}
       sol = solve(tmp_prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
     else
       sol = solve(tmp_prob,alg;kwargs...)

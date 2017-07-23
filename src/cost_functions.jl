@@ -1,4 +1,4 @@
-export DECostFunction, CostVData, L2Loss, MaximumLikelihood, Regularization
+export DECostFunction, CostVData, L2Loss, Regularization
 
 type Regularization{L,P} <: DECostFunction
   λ::L
