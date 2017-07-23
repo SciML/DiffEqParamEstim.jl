@@ -43,9 +43,9 @@ t_short = collect(tinterval_short)
 
 # Generate Data
 data_sol_short = solve(prob_short,Vern7(),saveat=t_short,reltol=1e-12,abstol=1e-12)
-data_short = vecarr_to_arr(data_sol_short)
+data_short = convert(Array,data_sol_short)
 data_sol = solve(prob,Vern7(),saveat=t,reltol=1e-12,abstol=1e-12)
-data = vecarr_to_arr(data_sol)
+data = convert(Array,data_sol)
 
 # Plot the data
 

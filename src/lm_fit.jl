@@ -8,8 +8,7 @@ function lm_fit(prob::DEProblem,t,data,p0,alg;
     model = function (t,p)
       tmp_prob = prob_generator(prob,p)
       sol = solve(tmp_prob,alg;saveat=t,save_everystep=false,dense=false,kwargs...)
-      y = vecvec_to_mat(sol.u)
-      vec(y)
+      vec(sol)
     end
     curve_fit(model,t,vec(data),p0;kwargs...)
 end

@@ -65,8 +65,8 @@ function construct_estimated_solution_and_derivative!(estimated_solution,estimat
       T1 = construct_t1(tpoints[i],tpoints)
       T2 = construct_t2(tpoints[i],tpoints)
       W = construct_w(tpoints[i],tpoints,h,kernel_function)
-      estimated_solution[i,:] = e1'*inv(T1'*W*T1)*T1'*W*data
-      estimated_derivative[i,:] = e2'*inv(T2'*W*T2)T2'*W*data
+      estimated_solution[i,:] = e1'*inv(T1'*W*T1)*T1'*W*data'
+      estimated_derivative[i,:] = e2'*inv(T2'*W*T2)T2'*W*data'
   end
 end
 
@@ -76,8 +76,8 @@ function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
     f = prob.f
     n = length(tpoints)
     h = (n^(-1/5))*(n^(-3/35))*((log(n))^(-1/16))
-    estimated_solution = zeros(n,size(data)[2])
-    estimated_derivative = zeros(n,size(data)[2])
+    estimated_solution = zeros(n,size(data)[1])
+    estimated_derivative = zeros(n,size(data)[1])
     kernel_function = decide_kernel(kernel)
     e1 = [1;0]
     e2 = [0;1;0]
@@ -88,13 +88,12 @@ function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
     du = similar(prob.u0)
     cost_function = function (p)
         ff = (t,u,du) -> prob.f(t,u,p,du)
-        sol = typeof(prob.u0)[]
+        sol = Vector{typeof(prob.u0)}(n)
         for i in 1:n
           ff(tpoints[i],estimated_solution[i,:],du)
-          push!(sol,copy(du))
+          sol[i] = copy(du)
         end
-        out = vecvec_to_mat(sol)
-        norm(value(loss_func(),vec(out),vec(estimated_derivative)))
+        norm(value(loss_func(),vec(estimated_derivative'),vec(VectorOfArray(sol))))
     end
 
     if mpg_autodiff

@@ -14,8 +14,8 @@ prob = ODEProblem(pf,u0,tspan)
 sol = solve(prob,Tsit5())
 
 t = collect(linspace(0,10,200))
-randomized = [(sol(t[i]) + .01randn(2)) for i in 1:length(t)]
-data = vecvec_to_mat(randomized)
+randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
+data = convert(Array,randomized)
 
 monte_prob = MonteCarloProblem(prob)
 obj = build_loss_objective(monte_prob,Tsit5(),CostVData(t,data),maxiters=10000,verbose=false,num_monte=5)
