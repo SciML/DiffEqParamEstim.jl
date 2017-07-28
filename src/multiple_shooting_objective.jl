@@ -9,7 +9,7 @@ my_problem_new_parameters = function (prob::ODEProblem,p,t1,t2,data)
   f = (t,u,du) -> prob.f(t,u,p,du)
   uEltype = eltype(p)
   tspan = (uEltype(t1),uEltype(t2))
-  u0 = [uEltype(data[:,1][i]) for i in 1:length(prob.u0)]
+  u0 = [uEltype(data[:,t1][i]) for i in 1:length(prob.u0)]
   ODEProblem(prob.f,u0,(t1,t2))
 end
 
