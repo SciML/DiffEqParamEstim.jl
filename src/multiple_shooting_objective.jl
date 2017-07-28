@@ -39,14 +39,12 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,timestamp=nothing;
         sol = solve(tmp_prob,alg;kwargs...)
       end
       loss(sol)
-    end
       multiple_shooting_cost_function +=loss(sol)
-      for j in length(sol(timestamps[i]))
-        push!(ec[i]=sol(timestamps[i])[i])
+      for j in 1:length(sol(timestamps[i]))
+        push!(constraints, ec[i]=sol(timestamps[i])[j])
       end
         ec = sol(timestamps[i])
-      end
-
-
-  DiffEqObjective(cost_function,cost_function2)
+    end
+  end
+  MultipleShootingObjective(multiple_shooting_cost_function,cost_function2)
 end
