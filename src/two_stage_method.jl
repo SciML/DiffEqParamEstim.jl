@@ -109,13 +109,16 @@ function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
       if length(grad)>0
         g!(p,grad)
       end
+      loss_val = cost_function(p)
       if verbose
         count::Int += 1
         if mod(count,verbose_steps) == 0
-          println("f_$count($p)")
+          println("Iteration: $count")
+          println("Current Cost: $loss_val")
+          println("Parameters: $p")
         end
       end
-      cost_function(p)
+      loss_val
     end
 
     return TwoStageCost(cost_function, cost_function2, estimated_solution, estimated_derivative)
