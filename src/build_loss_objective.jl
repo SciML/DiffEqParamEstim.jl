@@ -16,24 +16,27 @@ function build_loss_objective(prob::DEProblem,alg,loss,regularization=nothing;mp
     count = 0 # keep track of # function evaluations
   end
   cost_function = function (p)
-    if verbose_opt
-      count::Int += 1
-      if mod(count,verbose_steps) == 0
-        println("f_$count($p)")
-      end
-    end
     tmp_prob = prob_generator(prob,p)
     if typeof(loss) <: Union{CostVData,L2Loss}
       sol = solve(tmp_prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
     else
       sol = solve(tmp_prob,alg;kwargs...)
     end
-    if regularization == nothing
-      loss(sol)
-    else
+    loss_val = loss(sol)
+    if regularization != nothing
       loss(sol) + regularization(p)
     end
-
+    
+    if verbose_opt
+      count::Int += 1
+      if mod(count,verbose_steps) == 0
+        println("Iteration: $count")
+        println("Current Cost: $loss_val")
+        println("Parameters: $p")
+      end
+    end
+    
+    loss_val
   end
 
   if mpg_autodiff
