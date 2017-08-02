@@ -1,3 +1,15 @@
+export DECostFunction, CostVData, L2Loss, Regularization
+
+type Regularization{L,P} <: DECostFunction
+  λ::L
+  penalty::P
+end
+
+function (f::Regularization)(p)
+  f.λ*value(f.penalty, p)
+end
+
+
 type CostVData{T,D,L} <: DECostFunction
   t::T
   data::D
