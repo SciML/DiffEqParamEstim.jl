@@ -24,9 +24,9 @@ function build_loss_objective(prob::DEProblem,alg,loss,regularization=nothing;mp
     end
     loss_val = loss(sol)
     if regularization != nothing
-      loss(sol) + regularization(p)
+      loss_val = loss(sol) + regularization(p)
     end
-    
+
     if verbose_opt
       count::Int += 1
       if mod(count,verbose_steps) == 0
@@ -35,7 +35,7 @@ function build_loss_objective(prob::DEProblem,alg,loss,regularization=nothing;mp
         println("Parameters: $p")
       end
     end
-    
+
     loss_val
   end
 
