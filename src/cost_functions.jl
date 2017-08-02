@@ -6,7 +6,7 @@ type Regularization{L,P} <: DECostFunction
 end
 
 function (f::Regularization)(p)
-  f.λ*value(f.penalty, vec(p))
+  f.λ*value(f.penalty, p)
 end
 
 
