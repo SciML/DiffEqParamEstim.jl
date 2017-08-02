@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, ParameterizedFunctions, DiffEqBase, RecursiveArrayTools, PenaltyFunctions, Optim
+using PenaltyFunctions, Optim
 
 cost_function_1 = build_loss_objective(prob1,Tsit5(),L2Loss(t,data),Regularization(0.6,L2Penalty()),maxiters=10000)
 cost_function_2 = build_loss_objective(prob2,Tsit5(),L2Loss(t,data),Regularization(0.1,MahalanobisPenalty(eye(2))),maxiters=10000)
