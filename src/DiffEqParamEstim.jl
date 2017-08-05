@@ -1,7 +1,7 @@
 __precompile__()
 
 module DiffEqParamEstim
-using DiffEqBase, LsqFit, LossFunctions, RecursiveArrayTools, ForwardDiff, Calculus
+using DiffEqBase, LsqFit, LossFunctions, PenaltyFunctions, RecursiveArrayTools, ForwardDiff, Calculus
 
 using Compat
 
@@ -11,6 +11,5 @@ include("build_loss_objective.jl")
 include("build_lsoptim_objective.jl")
 include("two_stage_method.jl")
 include("kernels.jl")
-export DECostFunction, CostVData, L2Loss
 
 end # module
