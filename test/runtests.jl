@@ -15,5 +15,6 @@ tic()
 end
 
 @time @testset "ParameterizedFunction Type" begin include("parameterized_function_type.jl") end
+@time @testset "DDE Tests" begin include("dde_tests.jl") end
 @time @testset "Test on Monte" begin include("test_on_monte.jl") end
 toc()
