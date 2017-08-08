@@ -1,6 +1,6 @@
 export DiffEqObjective, build_loss_objective
 
-immutable DiffEqObjective{F,F2} <: Function
+struct DiffEqObjective{F,F2} <: Function
   cost_function::F
   cost_function2::F2
 end
