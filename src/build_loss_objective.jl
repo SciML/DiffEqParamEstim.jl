@@ -22,8 +22,10 @@ function build_loss_objective(prob::DEProblem,alg,loss,regularization=nothing;mp
     else
       sol = solve(tmp_prob,alg;kwargs...)
     end
-    loss_val = loss(sol)
-    if regularization != nothing
+    
+    if regularization == nothing
+      loss_val = loss(sol)
+    else
       loss_val = loss(sol) + regularization(p)
     end
 
