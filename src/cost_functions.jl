@@ -4,7 +4,7 @@ type Regularization{L,P} <: DECostFunction
   λ::L
   penalty::P
 end
-Regularization(λ,penalty=L2Penalty()) = Regularization{typeof(λ),typeof(penalty)}(λ,penalty)
+Regularization(λ) = Regularization{typeof(λ),typeof(L2Penalty())}(λ,L2Penalty())
 
 function (f::Regularization)(p)
   f.λ*value(f.penalty, p)
