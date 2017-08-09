@@ -1,6 +1,6 @@
 export DECostFunction, CostVData, L2Loss, Regularization
 
-type Regularization{L,P} <: DECostFunction
+struct Regularization{L,P} <: DECostFunction
   λ::L
   penalty::P
 end
@@ -11,7 +11,7 @@ function (f::Regularization)(p)
 end
 
 
-type CostVData{T,D,L} <: DECostFunction
+struct CostVData{T,D,L} <: DECostFunction
   t::T
   data::D
   loss_func::L
@@ -31,7 +31,7 @@ end
 
 CostVData(t,data;loss_func = L2DistLoss) = CostVData(t,data,loss_func)
 
-type L2Loss{T,D} <: DECostFunction
+struct L2Loss{T,D} <: DECostFunction
   t::T
   data::D
 end
