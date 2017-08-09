@@ -9,11 +9,8 @@ tic()
   include("tests_on_odes/nlopt_test.jl")
   include("tests_on_odes/two_stage_method_test.jl")
   include("tests_on_odes/regularization_test.jl")
-
-  # Note: The current version of Evolutionary.jl and BlackBoxOptim.jl do not support julia 0.6+.
-  # Once they start supporting julia 0.6+. Uncomment the 2 lines below.
-  # include("tests_on_odes/blackboxoptim_test.jl")
-  # include("tests_on_odes/genetic_algorithm_test.jl")
+  include("tests_on_odes/blackboxoptim_test.jl")
+  #include("tests_on_odes/genetic_algorithm_test.jl") # Not updated to v0.6
 end
 
 @time @testset "ParameterizedFunction Type" begin include("parameterized_function_type.jl") end
