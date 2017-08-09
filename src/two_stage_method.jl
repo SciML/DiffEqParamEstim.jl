@@ -1,7 +1,7 @@
 export TwoStageCost, two_stage_method
 
 
-immutable TwoStageCost{F,F2,D} <: Function
+struct TwoStageCost{F,F2,D} <: Function
   cost_function::F
   cost_function2::F2
   estimated_solution::D
