@@ -7,3 +7,4 @@ NLopt
 DiffEqMonteCarlo
 DelayDiffEq
 Evolutionary
+BlackBoxOptim
