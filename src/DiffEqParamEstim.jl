@@ -11,5 +11,5 @@ include("build_loss_objective.jl")
 include("build_lsoptim_objective.jl")
 include("two_stage_method.jl")
 include("kernels.jl")
-include("multiple_shooting_objective.jl")
+include("multiple_shooting_method.jl")
 end # module
