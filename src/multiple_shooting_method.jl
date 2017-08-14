@@ -13,6 +13,30 @@ my_problem_new_parameters = function (prob::ODEProblem,p,t1,t2,data)
   ODEProblem(prob.f,u0,(t1,t2))
 end
 
+function construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob::ODEProblem,t1,t2,data)
+  cost_function = function (p)
+    if verbose_opt
+      count::Int += 1
+      if mod(count,verbose_steps) == 0
+        println("f_$count($p)")
+      end
+    end
+    tmp_prob = my_problem_new_parameters(prob,p,t1,t2,data)
+    if typeof(loss) <: Union{CostVData,L2Loss}
+      sol = solve(tmp_prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
+    else
+      sol = solve(tmp_prob,alg;kwargs...)
+    end
+    multiple_shooting_cost +=loss(sol)
+    # Construct the constraints
+    if boundary_condition != nothing
+      for j in 1:length(sol(t1))
+        push!(constraints, boundary_condition[j]=sol(t1)[j])
+      end
+    end
+    boundary_condition = sol(t2)
+  end  #end of cost_function function
+end #end of construct_objective_constraints
 
 function multiple_shooting_method(prob::DEProblem,alg,loss,timestamp=nothing;mpg_autodiff = false,
                               verbose_opt = false,verbose_steps = 100,
@@ -23,70 +47,28 @@ function multiple_shooting_method(prob::DEProblem,alg,loss,timestamp=nothing;mpg
   end
   multiple_shooting_cost = 0.0
   constraints = []
-  # timestamps = sort(sample(2:length(t)-1, 10, replace = false))
+  boundary_condition = nothing
   if timestamp == nothing
     length_of_interval = floor(length(t)/10)
     for i in 1:10:
-      cost_function = function (p)
-        if verbose_opt
-          count::Int += 1
-          if mod(count,verbose_steps) == 0
-            println("f_$count($p)")
-          end
-        end
-        if i==1
-          tmp_prob = my_problem_new_parameters(prob,p,prob1.tspan[1],t[length_of_interval],data)
-        elseif i==10
-          tmp_prob = my_problem_new_parameters(prob,p,t[9*length_of_interval],prob.tspan[2],data)
-        else
-          tmp_prob = my_problem_new_parameters(prob,p,t[(i-1)*length_of_interval],t[i*length_of_interval],data)
-        end
-        if typeof(loss) <: Union{CostVData,L2Loss}
-          sol = solve(tmp_prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
-        else
-          sol = solve(tmp_prob,alg;kwargs...)
-        end
-        multiple_shooting_cost +=loss(sol)
-        # Contructing the constraints
-        if i != 1
-          for j in 1:length(sol(t[length_of_interval]))
-            push!(constraints, ec[i]=sol(t[(i-1)*length_of_interval])[j])
-          end
-        end
-          ec = sol(t[i*length_of_interval])
-      end   #end of cost_function
-    end   #end of outer loop
+      if i==1
+        construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,prob.tspan[1],t[length_of_interval],data)
+      elseif i==10
+        construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,t[9*length_of_interval],prob.tspan[2],data)
+      else
+        construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,t[(i-1)*length_of_interval],t[i*length_of_interval],data)
+      end
+    end   #end of for loop
   else
     for i in 1:length(timestamp)
-      cost_function = function (p)
-        if verbose_opt
-          count::Int += 1
-          if mod(count,verbose_steps) == 0
-            println("f_$count($p)")
-          end
-        end
         if i==1
-          tmp_prob = my_problem_new_parameters(prob,p,prob.tspan[1],timestamp[1],data)
+          construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,prob.tspan[1],timestamp[1],data)
         elseif i==length(timestamp)
-          tmp_prob = my_problem_new_parameters(prob,p,timestamp[i],prob.tspan[2],data)
+          construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,timestamp[i],prob.tspan[2],data)
         else
-          tmp_prob = my_problem_new_parameters(prob,p,timestamp[i-1],timestamp[i],data)
+          construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,timestamp[i-1],timestamp[i],data)
         end
-        if typeof(loss) <: Union{CostVData,L2Loss}
-          sol = solve(tmp_prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
-        else
-          sol = solve(tmp_prob,alg;kwargs...)
-        end
-        multiple_shooting_cost +=loss(sol)
-        # Contructing the constraints
-        if i != 1
-          for j in 1:length(sol(timestamp[1]))
-            push!(constraints, ec[i]=sol(timestamp[i-1])[j])
-          end
-        end
-        ec = sol(timestamp[i])
-      end
-    end
+      end  #end of for loop
   end   #end of timestamp if condition
   MultipleShootingObjective(multiple_shooting_cost,constraints)
 end
