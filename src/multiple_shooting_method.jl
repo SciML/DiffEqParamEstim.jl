@@ -15,12 +15,6 @@ end
 
 function construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob::ODEProblem,t1,t2,data)
   cost_function = function (p)
-    if verbose_opt
-      count::Int += 1
-      if mod(count,verbose_steps) == 0
-        println("f_$count($p)")
-      end
-    end
     tmp_prob = my_problem_new_parameters(prob,p,t1,t2,data)
     if typeof(loss) <: Union{CostVData,L2Loss}
       sol = solve(tmp_prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
@@ -50,28 +44,11 @@ function multiple_shooting_method(prob::DEProblem,alg,loss,timestamp=nothing;mpg
   data = loss.data
   boundary_condition = nothing
   if timestamp == nothing
-    t = loss.t
-    length_of_interval = Int(floor(length(t)/10))
-    for i in 1:10
-      if i==1
-        construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,prob.tspan[1],t[length_of_interval],data)
-      elseif i==10
-        construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,t[9*length_of_interval],prob.tspan[2],data)
-      else
-        construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,t[(i-1)*length_of_interval],t[i*length_of_interval],data)
-      end
-    end   #end of for loop
-  else
-    for i in 1:length(timestamp)
-        if i==1
-          construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,prob.tspan[1],timestamp[1],data)
-        elseif i==length(timestamp)
-          construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,timestamp[i],prob.tspan[2],data)
-        else
-          construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,timestamp[i-1],timestamp[i],data)
-        end
-      end  #end of for loop
-  end   #end of timestamp if condition
+    timestamp = linspace(prob.tspan[1],prob.tspan[2],10)
+  end
+  for i in 1:length(timestamp)-1
+    construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,timestamp[i],timestamp[i+1],data)
+  end  #end of for loop
   if verbose_opt
     count::Int += 1
     if mod(count,verbose_steps) == 0
@@ -83,26 +60,14 @@ function multiple_shooting_method(prob::DEProblem,alg,loss,timestamp=nothing;mpg
   if mpg_autodiff
     gcfg = ForwardDiff.GradientConfig(zeros(num_params(prob)))
     g! = (x, out) -> ForwardDiff.gradient!(out, multiple_shooting_cost, x, gcfg)
-    if timestamp
-      for i in 1:(timestamp-1)*length(prob.u0)
-        f! = (x, out) -> ForwardDiff.gradient!(out, constraints[i], x, gcfg)
-      end
-    else
-      for i in 1:9*length(prob.u0)
-        f! = (x, out) -> ForwardDiff.gradient!(out, constraints[i], x, gcfg)
-      end
+    for i in 1:(length(timestamp)-1)*length(prob.u0)
+      f! = (x, out) -> ForwardDiff.gradient!(out, constraints[i], x, gcfg)
     end
   else
     g! = (x, out) -> Calculus.finite_difference!(multiple_shooting_cost,x,out,:central)
-    if timestamp != nothing
-      for i in 1:(timestamp-1)*length(prob.u0)
-        f! = (x, out) -> Calculus.finite_difference!(constraints[i],x,out,:central)
-      end
-    else
-      for i in 1:9*length(prob.u0)
-        f! = (x, out) -> Calculus.finite_difference!(constraints[i],x,out,:central)
-      end
+    for i in 1:(length(timestamp)-1)*length(prob.u0)
+      f! = (x, out) -> Calculus.finite_difference!(constraints[i],x,out,:central)
     end
-  end
+  end #end of if condition
   MultipleShootingObjective(multiple_shooting_cost,constraints)
 end
