@@ -24,5 +24,5 @@ lower_bounds!(opt,[1.0])
 upper_bounds!(opt,[3.0])
 xtol_rel!(opt,1e-3)
 maxeval!(opt, 100000)
-(minf,minx,ret) = NLopt.optimize(opt,[0.2])
+(minf,minx,ret) = NLopt.optimize(opt,[1.2])
 @test minx[1] ≈ 1.5 atol=1e-1
