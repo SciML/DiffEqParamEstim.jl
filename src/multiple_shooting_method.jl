@@ -94,7 +94,7 @@ function multiple_shooting_method(prob::DEProblem,alg,loss,timestamp=nothing;mpg
     end
   else
     g! = (x, out) -> Calculus.finite_difference!(multiple_shooting_cost,x,out,:central)
-    if timestamp
+    if timestamp == nothing
       for i in 1:(timestamp-1)*length(prob.u0)
         f! = (x, out) -> Calculus.finite_difference!(constraints[i],x,out,:central)
       end
