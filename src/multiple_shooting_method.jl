@@ -44,7 +44,7 @@ function multiple_shooting_method(prob::DEProblem,alg,loss,timestamp=nothing;mpg
   data = loss.data
   boundary_condition = nothing
   if timestamp == nothing
-    timestamp = linspace(prob.tspan[1],prob.tspan[2],10)
+    timestamp = collect(linspace(prob.tspan[1],prob.tspan[2],10))
   end
   for i in 1:length(timestamp)-1
     construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,timestamp[i],timestamp[i+1],data)
