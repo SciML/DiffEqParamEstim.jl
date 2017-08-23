@@ -49,7 +49,7 @@ function multiple_shooting_method(prob::DEProblem,alg,loss,timestamp=nothing;mpg
   constraints = []
   boundary_condition = nothing
   if timestamp == nothing
-    length_of_interval = floor(length(t)/10)
+    length_of_interval = floor(length(loss.t)/10)
     for i in 1:10
       if i==1
         construct_objective_constraints!(multiple_shooting_cost,constraints,boundary_condition,prob,prob.tspan[1],t[length_of_interval],data)
