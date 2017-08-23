@@ -31,7 +31,7 @@ function construct_objective_constraints!(multiple_shooting_cost,constraints,bou
     # Construct the constraints
     if boundary_condition != nothing
       for j in 1:length(sol(t1))
-        push!(constraints, boundary_condition[j]=sol(t1)[j])
+        push!(constraints, boundary_condition[j]-sol(t1)[j])
       end
     end
     boundary_condition = sol(t2)
@@ -70,5 +70,37 @@ function multiple_shooting_method(prob::DEProblem,alg,loss,timestamp=nothing;mpg
         end
       end  #end of for loop
   end   #end of timestamp if condition
+  if verbose_opt
+    count::Int += 1
+    if mod(count,verbose_steps) == 0
+      println("Iteration: $count")
+      println("Current Cost: $multiple_shooting_cost")
+      println("Parameters: $p")
+    end
+  end
+  if mpg_autodiff
+    gcfg = ForwardDiff.GradientConfig(zeros(num_params(prob)))
+    g! = (x, out) -> ForwardDiff.gradient!(out, multiple_shooting_cost, x, gcfg)
+    if timestamp
+      for i in 1:(timestamp-1)*length(prob.u0)
+        f! = (x, out) -> ForwardDiff.gradient!(out, constraints[i], x, gcfg)
+      end
+    else
+      for i in 1:9*length(prob.u0)
+        f! = (x, out) -> ForwardDiff.gradient!(out, constraints[i], x, gcfg)
+      end
+    end
+  else
+    g! = (x, out) -> Calculus.finite_difference!(multiple_shooting_cost,x,out,:central)
+    if timestamp
+      for i in 1:(timestamp-1)*length(prob.u0)
+        f! = (x, out) -> Calculus.finite_difference!(constraints[i],x,out,:central)
+      end
+    else
+      for i in 1:9*length(prob.u0)
+        f! = (x, out) -> Calculus.finite_difference!(constraints[i],x,out,:central)
+      end
+    end
+  end
   MultipleShootingObjective(multiple_shooting_cost,constraints)
 end
