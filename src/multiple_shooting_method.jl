@@ -47,6 +47,7 @@ function multiple_shooting_method(prob::DEProblem,alg,loss,timestamp=nothing;mpg
   end
   multiple_shooting_cost = 0.0
   constraints = []
+  data = loss.data
   boundary_condition = nothing
   if timestamp == nothing
     t = loss.t
