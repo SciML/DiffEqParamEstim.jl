@@ -10,6 +10,7 @@ tic()
   include("tests_on_odes/two_stage_method_test.jl")
   include("tests_on_odes/regularization_test.jl")
   include("tests_on_odes/blackboxoptim_test.jl")
+  include("tests_on_odes/weighted_loss_test.jl")
   #include("tests_on_odes/genetic_algorithm_test.jl") # Not updated to v0.6
 end
 
