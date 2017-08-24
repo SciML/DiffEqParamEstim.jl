@@ -23,7 +23,7 @@ function (f::CostVData)(sol::DESolution,weight)
     push!(sol.u,fill(Inf,size(sol[1])))
   end
   if weight == nothing
-    weight = ones(length(vec(f.data)))
+    weight = ones(f.data)
   end
   norm(value(f.loss_func(),vec(f.data),vec(sol)).*vec(weight))
 end
@@ -44,6 +44,9 @@ function (f::L2Loss)(sol::DESolution,weight)
   fill_length = length(f.t)-length(sol)
   for i in 1:fill_length
     push!(sol.u,fill(Inf,size(sol[1])))
+  end
+  if weight == nothing
+    weight = ones(f.data)
   end
   sumsq = 0.0
   @inbounds for i in 1:length(sol)
