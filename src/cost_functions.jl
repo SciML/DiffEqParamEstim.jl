@@ -23,7 +23,7 @@ function (f::CostVData)(sol::DESolution,weight)
     push!(sol.u,fill(Inf,size(sol[1])))
   end
   if weight == nothing
-    weight = ones(length(vec(data)))
+    weight = ones(length(vec(f.data)))
   end
   norm(value(f.loss_func(),vec(f.data),vec(sol)).*f.weight)
 end
