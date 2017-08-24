@@ -51,8 +51,7 @@ function (f::L2Loss)(sol::DESolution,weight)
   sumsq = 0.0
   @inbounds for i in 1:length(sol)
     for j in 1:length(sol[i])
-      sumsq += (data[j,i] - sol[j,i])^2
-      sumsq *=weight[j,i]
+      sumsq = sumsq + ((data[j,i] - sol[j,i])^2)*weight[j,i]
     end
   end
   sumsq
