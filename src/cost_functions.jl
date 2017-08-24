@@ -17,12 +17,15 @@ struct CostVData{T,D,L} <: DECostFunction
   loss_func::L
 end
 
-function (f::CostVData)(sol::DESolution)
+function (f::CostVData)(sol::DESolution,weight)
   fill_length = length(f.t)-length(sol)
   for i in 1:fill_length
     push!(sol.u,fill(Inf,size(sol[1])))
   end
-  norm(value(f.loss_func(),vec(f.data),vec(sol)))
+  if weight == nothing
+    weight = ones(length(vec(data)))
+  end
+  norm(value(f.loss_func(),vec(f.data),vec(sol)).*f.weight)
 end
 
 function (f::CostVData)(sol::AbstractMonteCarloSolution)
