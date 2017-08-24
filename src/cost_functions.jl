@@ -25,7 +25,7 @@ function (f::CostVData)(sol::DESolution,weight)
   if weight == nothing
     weight = ones(length(vec(f.data)))
   end
-  norm(value(f.loss_func(),vec(f.data),vec(sol)).*f.weight)
+  norm(value(f.loss_func(),vec(f.data),vec(sol)).*vec(weight))
 end
 
 function (f::CostVData)(sol::AbstractMonteCarloSolution)
@@ -39,7 +39,7 @@ struct L2Loss{T,D} <: DECostFunction
   data::D
 end
 
-function (f::L2Loss)(sol::DESolution)
+function (f::L2Loss)(sol::DESolution,weight)
   data = f.data
   fill_length = length(f.t)-length(sol)
   for i in 1:fill_length
@@ -49,6 +49,7 @@ function (f::L2Loss)(sol::DESolution)
   @inbounds for i in 1:length(sol)
     for j in 1:length(sol[i])
       sumsq += (data[j,i] - sol[j,i])^2
+      sumsq *=weight[j,i]
     end
   end
   sumsq
