@@ -48,7 +48,7 @@ function multiple_shooting_method(prob::DEProblem,alg,loss,timestamp=nothing;mpg
     timestamp = collect(linspace(prob.tspan[1],prob.tspan[2],10))
   end
   for i in 1:length(timestamp)-1
-    loss_val, new_boundary_condition = construct_objective_constraints!(constraints,boundary_condition,prob,timestamp[i],timestamp[i+1],data)
+    loss_val, new_boundary_condition = construct_objective_constraints!(constraints,boundary_condition,prob,timestamp[i],timestamp[i+1],data)(p)
     multiple_shooting_cost +=loss_val
     boundary_condition = new_boundary_condition
   end  #end of for loop
