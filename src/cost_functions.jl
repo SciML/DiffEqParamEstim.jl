@@ -28,7 +28,6 @@ function (f::CostVData)(sol::DESolution)
   else
     norm(value(f.loss_func(),vec(f.data),vec(sol)).*vec(f.weight))
   end
-
 end
 
 function (f::CostVData)(sol::AbstractMonteCarloSolution)
@@ -66,6 +65,7 @@ function (f::L2Loss)(sol::DESolution)
   end
   sumsq
 end
+L2Loss(t,data;weight=nothing) = L2Loss(t,data,weight)
 
 function (f::L2Loss)(sol::AbstractMonteCarloSolution)
   mean(f.(sol.u))
