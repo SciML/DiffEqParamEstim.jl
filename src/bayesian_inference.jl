@@ -7,7 +7,7 @@ end
 function bayesian_inference(prob::DEProblem,t,data;alg="integrate_ode_rk45",num_samples=1, num_warmup=1,kwargs...)
   length_of_y = string(length(prob.u0))
   length_of_parameter = string(length(prob.f.params))
-  
+
   const parameter_estimation_model = "
   functions {
     real[] sho(real t,real[] u,real[] theta,real[] x_r,int[] x_i) {
@@ -38,7 +38,7 @@ function bayesian_inference(prob::DEProblem,t,data;alg="integrate_ode_rk45",num_
     sigma ~ inv_gamma(2, 3);
     // placeholder for priors here
     theta[1] ~ normal(1.5, 1); //1=length(prob.f.params), 1.5=prob.f.a
-    u_hat = integrate_ode_rk45(sho, u0, t0, ts, theta, x_r, x_i);
+    u_hat = $alg(sho, u0, t0, ts, theta, x_r, x_i);
     for (t in 1:T){
       u[t] ~ normal(u_hat[t], sigma);
       }

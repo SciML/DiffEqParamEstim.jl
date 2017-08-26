@@ -11,6 +11,6 @@ include("build_loss_objective.jl")
 include("build_lsoptim_objective.jl")
 include("two_stage_method.jl")
 include("kernels.jl")
-include("bayesian_inference.jl")
+
 
 end # module
