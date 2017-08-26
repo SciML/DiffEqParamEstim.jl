@@ -7,17 +7,17 @@ end
 function bayesian_inference(prob::DEProblem,t,data;alg="integrate_ode_rk45",num_samples=1, num_warmup=1,kwargs...)
   const parameter_estimation_model = "
   functions {
-    real[] sho(real t,real[] y,real[] theta,real[] x_r,int[] x_i) {
-      real dydt[2];
-      dydt[1] = theta[1] * y[1] - 1.0*y[1] * y[2];
-      dydt[2] = -3.0*y[1] + 1.0*y[1] * y[2];
-      return dydt;
+    real[] sho(real t,real[] u,real[] theta,real[] x_r,int[] x_i) {
+      real du[2];  // 2 = length(prob.u0)
+      du[1] = theta[1] * u[1] - 1.0*u[1] * u[2]; //string(prob.f.pfuncs[1])
+      du[2] = -3.0*u[1] + 1.0*u[1] * u[2];
+      return du;
       }
     }
   data {
-    real y0[2];
+    real u0[2]; // 2 = length(prob.u0)
     int<lower=1> T;
-    real y[T,2];
+    real u[T,2]; // 2 = length(prob.u0)
     real t0;
     real ts[T];
   }
@@ -26,16 +26,17 @@ function bayesian_inference(prob::DEProblem,t,data;alg="integrate_ode_rk45",num_
     int x_i[0];
   }
   parameters {
-    vector<lower=0>[2] sigma;
-    real theta[1];
+    vector<lower=0>[2] sigma;   // 2 = length(prob.u0)
+    real theta[1];   // // 1=length(prob.f.params)
   }
   model{
-    real y_hat[T,2];
+    real u_hat[T,2]; // 2 = length(prob.u0)
     sigma ~ inv_gamma(2, 3);
-    theta[1] ~ normal(1.5, 1);
-    y_hat = integrate_ode_rk45(sho, y0, t0, ts, theta, x_r, x_i);
+    // Define a placeholder here
+    theta[1] ~ normal(1.5, 1); //1=length(prob.f.params), 1.5=prob.f.a
+    u_hat = integrate_ode_rk45(sho, u0, t0, ts, theta, x_r, x_i);
     for (t in 1:T){
-      y[t] ~ normal(y_hat[t], sigma);
+      u[t] ~ normal(u_hat[t], sigma);
       }
   }
   "
