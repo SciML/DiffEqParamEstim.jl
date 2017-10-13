@@ -40,7 +40,7 @@ function build_loss_objective(prob::DEProblem,alg,loss,regularization=nothing;mp
   end
 
   if mpg_autodiff
-    gcfg = ForwardDiff.GradientConfig(zeros(num_params(prob)))
+    gcfg = ForwardDiff.GradientConfig(cost_function, zeros(num_params(prob)))
     g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
   else
     g! = (x, out) -> Calculus.finite_difference!(cost_function,x,out,:central)
