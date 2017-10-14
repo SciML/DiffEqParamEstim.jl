@@ -72,7 +72,9 @@ end
 
 function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
                           loss_func = L2DistLoss,mpg_autodiff = false,
-                          verbose = false,verbose_steps = 100)
+                          verbose = false,verbose_steps = 100,
+                          autodiff_prototype = mpg_autodiff ? zeros(num_params(prob.f)) : nothing,
+                          autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing)
     f = prob.f
     n = length(tpoints)
     h = (n^(-1/5))*(n^(-3/35))*((log(n))^(-1/16))
@@ -83,12 +85,12 @@ function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
     e2 = [0;1;0]
     construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,e1,e2,data,kernel_function,tpoints,h,n)
 
-
     # Step - 2
-    du = similar(prob.u0)
     cost_function = function (p)
         ff = (t,u,du) -> prob.f(t,u,p,du)
-        sol = Vector{typeof(prob.u0)}(n)
+        # have to adjust type for autodifferentiation
+        du = similar(prob.u0, promote_type(eltype(prob.u0), eltype(p)))
+        sol = Vector{typeof(du)}(n)
         for i in 1:n
           ff(tpoints[i],estimated_solution[i,:],du)
           sol[i] = copy(du)
@@ -97,7 +99,7 @@ function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
     end
 
     if mpg_autodiff
-      gcfg = ForwardDiff.GradientConfig(zeros(length(f.syms)))
+      gcfg = ForwardDiff.GradientConfig(cost_function, autodiff_prototype, autodiff_chunk)
       g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
     else
       g! = (x, out) -> Calculus.finite_difference!(cost_function,x,out,:central)
