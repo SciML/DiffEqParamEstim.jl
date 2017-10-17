@@ -11,6 +11,8 @@ end
 function build_loss_objective(prob::DEProblem,alg,loss,regularization=nothing;mpg_autodiff = false,
                               verbose_opt = false,verbose_steps = 100,
                               prob_generator = problem_new_parameters,
+                              autodiff_prototype = mpg_autodiff ? zeros(num_params(prob)) : nothing,
+                              autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing,
                               kwargs...)
   if verbose_opt
     count = 0 # keep track of # function evaluations
@@ -40,7 +42,7 @@ function build_loss_objective(prob::DEProblem,alg,loss,regularization=nothing;mp
   end
 
   if mpg_autodiff
-    gcfg = ForwardDiff.GradientConfig(zeros(num_params(prob)))
+    gcfg = ForwardDiff.GradientConfig(cost_function, autodiff_prototype, autodiff_chunk)
     g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
   else
     g! = (x, out) -> Calculus.finite_difference!(cost_function,x,out,:central)

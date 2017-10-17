@@ -3,8 +3,6 @@ __precompile__()
 module DiffEqParamEstim
 using DiffEqBase, LsqFit, LossFunctions, PenaltyFunctions, RecursiveArrayTools, ForwardDiff, Calculus
 
-using Compat
-
 include("cost_functions.jl")
 include("lm_fit.jl")
 include("build_loss_objective.jl")
