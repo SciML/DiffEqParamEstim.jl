@@ -8,7 +8,7 @@ h = (t) -> [0.5, 0.5]
 u0 = [0.5, 0.5]
 tspan = (0., 10.)
 
-prob = ConstantLagDDEProblem((t,u,h,du)->f_lotka(t,u,h,[0.5, 1.],du),h,u0,[0.5], tspan)
+prob = DDEProblem((t,u,h,du)->f_lotka(t,u,h,[0.5, 1.],du),h,u0,tspan,[0.5])
 sol = solve(prob, MethodOfSteps(Tsit5()))
 
 t = collect(linspace(0,10,30))
@@ -17,7 +17,7 @@ data = convert(Array, randomized)
 
 using DiffEqParamEstim, NLopt
 
-prob_opt = ConstantLagDDEProblem((t,u,h,p,du)->f_lotka(t,u,h,[p[1],1.],du), h, u0, [0.5], tspan)
+prob_opt = DDEProblem((t,u,h,p,du)->f_lotka(t,u,h,[p[1],1.],du), h, u0, tspan,[0.5])
 cost_function = build_loss_objective(prob_opt, MethodOfSteps(Tsit5()),L2Loss(t,data),maxiter=10000,abstol=1e-8,reltol=1e-8)
 
 opt = Opt(:GN_ESCH, 1)
