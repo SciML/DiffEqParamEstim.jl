@@ -1,5 +1,6 @@
 using Optim
-obj = build_loss_objective(prob1,Tsit5(),CostVData(t,data),maxiters=10000)
+obj = build_loss_objective(prob1,Tsit5(),CostVData(t,data),
+                           maxiters=10000,verbose=false)
 
 ### Optim Method
 
@@ -13,12 +14,14 @@ result = Optim.optimize(obj, [1.0], Optim.BFGS())
 #sol_optimized2 = solve(prob)
 #plot!(sol_optimized2,leg=false)
 
-cost_function2 = build_loss_objective(prob2,Tsit5(),CostVData(t,data),maxiters=10000)
+cost_function2 = build_loss_objective(prob2,Tsit5(),CostVData(t,data),
+                                      maxiters=10000,verbose=false)
 result_bfgs = Optim.optimize(cost_function2, [1.0,2.5], Optim.BFGS())
 @test result_bfgs.minimizer ≈ [1.5;3.0] atol=3e-1
 
 srand(200)
-cost_function3 = build_loss_objective(prob3,Tsit5(),CostVData(t,data),maxiters=10000)
+cost_function3 = build_loss_objective(prob3,Tsit5(),CostVData(t,data),
+                                      maxiters=10000,verbose=false)
 result_bfgs = Optim.optimize(cost_function3, [1.3,0.8,2.8,1.2], Optim.BFGS())
 @test result_bfgs.minimizer ≈ [1.5;1.0;3.0;1.0] atol=5e-1
 
@@ -50,6 +53,3 @@ n_particles = 4
 options = Optim.Options(iterations=100)
 result_pso = Optim.optimize(cost_function2, initial_x, Optim.ParticleSwarm(lower, upper, n_particles), options)
 @test result_pso.minimizer ≈ [1.5;3.0] atol=3e-1
-
-
-

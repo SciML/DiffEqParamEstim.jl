@@ -13,7 +13,8 @@ println("Use Genetic Algorithm to fit the parameter")
 #                 are guaranteed to survive to the next generation.
 #                 Floating number specifies fraction of population.
 
-cost_function = build_loss_objective(prob1,Tsit5(),CostVData(t,data),maxiters=10000)
+cost_function = build_loss_objective(prob1,Tsit5(),CostVData(t,data),
+                                     maxiters=10000,verbose=false)
 N = 1
 result, fitness, cnt = ga(cost_function, N;
                    initPopulation = Float64[1.2],
@@ -25,7 +26,8 @@ result, fitness, cnt = ga(cost_function, N;
 @test result[1] ≈ 1.5 atol=3e-1
 
 
-cost_function = build_loss_objective(prob2,Tsit5(),CostVData(t,data),maxiters=10000)
+cost_function = build_loss_objective(prob2,Tsit5(),CostVData(t,data),
+                                     maxiters=10000)
 N = 2
 result, fitness, cnt = ga(cost_function, N;
                    initPopulation = Float64[1.2,2.8],
@@ -36,7 +38,8 @@ result, fitness, cnt = ga(cost_function, N;
                mutation = domainrange(fill(0.5,N)))
 @test result ≈ [1.5;3.0] atol=3e-1
 
-cost_function = build_loss_objective(prob3,Tsit5(),CostVData(t,data),maxiters=10000)
+cost_function = build_loss_objective(prob3,Tsit5(),CostVData(t,data),
+                                     maxiters=10000)
 N = 4
 result, fitness, cnt = ga(cost_function, N;
                    initPopulation = Float64[1.3,0.8,2.8,1.2],

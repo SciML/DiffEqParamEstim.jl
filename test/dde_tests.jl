@@ -18,7 +18,8 @@ data = convert(Array, randomized)
 using DiffEqParamEstim, NLopt
 
 prob_opt = DDEProblem((t,u,h,p,du)->f_lotka(t,u,h,[p[1],1.],du), h, u0, tspan,[0.5])
-cost_function = build_loss_objective(prob_opt, MethodOfSteps(Tsit5()),L2Loss(t,data),maxiter=10000,abstol=1e-8,reltol=1e-8)
+cost_function = build_loss_objective(prob_opt, MethodOfSteps(Tsit5()),
+            L2Loss(t,data),maxiter=10000,abstol=1e-8,reltol=1e-8,verbose=false)
 
 opt = Opt(:GN_ESCH, 1)
 min_objective!(opt, cost_function.cost_function2)

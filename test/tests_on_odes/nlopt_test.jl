@@ -2,7 +2,8 @@ using NLopt
 
 println("Use NLOpt to fit the parameter")
 
-obj = build_loss_objective(prob1,Tsit5(),CostVData(t,data),maxiters=10000)
+obj = build_loss_objective(prob1,Tsit5(),CostVData(t,data),
+                           maxiters=10000,verbose=false)
 
 opt = Opt(:LN_COBYLA, 1)
 min_objective!(opt, obj)

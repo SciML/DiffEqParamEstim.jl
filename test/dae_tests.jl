@@ -19,7 +19,8 @@ randomized = VectorOfArray([(sol(t[i]) + .003randn(3)) for i in 1:length(t)])
 data = convert(Array, randomized)
 
 using DiffEqParamEstim, NLopt
-cost_function = build_loss_objective(prob,IDA(),L2Loss(t,data),maxiter=10000,abstol=1e-8,reltol=1e-8)
+cost_function = build_loss_objective(prob,IDA(),L2Loss(t,data),maxiter=10000,
+                                          abstol=1e-8,reltol=1e-8,verbose=false)
 
 opt = Opt(:GN_ESCH, 1)
 min_objective!(opt, cost_function.cost_function2)

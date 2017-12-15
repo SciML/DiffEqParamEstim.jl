@@ -25,6 +25,7 @@ pf = ParameterizedFunction(LotkaVolterraTest_not_inplace, 1.5)
 prob = ODEProblem(pf,u0,tspan)
 soll = solve(prob,Tsit5())
 
-cost_function = build_loss_objective(prob,Tsit5(),L2Loss(t,data),maxiters=10000)
-using Optim
-result = optimize(cost_function, 0.0, 10.0)
+cost_function = build_loss_objective(prob,Tsit5(),L2Loss(t,data),
+                                     maxiters=10000,verbose=false)
+import Optim
+result = Optim.optimize(cost_function, 0.0, 10.0)
