@@ -1,4 +1,4 @@
-export DECostFunction, CostVData, L2Loss, Regularization
+export DECostFunction, CostVData, L2Loss, Regularization, LogLikelihood
 
 struct Regularization{L,P} <: DECostFunction
   λ::L
@@ -10,6 +10,36 @@ function (f::Regularization)(p)
   f.λ*value(f.penalty, p)
 end
 
+struct LogLikelihood{T,D1,D2,C} <: DECostFunction
+  t::T
+  data::D1
+  distribution::D2
+  covariance::C
+end
+function (f::LogLikelihood)(sol::DESolution)
+  fill_length = length(f.t)-length(sol)
+  covariance = f.covariance
+  for i in 1:fill_length
+    push!(sol.u,fill(Inf,size(sol[1])))
+  end
+  likelihood_cost = 0.0
+  if covariance == nothing
+    @inbounds for i in 1:length(sol)
+      for j in 1:length(sol[i])
+        likelihood_cost +=loglikelihood(f.distribution(sol[j,i],1),f.data[j,i])
+      end
+    end
+  else
+    @inbounds for i in 1:length(sol)
+      for j in 1:length(sol[i])
+        likelihood_cost +=loglikelihood(f.distribution(sol[j,i],covariance[j,i]),f.data[j,i])
+      end
+    end
+  end
+  likelihood_cost
+end
+
+LogLikelihood(t,data;distribution = Normal,covariance=nothing) = LogLikelihood(t,data,distribution,covariance)
 
 struct CostVData{T,D,L,W} <: DECostFunction
   t::T
