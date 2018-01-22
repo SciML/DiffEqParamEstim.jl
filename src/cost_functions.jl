@@ -104,9 +104,11 @@ end
 
 function (f::LogLikeLoss)(sol::AbstractMonteCarloSolution)
   distributions = f.distributions
-  fill_length = length(f.t)-length(sol)
-  for i in 1:fill_length
-    push!(sol.u,fill(Inf,size(sol[1])))
+  for s in sol
+    fill_length = length(f.t)-length(s)
+    for i in 1:fill_length
+      push!(s.u,fill(Inf,size(s[1])))
+    end
   end
   ll = 0.0
   if eltype(distributions) <: UnivariateDistribution
@@ -122,8 +124,8 @@ function (f::LogLikeLoss)(sol::AbstractMonteCarloSolution)
       # i is the number of time points
       # j is the size of the system
       # corresponds to distributions[i,j]
-      vals = [s[i,j] for i in length(sol[1][1]) for s in sol]
-      ll -= loglikelihood(f.distributions[i],vals)
+      vals = [s[i,j] for i in 1:length(sol[1][1]), s in sol]
+      ll -= loglikelihood(f.distributions[j],vals)
     end
   end
   ll
