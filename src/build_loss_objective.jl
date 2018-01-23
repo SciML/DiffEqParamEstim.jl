@@ -11,7 +11,7 @@ end
 function build_loss_objective(prob::DEProblem,alg,loss,regularization=nothing;mpg_autodiff = false,
                               verbose_opt = false,verbose_steps = 100,
                               prob_generator = problem_new_parameters,
-                              autodiff_prototype = mpg_autodiff ? zeros(num_params(prob)) : nothing,
+                              autodiff_prototype = mpg_autodiff ? zeros(prob.p) : nothing,
                               autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing,
                               kwargs...)
   if verbose_opt

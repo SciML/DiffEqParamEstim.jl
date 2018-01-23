@@ -1,7 +1,7 @@
 using DelayDiffEq, OrdinaryDiffEq, RecursiveArrayTools, Base.Test,
       Sundials
 
-function resrob(tres, y, p, yp, r)
+function resrob(r,yp,y,p,tres)
     r[1]  = -p[1]*y[1] + 1.0e4*y[2]*y[3]
     r[2]  = -r[1] - 3.0e7*y[2]*y[2] - yp[2]
     r[1] -=  yp[1]
@@ -9,9 +9,8 @@ function resrob(tres, y, p, yp, r)
 end
 u0 = [1.0, 0, 0]
 du0 = [-0.04, 0.04, 0.0]
-pf = DAEParameterizedFunction(resrob,[0.04])
-"DAE residual form for the Robertson model"
-prob = DAEProblem(pf,u0,du0,(0.0,100000.0),differential_vars=[3])
+p = [0.04]
+prob = DAEProblem(pf,u0,du0,(0.0,100000.0),p,differential_vars=[3])
 sol = solve(prob, IDA())
 
 t = collect(linspace(0,10,30))

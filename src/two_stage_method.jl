@@ -73,7 +73,7 @@ end
 function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
                           loss_func = L2DistLoss,mpg_autodiff = false,
                           verbose = false,verbose_steps = 100,
-                          autodiff_prototype = mpg_autodiff ? zeros(num_params(prob.f)) : nothing,
+                          autodiff_prototype = mpg_autodiff ? zeros(prob.p) : nothing,
                           autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing)
     f = prob.f
     n = length(tpoints)
@@ -87,12 +87,12 @@ function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
 
     # Step - 2
     cost_function = function (p)
-        ff = (t,u,du) -> prob.f(t,u,p,du)
         # have to adjust type for autodifferentiation
         du = similar(prob.u0, promote_type(eltype(prob.u0), eltype(p)))
         sol = Vector{typeof(du)}(n)
+        f = prob.f
         for i in 1:n
-          ff(tpoints[i],estimated_solution[i,:],du)
+          f(du,estimated_solution[i,:],p,tpoints[i])
           sol[i] = copy(du)
         end
         norm(value(loss_func(),vec(estimated_derivative'),vec(VectorOfArray(sol))))

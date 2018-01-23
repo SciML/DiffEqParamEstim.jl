@@ -15,7 +15,6 @@ tic()
 end
 
 @time @testset "Likelihood Loss" begin include("likelihood.jl") end
-@time @testset "ParameterizedFunction Type" begin include("parameterized_function_type.jl") end
 @time @testset "Out-of-place ODE Tests" begin include("out_of_place_odes.jl") end
 @time @testset "DDE Tests" begin include("dde_tests.jl") end
 @time @testset "Test on Monte" begin include("test_on_monte.jl") end

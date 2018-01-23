@@ -1,14 +1,14 @@
 using OrdinaryDiffEq, DiffEqParamEstim, BlackBoxOptim, Distributions, Base.Test,
       RecursiveArrayTools
 
-pf_func = function (t,u,p,du)
+pf_func = function (du,u,p,t)
   du[1] = p[1] * u[1] - p[2] * u[1]*u[2]
   du[2] = -3.0 * u[2] + u[1]*u[2]
 end
-f1 = ParameterizedFunction(pf_func,[1.5,1.0])
 u0 = [1.0;1.0]
 tspan = (0.0,10.0)
-prob1 = ODEProblem(f1,u0,tspan)
+p = [1.5,1.0]
+prob1 = ODEProblem(pf_func,u0,tspan,p)
 sol = solve(prob1,Tsit5())
 
 t = collect(linspace(0,10,200))

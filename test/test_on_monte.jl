@@ -2,15 +2,15 @@ using DiffEqParamEstim, OrdinaryDiffEq, StochasticDiffEq, ParameterizedFunctions
       DiffEqBase, RecursiveArrayTools, DiffEqMonteCarlo
 using Base.Test
 
-pf_func = function (t,u,p,du)
+pf_func = function (du,u,p,t)
   du[1] = p[1] * u[1] - p[2] * u[1]*u[2]
   du[2] = -3 * u[2] + u[1]*u[2]
 end
 
-pf = ParameterizedFunction(pf_func,[1.5,1.0])
 u0 = [1.0;1.0]
 tspan = (0.0,10.0)
-prob = ODEProblem(pf,u0,tspan)
+p = [1.5,1.0]
+prob = ODEProblem(pf_func,u0,tspan,p)
 sol = solve(prob,Tsit5())
 
 t = collect(linspace(0,10,200))
@@ -25,13 +25,11 @@ import Optim
 result = Optim.optimize(obj, [1.3,0.8], Optim.BFGS())
 @test result.minimizer ≈ [1.5,1.0] atol=3e-1
 
-pg_func = function (t,u,p,du)
+pg_func = function (du,u,p,t)
   du[1] = 1e-6u[1]
   du[2] = 1e-6u[2]
 end
-pg = ParameterizedFunction(pg_func,[])
-tspan = (0.0,10.0)
-prob = SDEProblem(pf,pg,u0,tspan)
+prob = SDEProblem(pf,pg,u0,tspan,p)
 sol = solve(prob,SRIW1())
 
 monte_prob = MonteCarloProblem(prob)
