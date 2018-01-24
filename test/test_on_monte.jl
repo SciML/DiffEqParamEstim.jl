@@ -29,7 +29,7 @@ pg_func = function (du,u,p,t)
   du[1] = 1e-6u[1]
   du[2] = 1e-6u[2]
 end
-prob = SDEProblem(pf,pg,u0,tspan,p)
+prob = SDEProblem(pf_func,pg_func,u0,tspan,p)
 sol = solve(prob,SRIW1())
 
 monte_prob = MonteCarloProblem(prob)
