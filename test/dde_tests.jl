@@ -9,7 +9,8 @@ u0 = [0.5, 0.5]
 tspan = (0., 10.)
 p = [0.5, 1.]
 
-prob = DDEProblem(f_lotka,h,u0,tspan,p,[0.5])
+prob = DDEProblem(f_lotka,u0,h,tspan,p,
+                   constant_lags = [0.5])
 sol = solve(prob, MethodOfSteps(Tsit5()))
 
 t = collect(linspace(0,10,30))
@@ -26,7 +27,7 @@ h = (t) -> [0.5, 0.5]
 u0 = [0.5, 0.5]
 p = [0.5]
 
-prob_opt = DDEProblem(f_lotka2, h, u0, tspan, p, [0.5])
+prob_opt = DDEProblem(f_lotka2, u0, h, tspan, p, constant_lags = [0.5])
 cost_function = build_loss_objective(prob_opt, MethodOfSteps(Tsit5()),
             L2Loss(t,data),maxiter=10000,abstol=1e-8,reltol=1e-8,verbose=false)
 
