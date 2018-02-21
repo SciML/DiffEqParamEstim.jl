@@ -6,8 +6,7 @@ x = [1.0]
 res = LeastSquaresOptim.optimize!(LeastSquaresOptim.LeastSquaresProblem(x = x,
                 f! = cost_function,
                 output_length = length(t)*length(prob1.u0)),
-                LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR(),
-                ftol=1e-14,xtol=1e-15,iterations=100,grtol=1e-14)
+                LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR())
 
 @test result.minimizer[1] ≈ 1.5 atol=3e-1
 
@@ -16,8 +15,7 @@ x = [1.3,2.7]
 res = LeastSquaresOptim.optimize!(LeastSquaresOptim.LeastSquaresProblem(x = x,
                 f! = cost_function,
                 output_length = length(t)*length(prob2.u0)),
-                LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR(),
-                ftol=1e-14,xtol=1e-15,iterations=100,grtol=1e-14)
+                LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR())
 
 @test res.minimizer ≈ [1.5;3.0] atol=3e-1
 
@@ -26,7 +24,6 @@ x = [1.3,0.8,2.8,1.2]
 res = LeastSquaresOptim.optimize!(LeastSquaresOptim.LeastSquaresProblem(
                 x = x, f! = cost_function,
                 output_length = length(t)*length(prob3.u0)),
-                LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR(),
-                ftol=1e-14,xtol=1e-15,iterations=100,grtol=1e-14)
+                LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR())
 
 @test res.minimizer ≈ [1.5;1.0;3.0;1.0] atol=3e-1
