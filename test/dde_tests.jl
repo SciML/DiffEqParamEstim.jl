@@ -2,9 +2,9 @@ using DelayDiffEq, OrdinaryDiffEq, RecursiveArrayTools, Base.Test
 
 function f_lotka(du,u,h,p,t)
     du[1] = 0.5*u[1] - p[1]*u[1]*u[2]
-    du[2] = p[2]*h(t-0.5)[1]*u[2] - 0.5*u[2]
+    du[2] = p[2]*h(p,t-0.5)[1]*u[2] - 0.5*u[2]
 end
-h = (t) -> [0.5, 0.5]
+h = (p,t) -> [0.5, 0.5]
 u0 = [0.5, 0.5]
 tspan = (0., 10.)
 p = [0.5, 1.]
