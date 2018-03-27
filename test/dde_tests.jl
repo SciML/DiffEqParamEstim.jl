@@ -21,9 +21,9 @@ using DiffEqParamEstim, NLopt
 
 function f_lotka2(du,u,h,p,t)
     du[1] = 0.5*u[1] - p[1]*u[1]*u[2]
-    du[2] = h(t-0.5)[1]*u[2] - 0.5*u[2]
+    du[2] = h(p,t-0.5)[1]*u[2] - 0.5*u[2]
 end
-h = (t) -> [0.5, 0.5]
+h = (p,t) -> [0.5, 0.5]
 u0 = [0.5, 0.5]
 p = [0.5]
 
