@@ -70,36 +70,54 @@ function (f::L2Loss)(sol::AbstractMonteCarloSolution)
   mean(f.(sol.u))
 end
 
-struct LogLikeLoss{T,D} <: DECostFunction
+struct LogLikeLoss{T,D,F} <: DECostFunction
   t::T
   distributions::D
+  first_diff::F
 end
+LogLikeLoss(t,distributions) = LogLikeLoss(t,distributions,nothing)
 
 function (f::LogLikeLoss)(sol::DESolution)
-  distributions = f.distributions
-  fill_length = length(f.t)-length(sol)
-  for i in 1:fill_length
-    push!(sol.u,fill(Inf,size(sol[1])))
-  end
+  if f.first_diff == nothing
+    distributions = f.distributions
+    fill_length = length(f.t)-length(sol)
+    for i in 1:fill_length
+      push!(sol.u,fill(Inf,size(sol[1])))
+    end
 
-  ll = 0.0
+    ll = 0.0
 
-  if eltype(distributions) <: UnivariateDistribution
-    for j in 1:length(f.t), i in 1:length(sol[1][1])
+    if eltype(distributions) <: UnivariateDistribution
+      for j in 1:length(f.t), i in 1:length(sol[1][1])
       # i is the number of time points
       # j is the size of the system
       # corresponds to distributions[i,j]
-      ll -= logpdf(f.distributions[i,j],sol[i,j])
-    end
-  else # MultivariateDistribution
-    for j in 1:length(f.t), i in 1:length(sol[1][1])
+        ll -= logpdf(f.distributions[i,j],sol[i,j])
+      end
+    else # MultivariateDistribution
+      for j in 1:length(f.t), i in 1:length(sol[1][1])
       # i is the number of time points
       # j is the size of the system
       # corresponds to distributions[i,j]
-      ll -= logpdf(f.distributions[i],sol[i])
+        ll -= logpdf(f.distributions[i],sol[i])
+      end
     end
+    ll
+  else
+    distributions = f.distributions
+    diff_data = sol.u[2:end] - sol.u[1:end-1]
+    fill_length = length(f.t)-length(diff_data)
+    for i in 1:fill_length
+      push!(diff_data,fill(Inf,size(sol[1])))
+    end  
+    ll = 0.0
+    if eltype(distributions) <: UnivariateDistribution
+      for j in 1:length(f.t)-1, i in 1:length(diff_data[1])
+        ll -= logpdf(f.distributions[j,i],diff_data[j][i])
+      end
+    end
+    ll
   end
-  ll
 end
 
 function (f::LogLikeLoss)(sol::AbstractMonteCarloSolution)
