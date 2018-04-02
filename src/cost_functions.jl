@@ -70,16 +70,18 @@ function (f::L2Loss)(sol::AbstractMonteCarloSolution)
   mean(f.(sol.u))
 end
 
-struct LogLikeLoss{T,D,F} <: DECostFunction
+struct LogLikeLoss{T,D} <: DECostFunction
   t::T
-  distributions::D
-  first_diff::F
+  data_distributions::D
+  diff_distributions::L where L<:Union{Void,D}
+  weight
 end
-LogLikeLoss(t,distributions) = LogLikeLoss(t,distributions,nothing)
+LogLikeLoss(t,data_distributions) = LogLikeLoss(t,data_distributions,nothing,nothing)
+LogLikeLoss(t,data_distributions,diff_distributions) = LogLikeLoss(t,data_distributions,diff_distributions,1)
 
 function (f::LogLikeLoss)(sol::DESolution)
-  if f.first_diff == nothing
-    distributions = f.distributions
+  if f.diff_distributions == nothing
+    distributions = f.data_distributions
     fill_length = length(f.t)-length(sol)
     for i in 1:fill_length
       push!(sol.u,fill(Inf,size(sol[1])))
@@ -92,19 +94,19 @@ function (f::LogLikeLoss)(sol::DESolution)
       # i is the number of time points
       # j is the size of the system
       # corresponds to distributions[i,j]
-        ll -= logpdf(f.distributions[i,j],sol[i,j])
+        ll -= logpdf(distributions[i,j],sol[i,j])
       end
     else # MultivariateDistribution
       for j in 1:length(f.t), i in 1:length(sol[1][1])
       # i is the number of time points
       # j is the size of the system
       # corresponds to distributions[i,j]
-        ll -= logpdf(f.distributions[i],sol[i])
+        ll -= logpdf(distributions[i],sol[i])
       end
     end
     ll
   else
-    distributions = f.distributions
+    distributions = f.diff_distributions
     diff_data = sol.u[2:end] - sol.u[1:end-1]
     fill_length = length(f.t)-length(diff_data)
     for i in 1:fill_length
@@ -113,9 +115,11 @@ function (f::LogLikeLoss)(sol::DESolution)
     ll = 0.0
     if eltype(distributions) <: UnivariateDistribution
       for j in 1:length(f.t)-1, i in 1:length(diff_data[1])
-        ll -= logpdf(f.distributions[j,i],diff_data[j][i])
+        ll -= logpdf(distributions[j,i],diff_data[j][i])
       end
     end
+    f1 = LogLikeLoss(f.t,f.data_distributions)
+    ll += f.weight*f1(sol)
     ll
   end
 end
