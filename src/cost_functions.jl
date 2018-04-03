@@ -72,16 +72,19 @@ end
 
 struct LogLikeLoss{T,D} <: DECostFunction
   t::T
-  distributions::D
+  data_distributions::D
+  diff_distributions::L where L<:Union{Void,D}
+  weight
 end
+LogLikeLoss(t,data_distributions) = LogLikeLoss(t,data_distributions,nothing,nothing)
+LogLikeLoss(t,data_distributions,diff_distributions) = LogLikeLoss(t,data_distributions,diff_distributions,1)
 
 function (f::LogLikeLoss)(sol::DESolution)
-  distributions = f.distributions
+  distributions = f.data_distributions
   fill_length = length(f.t)-length(sol)
   for i in 1:fill_length
     push!(sol.u,fill(Inf,size(sol[1])))
   end
-
   ll = 0.0
 
   if eltype(distributions) <: UnivariateDistribution
@@ -89,16 +92,37 @@ function (f::LogLikeLoss)(sol::DESolution)
       # i is the number of time points
       # j is the size of the system
       # corresponds to distributions[i,j]
-      ll -= logpdf(f.distributions[i,j],sol[i,j])
+      ll -= logpdf(distributions[i,j],sol[i,j])
     end
   else # MultivariateDistribution
     for j in 1:length(f.t), i in 1:length(sol[1][1])
       # i is the number of time points
       # j is the size of the system
       # corresponds to distributions[i,j]
-      ll -= logpdf(f.distributions[i],sol[i])
+      ll -= logpdf(distributions[i],sol[i])
     end
   end
+
+  if f.diff_distributions != nothing
+    distributions = f.diff_distributions
+    diff_data = sol.u[2:end] - sol.u[1:end-1]
+    fill_length = length(f.t)-length(diff_data)
+    for i in 1:fill_length
+      push!(diff_data,fill(Inf,size(sol[1])))
+    end
+    fdll = 0  
+    if eltype(distributions) <: UnivariateDistribution
+      for j in 1:length(f.t)-1, i in 1:length(diff_data[1])
+        fdll -= logpdf(distributions[j,i],diff_data[j][i])
+      end
+    else
+      for j in 1:length(f.t)-1
+        fdll -= logpdf(distributions[j],diff_data[j])
+      end
+    end
+    ll += f.weight*fdll
+  end
+  
   ll
 end
 
