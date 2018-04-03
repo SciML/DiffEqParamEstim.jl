@@ -117,6 +117,10 @@ function (f::LogLikeLoss)(sol::DESolution)
       for j in 1:length(f.t)-1, i in 1:length(diff_data[1])
         ll -= logpdf(distributions[j,i],diff_data[j][i])
       end
+    else
+      for j in 1:length(f.t)-1
+        ll -= logpdf(distributions[j],diff_data[j])
+      end
     end
     f1 = LogLikeLoss(f.t,f.data_distributions)
     ll += f.weight*f1(sol)
