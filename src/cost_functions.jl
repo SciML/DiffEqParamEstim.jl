@@ -127,7 +127,7 @@ function (f::LogLikeLoss)(sol::DESolution)
 end
 
 function (f::LogLikeLoss)(sol::AbstractMonteCarloSolution)
-  distributions = f.distributions
+  distributions = f.data_distributions
   for s in sol
     fill_length = length(f.t)-length(s)
     for i in 1:fill_length
@@ -141,7 +141,7 @@ function (f::LogLikeLoss)(sol::AbstractMonteCarloSolution)
       # j is the size of the system
       # corresponds to distributions[i,j]
       vals = [s[i,j] for s in sol]
-      ll -= loglikelihood(f.distributions[i,j],vals)
+      ll -= loglikelihood(distributions[i,j],vals)
     end
   else
     for j in 1:length(f.t)
@@ -149,8 +149,26 @@ function (f::LogLikeLoss)(sol::AbstractMonteCarloSolution)
       # j is the size of the system
       # corresponds to distributions[i,j]
       vals = [s[i,j] for i in 1:length(sol[1][1]), s in sol]
-      ll -= loglikelihood(f.distributions[j],vals)
+      ll -= loglikelihood(distributions[j],vals)
     end
   end
+
+  if f.diff_distributions != nothing
+    distributions = f.diff_distributions
+    fdll = 0  
+    if eltype(distributions) <: UnivariateDistribution
+      for j in 2:length(f.t), i in 1:length(sol[1][1])
+        vals = [s[i,j] - s[i,j-1] for s in sol]
+        fdll -= logpdf(distributions[j-1,i],vals)[1]
+      end
+    else
+      for j in 2:length(f.t)
+        vals = [s[i,j] - s[i,j-1] for i in 1:length(sol[1][1]), s in sol]
+        fdll -= logpdf(distributions[j-1],vals)[1]
+      end
+    end
+    ll += f.weight*fdll
+  end
+
   ll
 end
