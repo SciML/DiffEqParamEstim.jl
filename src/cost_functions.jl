@@ -35,18 +35,16 @@ end
 
 CostVData(t,data;loss_func = L2DistLoss,weight=nothing) = CostVData(t,data,loss_func,weight)
 
-struct L2Loss{T,D,W} <: DECostFunction
+struct L2Loss{T,D,U,W} <: DECostFunction
   t::T
   data::D
-  differ_data::L where L <:Union{Void,D}
+  differ_weight::U
   data_weight::W
-  differ_weight::U where U <:Union{Void,W}
 end
 
 function (f::L2Loss)(sol::DESolution)
   data = f.data
   weight = f.data_weight
-  diff_data = f.differ_data
   diff_weight = f.differ_weight
   fill_length = length(f.t)-length(sol)
   for i in 1:fill_length
@@ -54,36 +52,40 @@ function (f::L2Loss)(sol::DESolution)
   end
   sumsq = 0.0
   if weight == nothing
-    @inbounds for i in 1:length(sol)
+    @inbounds for i in 2:length(sol)
       for j in 1:length(sol[i])
         sumsq +=(data[j,i] - sol[j,i])^2
       end
-      if diff_data != nothing
-        for j in 2:length(sol[i])
-          sumsq +=(diff_data[j-1,i] - sol[j,i] + sol[j-1,i])^2
-        end
+      if diff_weight != nothing
+          for j in 1:length(sol[i])
+            if typeof(diff_weight) <: Real
+              sumsq += diff_weight*((data[j,i] - data[j,i-1] - sol[j,i] + sol[j,i-1])^2)
+            else
+             sumsq += diff_weight[j,i]*((data[j,i] - data[j,i-1] - sol[j,i] + sol[j,i-1])^2)
+            end
+          end
       end
     end
   else
-    @inbounds for i in 1:length(sol)
+    @inbounds for i in 2:length(sol)
       for j in 1:length(sol[i])
         sumsq = sumsq + ((data[j,i] - sol[j,i])^2)*weight[j,i]
       end
-      if diff_data != nothing && diff_weight == nothing
-        for j in 2:length(sol[i])
-          sumsq +=(diff_data[j-1,i] - sol[j,i] + sol[j-1,i])^2
-        end
-      elseif diff_data != nothing && diff_weight != nothing
-        for j in 2:length(sol[i])
-          sumsq +=((diff_data[j-1,i] - sol[j,i] + sol[j-1,i])^2)*diff_weight[j-1,i]
+      if diff_weight != nothing
+        for j in 1:length(sol[i])
+          if typeof(diff_weight) <: Real
+            sumsq += diff_weight*((data[j,i] - data[j,i-1] - sol[j,i] + sol[j,i-1])^2)
+          else
+            sumsq += diff_weight[j,i]*((data[j,i] - data[j,i-1] - sol[j,i] + sol[j,i-1])^2)
+          end
         end
       end
     end
   end
   sumsq
 end
-L2Loss(t,data;data_weight=nothing,differ_data=nothing,differ_weight=nothing) = L2Loss(t,data,differ_data,data_weight,differ_weight)
-L2Loss(t,data,differ_data;data_weight=nothing,differ_weight=nothing) = L2Loss(t,data,differ_data,data_weight,differ_weight)
+L2Loss(t,data;data_weight=nothing,differ_weight=nothing) = L2Loss(t,data,data_weight,differ_weight)
+L2Loss(t,data,differ_weight=1;data_weight=nothing) = L2Loss(t,data,differ_weight,data_weight)
 # L2Loss(t,data,differ_data,differ_weight;weight=nothing) = L2Loss(t,data,differ_data,weight,differ_weight)
 
 function (f::L2Loss)(sol::AbstractMonteCarloSolution)

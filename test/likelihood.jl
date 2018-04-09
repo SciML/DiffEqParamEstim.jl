@@ -50,18 +50,3 @@ obj = build_loss_objective(prob1,Tsit5(),LogLikeLoss(t,distributions,diff_distri
 bound1 = Tuple{Float64, Float64}[(0.5, 5),(0.5, 5)]
 result = bboptimize(obj;SearchRange = bound1, MaxSteps = 11e3)
 @test result.archive_output.best_candidate ≈ [1.5,1.0] atol = 1e-1
-
-
-obj = build_loss_objective(prob1,Tsit5(),L2Loss(t,aggregate_data),
-                                     maxiters=10000,verbose=false)
-bound1 = Tuple{Float64, Float64}[(0.5, 5),(0.5, 5)]
-result = bboptimize(obj;SearchRange = bound1, MaxSteps = 11e3)
-@test result.archive_output.best_candidate ≈ [1.5,1.0] atol = 1e-1
-
-
-aggregate_data_diff = aggregate_data[:,1:end-1,:] - aggregate_data[:,2:end,:] 
-obj = build_loss_objective(prob1,Tsit5(),L2Loss(t,aggregate_data,aggregate_data_diff),
-                                     maxiters=10000,verbose=false)
-bound1 = Tuple{Float64, Float64}[(0.5, 5),(0.5, 5)]
-result = bboptimize(obj;SearchRange = bound1, MaxSteps = 11e3)
-@test result.archive_output.best_candidate ≈ [1.5,1.0] atol = 1e-1
