@@ -2,7 +2,7 @@ export multiple_shooting_objective
 
 function generate_loss_func(loss,t,i)
   new_loss = nothing
-  if typeof(loss)::L2Loss
+  if typeof(loss)<:L2Loss
     new_loss = L2Loss(t,loss.data[:,i:length(t),:])
   end
   new_loss
@@ -14,17 +14,14 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,init_N_params,regu
                               kwargs...)
   cost_function = function (p)
     N = length(p)-2
-    println(length(p))
     time_len = Int(floor(length(loss.t)/N))
     time_dur = loss.t[1:time_len]
     sol = []
     loss_val = 0
     for i in 1:2:N
-        tmp_prob = remake(prob;u0=p[i:i+1],p=[N+1:N+2])
+        tmp_prob = remake(prob;u0=p[i:i+1],p=p[N+1:N+2])
         if typeof(loss) <: Union{CostVData,L2Loss,LogLikeLoss}
-          println("huihui1")
           push!(sol,solve(tmp_prob,alg;saveat=time_dur,save_everystep=false,dense=false,kwargs...))
-          println("huihui2")
           if (i+1)*time_len < length(loss.t)
             time_dur = loss.t[i*time_len:(i+1)*time_len]
           else
