@@ -3,7 +3,7 @@ export multiple_shooting_objective
 function generate_loss_func(loss,t,i)
   new_loss = nothing
   if typeof(loss)<:L2Loss
-    new_loss = L2Loss(t,loss.data[:,i:length(t),:])
+    new_loss = L2Loss(t,loss.data[:,i:length(t)])
   end
   new_loss
 end 
