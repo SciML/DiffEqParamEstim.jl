@@ -32,6 +32,9 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,init_N_params,regu
         end
     end
     time_dur = loss.t[1:time_len]
+    for i in 2:length(sol)
+      loss_val += sum(sol[i][1] - sol[i-1][end])^2
+    end
     for i in 1:length(sol)
       new_loss = generate_loss_func(loss,time_dur,1)
       if (i+1)*time_len < length(loss.t)
@@ -53,7 +56,6 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,init_N_params,regu
         end
       end
     end
-
     loss_val
   end
     if mpg_autodiff
