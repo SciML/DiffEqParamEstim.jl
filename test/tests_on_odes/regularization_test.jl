@@ -1,10 +1,10 @@
 using PenaltyFunctions, Optim
 
-cost_function_1 = build_loss_objective(prob1,Tsit5(),L2Loss(t,data,nothing),
+cost_function_1 = build_loss_objective(prob1,Tsit5(),L2Loss(t,data),
                    Regularization(0.6,L2Penalty()),maxiters=10000,verbose=false)
-cost_function_2 = build_loss_objective(prob2,Tsit5(),L2Loss(t,data,nothing),verbose=false,
+cost_function_2 = build_loss_objective(prob2,Tsit5(),L2Loss(t,data),verbose=false,
                    Regularization(0.1,MahalanobisPenalty(eye(2))),maxiters=10000)
-cost_function_3 = build_loss_objective(prob3,Tsit5(),L2Loss(t,data,nothing),verbose=false,
+cost_function_3 = build_loss_objective(prob3,Tsit5(),L2Loss(t,data),verbose=false,
                    Regularization(0.1,MahalanobisPenalty(eye(4))),maxiters=10000)
 
 println("Use Optim BFGS to fit the parameter")
