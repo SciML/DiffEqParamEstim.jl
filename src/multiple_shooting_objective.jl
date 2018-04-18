@@ -8,18 +8,18 @@ function generate_loss_func(loss,t,i)
   new_loss
 end 
 
-function multiple_shooting_objective(prob::DEProblem,alg,loss,init_N_params,regularization=nothing;mpg_autodiff = false,
+function multiple_shooting_objective(prob::DEProblem,alg,loss,init_N_params,regularization=nothing;mpg_autodiff = false,discontinuity_weight=1.0,
                               verbose_opt = false,prob_generator = problem_new_parameters,autodiff_prototype = mpg_autodiff ? zeros(init_N_params) : nothing,
                               autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing,
                               kwargs...)
   cost_function = function (p)
-    N = length(p)-2
+    N = length(p)-length(prob.p)
     time_len = Int(floor(length(loss.t)/N))
     time_dur = loss.t[1:time_len]
     sol = []
     loss_val = 0
-    for i in 1:2:N
-        tmp_prob = remake(prob;u0=p[i:i+1],p=p[N+1:N+2])
+    for i in 1:length(prob.u0):N
+        tmp_prob = remake(prob;u0=p[i:i+length(prob.u0)-1],p=p[N+1:N+length(prob.p)])
         if typeof(loss) <: Union{CostVData,L2Loss,LogLikeLoss}
           push!(sol,solve(tmp_prob,alg;saveat=time_dur,save_everystep=false,dense=false,kwargs...))
           if (i+1)*time_len < length(loss.t)
@@ -33,7 +33,7 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,init_N_params,regu
     end
     time_dur = loss.t[1:time_len]
     for i in 2:length(sol)
-      loss_val += sum(sol[i][1] - sol[i-1][end])^2
+      loss_val += discontinuity_weight*sum(sol[i][1] - sol[i-1][end])^2
     end
     for i in 1:length(sol)
       new_loss = generate_loss_func(loss,time_dur,1)
