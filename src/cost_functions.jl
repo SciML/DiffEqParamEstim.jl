@@ -84,7 +84,7 @@ function (f::L2Loss)(sol::DESolution)
   end
   sumsq
 end
-L2Loss(t,data;data_weight=1.0,differ_weight=nothing) = L2Loss(t,data,data_weight,differ_weight)
+L2Loss(t,data;data_weight=nothing,differ_weight=nothing) = L2Loss(t,data,data_weight,differ_weight)
 
 function (f::L2Loss)(sol::AbstractMonteCarloSolution)
   mean(f.(sol.u))
