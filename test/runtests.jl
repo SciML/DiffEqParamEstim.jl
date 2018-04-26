@@ -3,6 +3,7 @@ using DiffEqParamEstim, Base.Test
 tic()
 @time @testset "Tests on ODEs" begin
   include("tests_on_odes/test_problems.jl")
+  include("tests_on_odes/l2loss_test.jl")
   include("tests_on_odes/optim_test.jl")
   include("tests_on_odes/lm_test.jl")
   include("tests_on_odes/lsoptim_test.jl")
