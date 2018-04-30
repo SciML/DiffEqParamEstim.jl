@@ -8,7 +8,7 @@ function generate_loss_func(loss,t,i)
   new_loss
 end 
 
-function multiple_shooting_objective(prob::DEProblem,alg,loss,init_N_params,regularization=nothing;mpg_autodiff = false,discontinuity_weight=1.0,
+function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=nothing;mpg_autodiff = false,discontinuity_weight=1.0,
                               verbose_opt = false,prob_generator = problem_new_parameters,autodiff_prototype = mpg_autodiff ? zeros(init_N_params) : nothing,
                               autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing,
                               kwargs...)
