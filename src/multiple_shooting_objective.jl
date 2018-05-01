@@ -1,4 +1,4 @@
-export multiple_shooting_objective
+export multiple_shooting_objective,merge_solutions
 
 function generate_loss_func(loss,t,i)
   new_loss = nothing
@@ -6,7 +6,13 @@ function generate_loss_func(loss,t,i)
     new_loss = L2Loss(t,loss.data[:,i:length(t)])
   end
   new_loss
-end 
+end
+
+struct Merged_Solution{T1,T2,T3}
+  u::T1
+  t::T2
+  sol::T3
+end
 
 function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=nothing;mpg_autodiff = false,discontinuity_weight=1.0,
                               verbose_opt = false,prob_generator = problem_new_parameters,autodiff_prototype = mpg_autodiff ? zeros(init_N_params) : nothing,
@@ -19,7 +25,7 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=not
     sol = []
     loss_val = 0
     for i in 1:length(prob.u0):N
-        tmp_prob = remake(prob;u0=p[i:i+length(prob.u0)-1],p=p[N+1:N+length(prob.p)])
+        tmp_prob = remake(prob;u0=p[i:i+length(prob.u0)-1],p=p[N+1:N+length(prob.p)],tspan=(time_dur[1],time_dur[end]))
         if typeof(loss) <: Union{CostVData,L2Loss,LogLikeLoss}
           push!(sol,solve(tmp_prob,alg;saveat=time_dur,save_everystep=false,dense=false,kwargs...))
           if (i+1)*time_len < length(loss.t)
@@ -71,4 +77,23 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=not
       cost_function(p)
     end
   DiffEqObjective(cost_function,cost_function2)
+end
+
+function merge_solutions(prob::DEProblem,alg,t,final_params)
+  N = length(final_params)-length(prob.p)
+  time_len = Int(floor(length(t)/N))
+  time_dur = t[1:time_len]
+  sol = []
+  for i in 1:length(prob.u0):N
+      tmp_prob = remake(prob;u0=final_params[i:i+length(prob.u0)-1],p=final_params[N+1:N+length(prob.p)],tspan=(time_dur[1],time_dur[end]))
+      push!(sol,solve(tmp_prob,alg;saveat=time_dur,save_everystep=false,dense=false))
+      if (i+1)*time_len < length(t)
+        time_dur = t[i*time_len:(i+1)*time_len]
+      else
+        time_dur = t[i*time_len:Int(length(t))]
+      end
+  end
+  u = [i for j in 1:length(sol) for i in sol[j].u]
+  t = [i for j in 1:length(sol) for i in sol[j].t]
+  Merged_Solution(u,t,sol)
 end
