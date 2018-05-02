@@ -2,11 +2,18 @@ export multiple_shooting_objective,merge_solutions
 
 function generate_loss_func(loss,t,i)
   new_loss = nothing
-  if typeof(loss)<:L2Loss
-    new_loss = L2Loss(t,loss.data[:,i:length(t)])
+  if typeof(loss)<:L2Loss && i==1
+    new_loss = L2Loss(t,loss.data[:,i:i+length(t)])
+  elseif typeof(loss)<:L2Loss
+    i = (i-1)*length(t)
+    if i+length(t) < size(loss.data)[2]
+      new_loss = L2Loss(t,loss.data[:,i:i+length(t)])
+    else
+      new_loss = L2Loss(t,loss.data[:,i:size(loss.data)[2]])
+    end
   end
   new_loss
-end
+end 
 
 struct Merged_Solution{T1,T2,T3}
   u::T1
@@ -44,7 +51,7 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=not
       loss_val += discontinuity_weight*sum(sol[i][1] - sol[i-1][end])^2
     end
     for i in 1:length(sol)
-      new_loss = generate_loss_func(loss,time_dur,1)
+      new_loss = generate_loss_func(loss,time_dur,i)
       if (i+1)*time_len < length(loss.t)
         time_dur = loss.t[i*time_len:(i+1)*time_len]
       else
@@ -101,6 +108,3 @@ function merge_solutions(prob::DEProblem,alg,t,final_params)
   t = [i for j in 1:length(sol) for i in sol[j].t]
   Merged_Solution(u,t,sol)
 end
-
-# function solve_with_result(prob::DEProblem,alg,t,final_params)
-#   new_prob = remake(prob;u0=final_params[1:length(prob.u0)],p=final_params[end-length(prob.p)-1:end])
