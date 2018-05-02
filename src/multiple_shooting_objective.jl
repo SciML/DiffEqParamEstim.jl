@@ -20,22 +20,24 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=not
                               kwargs...)
   cost_function = function (p)
     N = length(p)-length(prob.p)
-    time_len = Int(floor(length(loss.t)/N))
+    time_len = Int(floor((length(loss.t)*length(prob.u0))/N))
     time_dur = loss.t[1:time_len]
     sol = []
     loss_val = 0
+    j = 1
     for i in 1:length(prob.u0):N
         tmp_prob = remake(prob;u0=p[i:i+length(prob.u0)-1],p=p[N+1:N+length(prob.p)],tspan=(time_dur[1],time_dur[end]))
         if typeof(loss) <: Union{CostVData,L2Loss,LogLikeLoss}
           push!(sol,solve(tmp_prob,alg;saveat=time_dur,save_everystep=false,dense=false,kwargs...))
-          if (i+1)*time_len < length(loss.t)
-            time_dur = loss.t[i*time_len:(i+1)*time_len]
+          if (j+1)*time_len < length(loss.t)
+            time_dur = loss.t[j*time_len:(j+1)*time_len]
           else
-            time_dur = loss.t[i*time_len:Int(length(loss.t))]
+            time_dur = loss.t[j*time_len:Int(length(loss.t))]
           end
         else
           push!(sol,solve(tmp_prob,alg;kwargs...))
         end
+        j = j+1
     end
     time_dur = loss.t[1:time_len]
     for i in 2:length(sol)
@@ -81,19 +83,24 @@ end
 
 function merge_solutions(prob::DEProblem,alg,t,final_params)
   N = length(final_params)-length(prob.p)
-  time_len = Int(floor(length(t)/N))
+  time_len = Int(floor(length(t)*length(prob.u0)/N))
   time_dur = t[1:time_len]
   sol = []
+  j = 1
   for i in 1:length(prob.u0):N
       tmp_prob = remake(prob;u0=final_params[i:i+length(prob.u0)-1],p=final_params[N+1:N+length(prob.p)],tspan=(time_dur[1],time_dur[end]))
       push!(sol,solve(tmp_prob,alg;saveat=time_dur,save_everystep=false,dense=false))
-      if (i+1)*time_len < length(t)
-        time_dur = t[i*time_len:(i+1)*time_len]
+      if (j+1)*time_len < length(t)
+        time_dur = t[j*time_len:(j+1)*time_len]
       else
-        time_dur = t[i*time_len:Int(length(t))]
+        time_dur = t[j*time_len:Int(length(t))]
       end
+      j = j+1
   end
   u = [i for j in 1:length(sol) for i in sol[j].u]
   t = [i for j in 1:length(sol) for i in sol[j].t]
   Merged_Solution(u,t,sol)
 end
+
+# function solve_with_result(prob::DEProblem,alg,t,final_params)
+#   new_prob = remake(prob;u0=final_params[1:length(prob.u0)],p=final_params[end-length(prob.p)-1:end])
