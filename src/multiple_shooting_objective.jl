@@ -37,9 +37,9 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=not
         if typeof(loss) <: Union{CostVData,L2Loss,LogLikeLoss}
           push!(sol,solve(tmp_prob,alg;saveat=time_dur,save_everystep=false,dense=false,kwargs...))
           if (j+1)*time_len < length(loss.t)
-            time_dur = loss.t[j*time_len:(j+1)*time_len]
+            time_dur = loss.t[j*time_len+1:(j+1)*time_len]
           else
-            time_dur = loss.t[j*time_len:Int(length(loss.t))]
+            time_dur = loss.t[j*time_len+1:Int(length(loss.t))]
           end
         else
           push!(sol,solve(tmp_prob,alg;kwargs...))
