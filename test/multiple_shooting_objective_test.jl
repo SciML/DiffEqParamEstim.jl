@@ -10,8 +10,7 @@ ms_p = [1.5,1.0]
 ms_prob = ODEProblem(ms_f,ms_u0,tspan,ms_p)
 t = collect(linspace(0,10,200))
 data = Array(solve(ms_prob,Tsit5(),saveat=t))
-ms_obj = multiple_shooting_objective(ms_prob,Tsit5(),L2Loss(t,data);
-                                     discontinuity_weight=0)
+ms_obj = multiple_shooting_objective(ms_prob,Tsit5(),L2Loss(t,data);discontinuity_weight=10)
 function myconstraint(result,x,grad)
   N = length(result)-length(ms_prob.p)
   time_len = Int(floor(length(t)/N))
@@ -33,13 +32,13 @@ opt = Opt(:LN_COBYLA, 22)
 min_objective!(opt, ms_obj.cost_function2)
 lower_bounds!(opt,fill(0.0,22))
 upper_bounds!(opt,fill(5.0,22))
-xtol_rel!(opt,1e-3)
-equality_constraint!(opt,myconstraint,fill(1e-3,22))
+xtol_rel!(opt,1e-6)
+equality_constraint!(opt,myconstraint,fill(1e-6,22))
 maxeval!(opt, 10000)
 (minf,minx,ret) = NLopt.optimize!(opt,[1.0, 1.0,2.0, 0.20,2.0, 0.20,5.0, 1.0,1.0, 2.0,1.0, 0.0,5.0, 0.0,1.0, 3.0,1.0, 0.0,4.0, 0.0,1.5,1.0])
 println(minx)
-@test minx[end-1] ≈ 1.5 atol=1e-1
-@test minx[end] ≈ 1.0 atol=1e-1
+@test minx[end-1] ≈ 1.5 atol=5e-1
+@test minx[end] ≈ 1.0 atol=5e-1
 
 # bound = Tuple{Float64, Float64}[(0.5, 5),(0.5, 5),(0.5, 5),(0.5, 10),
                                 # (0.5, 5),(0.5, 5),(0.5, 5),(0.5, 5),

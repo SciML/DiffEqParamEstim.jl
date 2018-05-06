@@ -46,29 +46,20 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=not
         end
         j = j+1
     end
-    time_dur = loss.t[1:time_len]
+    u = [i for j in 1:length(sol) for i in sol[j].u]
+    t = [i for j in 1:length(sol) for i in sol[j].t]
+    sol_loss = Merged_Solution(u,t,sol)
+    sol_new = build_solution(prob,alg,sol_loss.t,sol_loss.u)
+    loss_val += loss(sol_new)
     for i in 2:length(sol)
       loss_val += discontinuity_weight*sum(sol[i][1] - sol[i-1][end])^2
     end
-    for i in 1:length(sol)
-      new_loss = generate_loss_func(loss,time_dur,i)
-      if (i+1)*time_len < length(loss.t)
-        time_dur = loss.t[i*time_len:(i+1)*time_len]
-      else
-        time_dur = loss.t[i*time_len:Int(length(loss.t))]
-      end
-      if regularization == nothing
-        loss_val += new_loss(sol[i])
-      else
-        loss_val += new_loss(sol[i]) + regularization(p[N:end])
-      end
-      if verbose_opt
-        count::Int += 1
-        if mod(count,verbose_steps) == 0
-          println("Iteration: $count")
-          println("Current Cost: $loss_val")
-          println("Parameters: $p")
-        end
+    if verbose_opt
+      count::Int += 1
+      if mod(count,verbose_steps) == 0
+        println("Iteration: $count")
+        println("Current Cost: $loss_val")
+        println("Parameters: $p")
       end
     end
     loss_val
