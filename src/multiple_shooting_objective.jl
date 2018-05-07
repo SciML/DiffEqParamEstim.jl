@@ -1,4 +1,4 @@
-export multiple_shooting_objective,merge_solutions
+export multiple_shooting_objective
 
 function generate_loss_func(loss,t,i)
   new_loss = nothing
@@ -28,16 +28,17 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=not
   cost_function = function (p)
     N = length(p)-length(prob.p)
     time_len = Int(floor((length(loss.t)*length(prob.u0))/N))
-    time_dur = loss.t[1:time_len]
+    time_dur = loss.t[1:time_len+1]
     sol = []
     loss_val = 0
     j = 1
+    data_my = solve(prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
     for i in 1:length(prob.u0):N
         tmp_prob = remake(prob;u0=p[i:i+length(prob.u0)-1],p=p[N+1:N+length(prob.p)],tspan=(time_dur[1],time_dur[end]))
         if typeof(loss) <: Union{CostVData,L2Loss,LogLikeLoss}
-          push!(sol,solve(tmp_prob,alg;saveat=time_dur,save_everystep=false,dense=false,kwargs...))
+          push!(sol,solve(tmp_prob,alg,abstol=1e-12,reltol=1e-12;saveat=time_dur,save_everystep=false,dense=false,kwargs...))
           if (j+1)*time_len < length(loss.t)
-            time_dur = loss.t[j*time_len+1:(j+1)*time_len]
+            time_dur = loss.t[j*time_len+1:(j+1)*time_len+1]
           else
             time_dur = loss.t[j*time_len+1:Int(length(loss.t))]
           end
@@ -46,10 +47,12 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=not
         end
         j = j+1
     end
-    u = [i for j in 1:length(sol) for i in sol[j].u]
-    t = [i for j in 1:length(sol) for i in sol[j].t]
+    u = [i for j in 1:length(sol) for i in sol[j].u[1:end-1]]
+    t = [i for j in 1:length(sol) for i in sol[j].t[1:end-1]]
+    push!(u,sol[end].u[end])
+    push!(t,sol[end].t[end])
     sol_loss = Merged_Solution(u,t,sol)
-    sol_new = build_solution(prob,alg,sol_loss.t,sol_loss.u)
+    sol_new = build_solution(prob,alg,loss.t,sol_loss.u)
     loss_val += loss(sol_new)
     for i in 2:length(sol)
       loss_val += discontinuity_weight*sum(sol[i][1] - sol[i-1][end])^2
@@ -77,25 +80,4 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=not
       cost_function(p)
     end
   DiffEqObjective(cost_function,cost_function2)
-end
-
-function merge_solutions(prob::DEProblem,alg,t,final_params)
-  N = length(final_params)-length(prob.p)
-  time_len = Int(floor(length(t)*length(prob.u0)/N))
-  time_dur = t[1:time_len]
-  sol = []
-  j = 1
-  for i in 1:length(prob.u0):N
-      tmp_prob = remake(prob;u0=final_params[i:i+length(prob.u0)-1],p=final_params[N+1:N+length(prob.p)],tspan=(time_dur[1],time_dur[end]))
-      push!(sol,solve(tmp_prob,alg;saveat=time_dur,save_everystep=false,dense=false))
-      if (j+1)*time_len < length(t)
-        time_dur = t[j*time_len:(j+1)*time_len]
-      else
-        time_dur = t[j*time_len:Int(length(t))]
-      end
-      j = j+1
-  end
-  u = [i for j in 1:length(sol) for i in sol[j].u]
-  t = [i for j in 1:length(sol) for i in sol[j].t]
-  Merged_Solution(u,t,sol)
 end
