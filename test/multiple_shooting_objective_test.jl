@@ -37,8 +37,8 @@ equality_constraint!(opt,myconstraint,fill(1e-6,22))
 maxeval!(opt, 10000)
 (minf,minx,ret) = NLopt.optimize!(opt,[1.0, 1.0,2.7, 0.25,6.7, 2.1 ,0.9, 1.8,1.9, 0.31,6.23, 0.68,1.3, 3.2,1.3, 0.47,4.5, 0.33,2.8, 4.5,1.5,1.0])
 println(minx)
-@test minx[end-1] ≈ 1.5 atol=1e-1
-@test minx[end] ≈ 1.0 atol=2e-1
+@test minx[end-1] ≈ 1.5 atol=5e-1
+@test minx[end] ≈ 1.0 atol=5e-1
 
 # bound = Tuple{Float64, Float64}[(0.5, 5),(0.5, 5),(0.5, 5),(0.5, 10),
                                 # (0.5, 5),(0.5, 5),(0.5, 5),(0.5, 5),
