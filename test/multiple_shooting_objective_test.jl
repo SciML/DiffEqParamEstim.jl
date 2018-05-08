@@ -10,7 +10,7 @@ ms_p = [1.5,1.0]
 ms_prob = ODEProblem(ms_f,ms_u0,tspan,ms_p)
 t = collect(linspace(0,10,200))
 data = Array(solve(ms_prob,Tsit5(),saveat=t,abstol=1e-12,reltol=1e-12))
-ms_obj = multiple_shooting_objective(ms_prob,Tsit5(),L2Loss(t,data);discontinuity_weight=0.0,abstol=1e-12,reltol=1e-12)
+ms_obj = multiple_shooting_objective(ms_prob,Tsit5(),L2Loss(t,data);discontinuity_weight=1.0,abstol=1e-12,reltol=1e-12)
 # function myconstraint(result,x,grad)
 #   N = length(result)-length(ms_prob.p)
 #   time_len = Int(floor(length(t)/N))
@@ -45,4 +45,4 @@ bound = Tuple{Float64, Float64}[(0, 10),(0, 10),(0, 10),(0, 10),
                                 (0, 10),(0, 10),(0, 10),(0, 10),
                                 (0, 10),(0, 10),(0, 10),(0, 10),(0, 10),(0, 10)]
 result = bboptimize(ms_obj;SearchRange = bound, MaxSteps = 11e3)
-@test result.archive_output.best_candidate[end-1:end] ≈ [1.5,1.0] atol = 5e-1
+@test result.archive_output.best_candidate[end-1:end] ≈ [1.5,1.0] atol = 2e-1
