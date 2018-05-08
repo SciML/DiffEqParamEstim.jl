@@ -44,5 +44,5 @@ bound = Tuple{Float64, Float64}[(0, 10),(0, 10),(0, 10),(0, 10),
                                 (0, 10),(0, 10),(0, 10),(0, 10),
                                 (0, 10),(0, 10),(0, 10),(0, 10),
                                 (0, 10),(0, 10),(0, 10),(0, 10),(0, 10),(0, 10)]
-result = bboptimize(ms_obj;SearchRange = bound, MaxSteps = 11e3)
+result = bboptimize(ms_obj;SearchRange = bound, MaxSteps = 21e3)
 @test result.archive_output.best_candidate[end-1:end] ≈ [1.5,1.0] atol = 2e-1
