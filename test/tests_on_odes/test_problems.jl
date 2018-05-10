@@ -26,7 +26,16 @@ p = [1.5,1.0,3.0,1.0]
 prob3 = ODEProblem(f3,u0,tspan,p)
 
 # Generate random data based off of the known solution
-sol = solve(prob1,Tsit5())
+
 t = collect(linspace(0,10,200))
-randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
-data = convert(Array,randomized)
+sol1 = solve(prob1,Tsit5())
+randomized = VectorOfArray([(sol1(t[i]) + .01randn(2)) for i in 1:length(t)])
+data1 = convert(Array,randomized)
+
+sol2 = solve(prob2,Tsit5())
+randomized = VectorOfArray([(sol2(t[i]) + .01randn(2)) for i in 1:length(t)])
+data2 = convert(Array,randomized)
+
+sol3 = solve(prob3,Tsit5())
+randomized = VectorOfArray([(sol3(t[i]) + .01randn(2)) for i in 1:length(t)])
+data3 = convert(Array,randomized)
