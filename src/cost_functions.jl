@@ -68,8 +68,14 @@ function (f::L2Loss)(sol::DESolution)
     end
   else
     @inbounds for i in 2:length(sol)
-      for j in 1:length(sol[i])
-        sumsq = sumsq + ((data[j,i] - sol[j,i])^2)*weight[j,i]
+      if typeof(weight) <: Real
+        for j in 1:length(sol[i])
+          sumsq = sumsq + ((data[j,i] - sol[j,i])^2)*weight
+        end
+      else
+        for j in 1:length(sol[i])
+          sumsq = sumsq + ((data[j,i] - sol[j,i])^2)*weight[j,i]
+        end
       end
       if diff_weight != nothing
         for j in 1:length(sol[i])
@@ -84,7 +90,7 @@ function (f::L2Loss)(sol::DESolution)
   end
   sumsq
 end
-L2Loss(t,data;data_weight=nothing,differ_weight=nothing) = L2Loss(t,data,data_weight,differ_weight)
+L2Loss(t,data;differ_weight=nothing,data_weight=nothing) = L2Loss(t,data,differ_weight,data_weight)
 
 function (f::L2Loss)(sol::AbstractMonteCarloSolution)
   mean(f.(sol.u))
