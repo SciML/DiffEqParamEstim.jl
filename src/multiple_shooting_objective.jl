@@ -21,7 +21,7 @@ struct Merged_Solution{T1,T2,T3}
   sol::T3
 end
 
-function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=nothing;mpg_autodiff = false,discontinuity_weight=1.0,
+function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=nothing;prior=nothing,mpg_autodiff = false,discontinuity_weight=1.0,
                               verbose_opt = false,prob_generator = problem_new_parameters,autodiff_prototype = mpg_autodiff ? zeros(init_N_params) : nothing,
                               autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing,
                               kwargs...)
@@ -53,7 +53,13 @@ function multiple_shooting_objective(prob::DEProblem,alg,loss,regularization=not
     push!(t,sol[end].t[end])
     sol_loss = Merged_Solution(u,t,sol)
     sol_new = build_solution(prob,alg,loss.t,sol_loss.u)
-    loss_val += loss(sol_new)
+    loss_val = loss(sol_new)
+    if prior != nothing
+      loss_val += prior_loss(prior,p)
+    end
+    if regularization != nothing
+      loss_val += regularization(p)
+    end
     for i in 2:length(sol)
       loss_val += discontinuity_weight*sum(sol[i][1] - sol[i-1][end])^2
     end

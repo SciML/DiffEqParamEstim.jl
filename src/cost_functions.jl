@@ -1,4 +1,4 @@
-export DECostFunction, CostVData, L2Loss, Regularization, LogLikeLoss
+export DECostFunction, CostVData, L2Loss, Regularization, LogLikeLoss, prior_loss
 
 struct Regularization{L,P} <: DECostFunction
   λ::L
@@ -8,6 +8,18 @@ Regularization(λ) = Regularization{typeof(λ),typeof(L2Penalty())}(λ,L2Penalty
 
 function (f::Regularization)(p)
   f.λ*value(f.penalty, p)
+end
+
+function prior_loss(prior,p)
+  ll = 0.0
+  if eltype(prior) <: UnivariateDistribution
+    for i in 1:length(prior)
+      ll -= logpdf(prior[i],p[i])
+    end
+  else
+    ll -= logpdf(prior,p)
+  end
+  ll
 end
 
 struct CostVData{T,D,L,W} <: DECostFunction
@@ -51,6 +63,7 @@ function (f::L2Loss)(sol::DESolution)
     push!(sol.u,fill(Inf,size(sol[1])))
   end
   sumsq = 0.0
+  
   if weight == nothing
     @inbounds for i in 2:length(sol)
       for j in 1:length(sol[i])
