@@ -8,7 +8,7 @@ end
 (f::DiffEqObjective)(x) = f.cost_function(x)
 (f::DiffEqObjective)(x,y) = f.cost_function2(x,y)
 
-function build_loss_objective(prob::DEProblem,alg,loss,regularization=nothing;mpg_autodiff = false,
+function build_loss_objective(prob::DEProblem,alg,loss,regularization=nothing;priors=nothing,mpg_autodiff = false,
                               verbose_opt = false,verbose_steps = 100,
                               prob_generator = problem_new_parameters,
                               autodiff_prototype = mpg_autodiff ? zeros(prob.p) : nothing,
@@ -25,10 +25,14 @@ function build_loss_objective(prob::DEProblem,alg,loss,regularization=nothing;mp
       sol = solve(tmp_prob,alg;kwargs...)
     end
 
-    if regularization == nothing
+    if regularization == nothing && priors == nothing
       loss_val = loss(sol)
-    else
+    else if priors == nothing
       loss_val = loss(sol) + regularization(p)
+    else if regularization == nothing
+      loss_val = loss(sol,priors,p)
+    else 
+      loss_val = loss(sol,priors,p) + regularization(p)
     end
     if verbose_opt
       count::Int += 1
