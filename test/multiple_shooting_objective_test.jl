@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, DiffEqParamEstim, BlackBoxOptim, Base.Test, NLopt
+using OrdinaryDiffEq, DiffEqParamEstim, BlackBoxOptim, Test, NLopt
 
 ms_f = function (du,u,p,t)
   du[1] = p[1] * u[1] - p[2] * u[1]*u[2]
@@ -8,7 +8,7 @@ ms_u0 = [1.0;1.0]
 tspan = (0.0,10.0)
 ms_p = [1.5,1.0]
 ms_prob = ODEProblem(ms_f,ms_u0,tspan,ms_p)
-t = collect(linspace(0,10,200))
+t = collect(range(0, stop=10, length=200))
 data = Array(solve(ms_prob,Tsit5(),saveat=t,abstol=1e-12,reltol=1e-12))
 bound = Tuple{Float64, Float64}[(0, 10),(0, 10),(0, 10),(0, 10),
                                 (0, 10),(0, 10),(0, 10),(0, 10),

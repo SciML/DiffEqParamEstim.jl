@@ -1,4 +1,4 @@
-using DelayDiffEq, OrdinaryDiffEq, RecursiveArrayTools, Base.Test
+using DelayDiffEq, OrdinaryDiffEq, RecursiveArrayTools, Test
 
 function f_lotka(du,u,h,p,t)
     du[1] = 0.5*u[1] - p[1]*u[1]*u[2]
@@ -13,7 +13,7 @@ prob = DDEProblem(f_lotka,u0,h,tspan,p,
                    constant_lags = [0.5])
 sol = solve(prob, MethodOfSteps(Tsit5()))
 
-t = collect(linspace(0,10,30))
+t = collect(range(0, stop=10, length=30))
 randomized = VectorOfArray([(sol(t[i]) + .03randn(2)) for i in 1:length(t)])
 data = convert(Array, randomized)
 
