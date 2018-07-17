@@ -1,6 +1,6 @@
-export DECostFunction, CostVData, L2Loss, Regularization, LogLikeLoss, prior_loss
+export CostVData, L2Loss, Regularization, LogLikeLoss, prior_loss
 
-struct Regularization{L,P} <: DECostFunction
+struct Regularization{L,P} <: DiffEqBase.DECostFunction
   λ::L
   penalty::P
 end
@@ -22,7 +22,7 @@ function prior_loss(prior,p)
   ll
 end
 
-struct CostVData{T,D,L,W} <: DECostFunction
+struct CostVData{T,D,L,W} <: DiffEqBase.DECostFunction
   t::T
   data::D
   loss_func::L
@@ -41,13 +41,13 @@ function (f::CostVData)(sol::DESolution)
   end
 end
 
-function (f::CostVData)(sol::AbstractMonteCarloSolution)
+function (f::CostVData)(sol::DiffEqBase.AbstractMonteCarloSolution)
   mean(f.(sol.u))
 end
 
 CostVData(t,data;loss_func = L2DistLoss,weight=nothing) = CostVData(t,data,loss_func,weight)
 
-struct L2Loss{T,D,U,W} <: DECostFunction
+struct L2Loss{T,D,U,W} <: DiffEqBase.DECostFunction
   t::T
   data::D
   differ_weight::U
@@ -105,11 +105,11 @@ function (f::L2Loss)(sol::DESolution)
 end
 L2Loss(t,data;differ_weight=nothing,data_weight=nothing) = L2Loss(t,data,differ_weight,data_weight)
 
-function (f::L2Loss)(sol::AbstractMonteCarloSolution)
+function (f::L2Loss)(sol::DiffEqBase.AbstractMonteCarloSolution)
   mean(f.(sol.u))
 end
 
-struct LogLikeLoss{T,D} <: DECostFunction
+struct LogLikeLoss{T,D} <: DiffEqBase.DECostFunction
   t::T
   data_distributions::D
   diff_distributions::L where L<:Union{Void,D}
@@ -165,7 +165,7 @@ function (f::LogLikeLoss)(sol::DESolution)
   ll
 end
 
-function (f::LogLikeLoss)(sol::AbstractMonteCarloSolution)
+function (f::LogLikeLoss)(sol::DiffEqBase.AbstractMonteCarloSolution)
   distributions = f.data_distributions
   for s in sol
     fill_length = length(f.t)-length(s)
