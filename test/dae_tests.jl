@@ -1,4 +1,4 @@
-using DelayDiffEq, OrdinaryDiffEq, RecursiveArrayTools, Base.Test,
+using DelayDiffEq, OrdinaryDiffEq, RecursiveArrayTools, Test,
       Sundials
 
 function resrob(r,yp,y,p,tres)
@@ -13,7 +13,7 @@ p = [0.04]
 prob = DAEProblem(pf,u0,du0,(0.0,100000.0),p,differential_vars=[3])
 sol = solve(prob, IDA())
 
-t = collect(linspace(0,10,30))
+t = collect(range(0, stop=10, length=30))
 randomized = VectorOfArray([(sol(t[i]) + .003randn(3)) for i in 1:length(t)])
 data = convert(Array, randomized)
 

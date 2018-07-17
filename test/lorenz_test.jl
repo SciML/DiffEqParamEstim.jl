@@ -1,5 +1,5 @@
 using DifferentialEquations, RecursiveArrayTools
-using BlackBoxOptim, NLopt
+using NLopt
 Xiang2015Bounds = Tuple{Float64, Float64}[(9, 11), (20, 30), (2, 3)]
 
 g1 = @ode_def_nohes LorenzExample begin
@@ -32,7 +32,7 @@ data = convert(Array,solve(prob,Euler(),tstops=t))
 
 # Use BlackBoxOptim
 obj_short = build_loss_objective(prob_short,Euler(),L2Loss(t_short,data_short),tstops=t_short,dense=false)
-res1 = bboptimize(obj_short;SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
+# res1 = bboptimize(obj_short;SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
 
 # Use NLopt
 opt = Opt(:GN_ORIG_DIRECT_L, 3)
@@ -165,7 +165,7 @@ maxeval!(opt, 10000)
 #### Now let's solve the longer version
 
 obj = build_loss_objective(prob,Euler(),L2Loss(t,data),tstops=t,dense=false)
-res1 = bboptimize(obj;SearchRange = Xiang2015Bounds, MaxSteps = 8e3)
+# res1 = bboptimize(obj;SearchRange = Xiang2015Bounds, MaxSteps = 8e3)
 
 opt = Opt(:GN_ORIG_DIRECT_L, 3)
 lower_bounds!(opt,[9.0,20.0,2.0])

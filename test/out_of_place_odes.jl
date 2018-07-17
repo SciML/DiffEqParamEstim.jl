@@ -15,7 +15,7 @@ tspan = (0.0,10.0)
 prob = ODEProblem(LotkaVolterraTest_not_inplace,u0,tspan,1.5)
 
 sol = solve(prob,Tsit5())
-t = collect(linspace(0,10,200))
+t = collect(range(0, stop=10, length=200))
 using RecursiveArrayTools # for VectorOfArray
 randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
 data = convert(Array,randomized)

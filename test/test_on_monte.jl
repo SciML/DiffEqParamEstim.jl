@@ -1,6 +1,6 @@
 using DiffEqParamEstim, OrdinaryDiffEq, StochasticDiffEq, ParameterizedFunctions,
       DiffEqBase, RecursiveArrayTools, DiffEqMonteCarlo
-using Base.Test
+using Test
 
 pf_func = function (du,u,p,t)
   du[1] = p[1] * u[1] - p[2] * u[1]*u[2]
@@ -13,7 +13,7 @@ p = [1.5,1.0]
 prob = ODEProblem(pf_func,u0,tspan,p)
 sol = solve(prob,Tsit5())
 
-t = collect(linspace(0,10,200))
+t = collect(range(0, stop=10, length=200))
 randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
 data = convert(Array,randomized)
 

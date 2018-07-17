@@ -29,13 +29,13 @@ struct CostVData{T,D,L,W} <: DiffEqBase.DECostFunction
   weight::W
 end
 
-function (f::CostVData)(sol::DESolution)
+function (f::CostVData)(sol::DiffEqBase.DESolution)
   fill_length = length(f.t)-length(sol)
   for i in 1:fill_length
     push!(sol.u,fill(Inf,size(sol[1])))
   end
   if f.weight == nothing
-    norm(value(f.loss_func(),vec(f.data),vec(sol)))
+    norm(value(f.loss_func(),Vector(f.data),Vector(sol)))
   else
     norm(value(f.loss_func(),vec(f.data),vec(sol)).*vec(f.weight))
   end
@@ -54,7 +54,7 @@ struct L2Loss{T,D,U,W} <: DiffEqBase.DECostFunction
   data_weight::W
 end
 
-function (f::L2Loss)(sol::DESolution)
+function (f::L2Loss)(sol::DiffEqBase.DESolution)
   data = f.data
   weight = f.data_weight
   diff_weight = f.differ_weight
@@ -112,7 +112,7 @@ end
 struct LogLikeLoss{T,D} <: DiffEqBase.DECostFunction
   t::T
   data_distributions::D
-  diff_distributions::L where L<:Union{Void,D}
+  diff_distributions::L where L<:Union{Nothing,D}
   weight
 end
 LogLikeLoss(t,data_distributions) = LogLikeLoss(t,data_distributions,nothing,nothing)

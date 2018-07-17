@@ -70,7 +70,7 @@ function construct_estimated_solution_and_derivative!(estimated_solution,estimat
   end
 end
 
-function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
+function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= :Epanechnikov,
                           loss_func = L2DistLoss,mpg_autodiff = false,
                           verbose = false,verbose_steps = 100,
                           autodiff_prototype = mpg_autodiff ? zeros(prob.p) : nothing,

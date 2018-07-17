@@ -1,4 +1,4 @@
-using DiffEqParamEstim, Base.Test
+using DiffEqParamEstim, Test
 
 tic()
 @time @testset "Tests on ODEs" begin
