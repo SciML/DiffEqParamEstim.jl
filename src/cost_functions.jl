@@ -34,8 +34,14 @@ function (f::CostVData)(sol::DiffEqBase.DESolution)
   for i in 1:fill_length
     push!(sol.u,fill(Inf,size(sol[1])))
   end
+  soln = typeof(sol.u[1][1])[]
+  for i in sol.u
+    for j in i 
+      push!(soln,j)
+    end
+  end
   if f.weight == nothing
-    norm(value(f.loss_func(),Vector(f.data),Vector(sol)))
+    norm(value(f.loss_func(),vec(f.data),vec(soln)))
   else
     norm(value(f.loss_func(),vec(f.data),vec(sol)).*vec(f.weight))
   end
