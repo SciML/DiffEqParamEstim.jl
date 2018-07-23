@@ -35,7 +35,7 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem,alg,loss,regular
     data_my = solve(prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
     for i in 1:length(prob.u0):N
         tmp_prob = remake(prob;u0=p[i:i+length(prob.u0)-1],p=p[N+1:N+length(prob.p)],tspan=(time_dur[1],time_dur[end]))
-        if typeof(loss) <: Union{L2Loss,LogLikeLoss}
+        if typeof(loss) <: Union{CostVData,L2Loss,LogLikeLoss}
           push!(sol,solve(tmp_prob,alg,abstol=1e-12,reltol=1e-12;saveat=time_dur,save_everystep=false,dense=false,kwargs...))
           if (j+1)*time_len < length(loss.t)
             time_dur = loss.t[j*time_len+1:(j+1)*time_len+1]

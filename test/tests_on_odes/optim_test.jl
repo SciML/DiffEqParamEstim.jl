@@ -6,11 +6,11 @@ obj = build_loss_objective(prob1,Tsit5(),L2Loss(t,data),
 
 println("Use Optim Brent to fit the parameter")
 result = Optim.optimize(obj, 1.0, 10.0)
-@test_broken result.minimizer[1] ≈ 1.5 atol=3e-1
+@test result.minimizer[1] ≈ 1.5 atol=3e-1
 
 println("Use Optim BFGS to fit the parameter")
-@test_broken result = Optim.optimize(obj, [1.0], Optim.BFGS())
-@test_broken result.minimizer[1] ≈ 1.5 atol=3e-1
+result = Optim.optimize(obj, [1.0], Optim.BFGS())
+@test result.minimizer[1] ≈ 1.5 atol=3e-1
 #sol_optimized2 = solve(prob)
 #plot!(sol_optimized2,leg=false)
 

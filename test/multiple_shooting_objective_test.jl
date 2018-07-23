@@ -1,5 +1,5 @@
-using OrdinaryDiffEq, DiffEqParamEstim, Test, NLopt
-      # BlackBoxOptim,
+using OrdinaryDiffEq, DiffEqParamEstim, BlackBoxOptim, Test, NLopt
+
 ms_f = function (du,u,p,t)
   du[1] = p[1] * u[1] - p[2] * u[1]*u[2]
   du[2] = -3.0 * u[2] + u[1]*u[2]

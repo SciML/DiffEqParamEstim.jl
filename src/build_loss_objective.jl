@@ -19,7 +19,7 @@ function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization
   end
   cost_function = function (p)
     tmp_prob = prob_generator(prob,p)
-    if typeof(loss) <: Union{L2Loss,LogLikeLoss}
+    if typeof(loss) <: Union{CostVData,L2Loss,LogLikeLoss}
       sol = solve(tmp_prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
     else
       sol = solve(tmp_prob,alg;kwargs...)
