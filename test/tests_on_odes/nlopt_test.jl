@@ -2,7 +2,7 @@ using NLopt
 
 println("Use NLOpt to fit the parameter")
 
-obj = build_loss_objective(prob1,Tsit5(),CostVData(t,data),
+obj = build_loss_objective(prob1,Tsit5(),L2Loss(t,data),
                            maxiters=10000,verbose=false)
 
 opt = Opt(:LN_COBYLA, 1)
@@ -30,7 +30,7 @@ maxeval!(opt, 100000)
 
 # test differentiation
 for autodiff in (false, true)
-   obj = build_loss_objective(prob1, Tsit5(), CostVData(t,data);
+   obj = build_loss_objective(prob1, Tsit5(), L2Loss(t,data);
                               mpg_autodiff = autodiff, maxiters = 10000)
 
    opt = Opt(:LD_MMA, 1)

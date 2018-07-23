@@ -1,4 +1,4 @@
-export CostVData, L2Loss, Regularization, LogLikeLoss, prior_loss
+export L2Loss, Regularization, LogLikeLoss, prior_loss
 
 struct Regularization{L,P} <: DiffEqBase.DECostFunction
   λ::L
@@ -21,37 +21,6 @@ function prior_loss(prior,p)
   end
   ll
 end
-
-struct CostVData{T,D,L,W} <: DiffEqBase.DECostFunction
-  t::T
-  data::D
-  loss_func::L
-  weight::W
-end
-
-function (f::CostVData)(sol::DiffEqBase.DESolution)
-  fill_length = length(f.t)-length(sol)
-  for i in 1:fill_length
-    push!(sol.u,fill(Inf,size(sol[1])))
-  end
-  soln = typeof(sol.u[1][1])[]
-  for i in sol.u
-    for j in i 
-      push!(soln,j)
-    end
-  end
-  if f.weight == nothing
-    norm(value(f.loss_func(),vec(f.data),vec(soln)))
-  else
-    norm(value(f.loss_func(),vec(f.data),vec(sol)).*vec(f.weight))
-  end
-end
-
-function (f::CostVData)(sol::DiffEqBase.AbstractMonteCarloSolution)
-  mean(f.(sol.u))
-end
-
-CostVData(t,data;loss_func = L2DistLoss,weight=nothing) = CostVData(t,data,loss_func,weight)
 
 struct L2Loss{T,D,U,W} <: DiffEqBase.DECostFunction
   t::T

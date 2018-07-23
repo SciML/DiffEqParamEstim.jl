@@ -18,7 +18,7 @@ randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
 data = convert(Array,randomized)
 
 monte_prob = MonteCarloProblem(prob)
-obj = build_loss_objective(monte_prob,Tsit5(),CostVData(t,data),maxiters=10000,
+obj = build_loss_objective(monte_prob,Tsit5(),L2Loss(t,data),maxiters=10000,
                                                       verbose=false,num_monte=5)
 
 import Optim
@@ -37,7 +37,7 @@ monte_prob = MonteCarloProblem(prob)
 # Too stochastic for CI
 #=
 srand(200)
-obj = build_loss_objective(monte_prob,SRIW1(),CostVData(t,data),maxiters=1000,
+obj = build_loss_objective(monte_prob,SRIW1(),L2Loss(t,data),maxiters=1000,
                            verbose=false,verbose_opt=false,verbose_steps=1,num_monte=50)
 
 result = Optim.optimize(obj, [1.4,0.95], Optim.BFGS())
