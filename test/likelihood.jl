@@ -1,5 +1,5 @@
-using OrdinaryDiffEq, DiffEqParamEstim, BlackBoxOptim, Distributions, Test,
-      RecursiveArrayTools
+using OrdinaryDiffEq, DiffEqParamEstim, Distributions, Test,RecursiveArrayTools
+      # ,BlackBoxOptim,
 
 pf_func = function (du,u,p,t)
   du[1] = p[1] * u[1] - p[2] * u[1]*u[2]

@@ -1,7 +1,7 @@
 Optim
-ParameterizedFunctions 0.4.0
+ParameterizedFunctions 
 LeastSquaresOptim
-OrdinaryDiffEq 0.1.1
+OrdinaryDiffEq 
 StochasticDiffEq
 NLopt
 DiffEqMonteCarlo
