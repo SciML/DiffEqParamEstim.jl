@@ -1,8 +1,8 @@
 julia 0.7-beta2
-LsqFit 0.0.2
-DiffEqBase 3.0.0
-LossFunctions 0.0.2
-RecursiveArrayTools 0.10.0
+LsqFit 
+DiffEqBase 
+LossFunctions 
+RecursiveArrayTools
 ForwardDiff
 Calculus
 Optim
