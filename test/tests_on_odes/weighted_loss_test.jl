@@ -1,4 +1,4 @@
-using Distributions, RecursiveArrayTools, NLopt
+using Distributions, RecursiveArrayTools, NLopt, Random
 srand(123)
 
 original_solution = VectorOfArray([(sol(t[i])) for i in 1:length(t)])
@@ -18,7 +18,7 @@ end
 weighted_data = original_solution_matrix_form + error
 
 weighted_cost_function = build_loss_objective(prob1,Tsit5(),
-          L2Loss(t,weighted_data,weight=weight),maxiters=10000,verbose=false)
+          L2Loss(t,weighted_data,data_weight=weight),maxiters=10000,verbose=false)
 opt = Opt(:LN_COBYLA, 1)
 min_objective!(opt, weighted_cost_function)
 (minf,minx,ret) = NLopt.optimize(opt,[1.3])
