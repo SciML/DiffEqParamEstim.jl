@@ -55,7 +55,7 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem,alg,loss,regular
     sol_new = build_solution(prob,alg,loss.t,sol_loss.u)
     loss_val = loss(sol_new)
     if prior != nothing
-      loss_val += prior_loss(prior,p)
+      loss_val += prior_loss(prior,p[end-length(prior):end])
     end
     if regularization != nothing
       loss_val += regularization(p)
