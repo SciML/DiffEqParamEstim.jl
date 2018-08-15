@@ -87,7 +87,7 @@ end
 struct LogLikeLoss{T,D} <: DiffEqBase.DECostFunction
   t::T
   data_distributions::D
-  diff_distributions::L where L<:Union{Void,D}
+  diff_distributions::L where L<:Union{Nothing,D}
   weight
 end
 LogLikeLoss(t,data_distributions) = LogLikeLoss(t,data_distributions,nothing,nothing)

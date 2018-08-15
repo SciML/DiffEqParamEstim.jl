@@ -2,7 +2,7 @@ __precompile__()
 
 module DiffEqParamEstim
 using DiffEqBase, LsqFit, PenaltyFunctions,
-      RecursiveArrayTools, ForwardDiff, Calculus, Distributions
+      RecursiveArrayTools, ForwardDiff, Calculus, Distributions, BlackBoxOptim, LinearAlgebra
 
 include("cost_functions.jl")
 include("lm_fit.jl")

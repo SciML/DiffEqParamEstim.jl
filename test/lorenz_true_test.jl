@@ -8,7 +8,7 @@
 
 using DifferentialEquations, RecursiveArrayTools
 using NLopt
-# using BlackBoxOptim
+using BlackBoxOptim
 
 Xiang2015Bounds = Tuple{Float64, Float64}[(9, 11), (20, 30), (2, 3)] # for local optimizations
 xlow_bounds = [9.0,20.0,2.0]
@@ -59,19 +59,19 @@ data = convert(Array,data_sol)
 
 # Note: Euler uses tstops to hit the estimation timepoints exactly since it's not adaptive
 obj_short = build_loss_objective(prob_short,Euler(),L2Loss(t_short,data_short),tstops=t_short)
-# res1 = bboptimize(obj_short;SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
+res1 = bboptimize(obj_short;SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
 # Euler could not recover the correct results since its error is too high!
 
 obj_short = build_loss_objective(prob_short,Tsit5(),L2Loss(t_short,data_short))
-# res1 = bboptimize(obj_short;SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
+res1 = bboptimize(obj_short;SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
 # Tolernace is still too high to get close enough
 
 obj_short = build_loss_objective(prob_short,Tsit5(),L2Loss(t_short,data_short),reltol=1e-9)
-# res1 = bboptimize(obj_short;SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
+res1 = bboptimize(obj_short;SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
 # With the tolerance lower, it achieves the correct solution in 4.5 seconds.
 
 obj_short = build_loss_objective(prob_short,Vern7(),L2Loss(t_short,data_short),reltol=1e-12,abstol=1e-12)
-# res1 = bboptimize(obj_short;SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
+res1 = bboptimize(obj_short;SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
 # But too much accuracy in the numerical solution of the ODE actually leads to
 # slower convergence, since each step takes longer!
 

@@ -32,7 +32,7 @@ data = convert(Array,solve(prob,Euler(),tstops=t))
 
 # Use BlackBoxOptim
 obj_short = build_loss_objective(prob_short,Euler(),L2Loss(t_short,data_short),tstops=t_short,dense=false)
-# res1 = bboptimize(obj_short;SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
+res1 = bboptimize(obj_short;SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
 
 # Use NLopt
 opt = Opt(:GN_ORIG_DIRECT_L, 3)
