@@ -21,8 +21,8 @@ distributions = [fit_mle(Normal,aggregate_data[i,j,:]) for i in 1:2, j in 1:200]
 obj = build_loss_objective(prob1,Tsit5(),LogLikeLoss(t,distributions),
                                      maxiters=10000,verbose=false)
 bound1 = Tuple{Float64, Float64}[(0.5, 5),(0.5, 5)]
-@test_broken result = bboptimize(obj;SearchRange = bound1, MaxSteps = 11e3)
-@test_broken result.archive_output.best_candidate ≈ [1.5,1.0] atol = 1e-1
+result = bboptimize(obj;SearchRange = bound1, MaxSteps = 11e3)
+@test result.archive_output.best_candidate ≈ [1.5,1.0] atol = 1e-1
 
 
 data_distributions = [fit_mle(Normal,aggregate_data[i,j,:]) for i in 1:2, j in 1:200]
@@ -30,8 +30,8 @@ diff_distributions = [fit_mle(Normal,aggregate_data[i,j,:]-aggregate_data[i,j-1,
 obj = build_loss_objective(prob1,Tsit5(),LogLikeLoss(t,data_distributions,diff_distributions),
                                      maxiters=10000,verbose=false)
 bound1 = Tuple{Float64, Float64}[(0.5, 5),(0.5, 5)]
-@test_broken result = bboptimize(obj;SearchRange = bound1, MaxSteps = 11e3)
-@test_broken result.archive_output.best_candidate ≈ [1.5,1.0] atol = 1e-1
+ result = bboptimize(obj;SearchRange = bound1, MaxSteps = 11e3)
+@test result.archive_output.best_candidate ≈ [1.5,1.0] atol = 1e-1
 
  
 data_distributions = [fit_mle(Normal,aggregate_data[i,j,:]) for i in 1:2, j in 1:200]
@@ -39,8 +39,8 @@ diff_distributions = [fit_mle(Normal,aggregate_data[i,j,:]-aggregate_data[i,j-1,
 obj = build_loss_objective(prob1,Tsit5(),LogLikeLoss(t,data_distributions,diff_distributions,0.3),
                                      maxiters=10000,verbose=false)
 bound1 = Tuple{Float64, Float64}[(0.5, 5),(0.5, 5)]
-@test_broken result = bboptimize(obj;SearchRange = bound1, MaxSteps = 11e3)
-@test_broken result.archive_output.best_candidate ≈ [1.5,1.0] atol = 1e-1
+result = bboptimize(obj;SearchRange = bound1, MaxSteps = 11e3)
+@test result.archive_output.best_candidate ≈ [1.5,1.0] atol = 1e-1
 
 
 distributions = [fit_mle(MvNormal,aggregate_data[:,j,:]) for j in 1:200]
@@ -49,5 +49,5 @@ priors = [Truncated(Normal(1.5,0.1),0,2),Truncated(Normal(1.0,0.1),0,1.5)]
 obj = build_loss_objective(prob1,Tsit5(),LogLikeLoss(t,distributions,diff_distributions),
                                      maxiters=10000,verbose=false,priors=priors)
 bound1 = Tuple{Float64, Float64}[(0.5, 5),(0.5, 5)]
-@test_broken result = bboptimize(obj;SearchRange = bound1, MaxSteps = 11e3)
-@test_broken result.archive_output.best_candidate ≈ [1.5,1.0] atol = 1e-1
+result = bboptimize(obj;SearchRange = bound1, MaxSteps = 11e3)
+@test result.archive_output.best_candidate ≈ [1.5,1.0] atol = 1e-1

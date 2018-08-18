@@ -52,7 +52,7 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem,alg,loss,regular
     push!(u,sol[end].u[end])
     push!(t,sol[end].t[end])
     sol_loss = Merged_Solution(u,t,sol)
-    sol_new = build_solution(prob,alg,loss.t,sol_loss.u)
+    sol_new = DiffEqBase.build_solution(prob,alg,loss.t,sol_loss.u)
     loss_val = loss(sol_new)
     if prior != nothing
       loss_val += prior_loss(prior,p[end-length(prior):end])

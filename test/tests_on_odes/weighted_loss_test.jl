@@ -1,5 +1,5 @@
 using Distributions, RecursiveArrayTools, NLopt, Random
-srand(123)
+Random.seed!(123)
 
 original_solution = VectorOfArray([(sol(t[i])) for i in 1:length(t)])
 original_solution_matrix_form = convert(Array,original_solution)
