@@ -35,10 +35,14 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
   diff_weight = f.differ_weight
   fill_length = length(f.t)-length(sol)
   for i in 1:fill_length
-    push!(sol.u,fill(Inf,size(sol[1])))
+    if eltype(sol.u) <: Number
+      push!(sol.u,Inf)
+    else
+      push!(sol.u,fill(Inf,size(sol[1])))
+    end
   end
   sumsq = 0.0
-  
+
   if weight == nothing
     @inbounds for i in 2:length(sol)
       for j in 1:length(sol[i])
@@ -124,7 +128,7 @@ function (f::LogLikeLoss)(sol::DESolution)
     for i in 1:fill_length
       push!(diff_data,fill(Inf,size(sol[1])))
     end
-    fdll = 0  
+    fdll = 0
     if eltype(distributions) <: UnivariateDistribution
       for j in 1:length(f.t)-1, i in 1:length(diff_data[1])
         fdll -= logpdf(distributions[j,i],diff_data[j][i])
@@ -136,7 +140,7 @@ function (f::LogLikeLoss)(sol::DESolution)
     end
     ll += f.weight*fdll
   end
-  
+
   ll
 end
 
@@ -169,7 +173,7 @@ function (f::LogLikeLoss)(sol::DiffEqBase.AbstractMonteCarloSolution)
 
   if f.diff_distributions != nothing
     distributions = f.diff_distributions
-    fdll = 0  
+    fdll = 0
     if eltype(distributions) <: UnivariateDistribution
       for j in 2:length(f.t), i in 1:length(sol[1][1])
         vals = [s[i,j] - s[i,j-1] for s in sol]
