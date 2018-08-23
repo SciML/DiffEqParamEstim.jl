@@ -1,5 +1,3 @@
-__precompile__()
-
 module DiffEqParamEstim
 using DiffEqBase, LsqFit, PenaltyFunctions,
       RecursiveArrayTools, ForwardDiff, Calculus, Distributions, BlackBoxOptim, LinearAlgebra
