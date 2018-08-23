@@ -1,4 +1,4 @@
-julia 0.7
+julia 1.0
 LsqFit 0.6.0
 DiffEqBase 4.21.0
 RecursiveArrayTools 0.17.0
