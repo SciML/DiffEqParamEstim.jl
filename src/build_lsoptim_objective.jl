@@ -1,7 +1,7 @@
 export build_lsoptim_objective
 
 function build_lsoptim_objective(prob::DiffEqBase.DEProblem,t,data,alg;
-                                 prob_generator = (prob,p) -> remake(prob;p=p),
+                                 prob_generator = STANDARD_PROB_GENERATOR,
                                  kwargs...)
   vec_data = vec(data)
   data_length = length(vec_data)

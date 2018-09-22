@@ -13,7 +13,7 @@ function generate_loss_func(loss,t,i)
     end
   end
   new_loss
-end 
+end
 
 struct Merged_Solution{T1,T2,T3}
   u::T1
@@ -21,8 +21,12 @@ struct Merged_Solution{T1,T2,T3}
   sol::T3
 end
 
-function multiple_shooting_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization=nothing;prior=nothing,mpg_autodiff = false,discontinuity_weight=1.0,
-                              verbose_opt = false,prob_generator = (prob,p) -> remake(prob;p=p),autodiff_prototype = mpg_autodiff ? zeros(init_N_params) : nothing,
+function multiple_shooting_objective(prob::DiffEqBase.DEProblem,alg,loss,
+                              regularization=nothing;prior=nothing,
+                              mpg_autodiff = false,discontinuity_weight=1.0,
+                              verbose_opt = false,
+                              prob_generator = STANDARD_PROB_GENERATOR,
+                              autodiff_prototype = mpg_autodiff ? zeros(init_N_params) : nothing,
                               autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing,
                               kwargs...)
   cost_function = function (p)

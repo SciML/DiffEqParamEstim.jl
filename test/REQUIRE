@@ -1,10 +1,10 @@
 Optim
-ParameterizedFunctions 
+ParameterizedFunctions
 LeastSquaresOptim
-OrdinaryDiffEq 
+OrdinaryDiffEq
 StochasticDiffEq
 NLopt
 DiffEqMonteCarlo
 DelayDiffEq
-Evolutionary
-BlackBoxOptim 
+#Evolutionary
+BlackBoxOptim

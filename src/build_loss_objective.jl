@@ -8,9 +8,10 @@ end
 (f::DiffEqObjective)(x) = f.cost_function(x)
 (f::DiffEqObjective)(x,y) = f.cost_function2(x,y)
 
-function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization=nothing;prior=nothing,mpg_autodiff = false,
+function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization=nothing;
+                              prior=nothing,mpg_autodiff = false,
                               verbose_opt = false,verbose_steps = 100,
-                              prob_generator = (prob,p) -> remake(prob;p=p),
+                              prob_generator = STANDARD_PROB_GENERATOR,
                               autodiff_prototype = mpg_autodiff ? zero(prob.p) : nothing,
                               autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing,
                               kwargs...)
@@ -33,7 +34,7 @@ function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization
     if regularization != nothing
       loss_val += regularization(p)
     end
-      
+
     if verbose_opt
       count::Int += 1
       if mod(count,verbose_steps) == 0

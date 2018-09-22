@@ -2,6 +2,9 @@ module DiffEqParamEstim
 using DiffEqBase, LsqFit, PenaltyFunctions,
       RecursiveArrayTools, ForwardDiff, Calculus, Distributions, BlackBoxOptim, LinearAlgebra
 
+STANDARD_PROB_GENERATOR(prob,p) = remake(prob;u0=eltype(p).(prob.u0),p=p)
+STANDARD_PROB_GENERATOR(prob::MonteCarloProblem,p) = MonteCarloProblem(remake(prob.prob;u0=eltype(p).(prob.prob.u0),p=p))
+
 include("cost_functions.jl")
 include("lm_fit.jl")
 include("build_loss_objective.jl")
