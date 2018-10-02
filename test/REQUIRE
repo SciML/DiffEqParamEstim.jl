@@ -6,5 +6,5 @@ StochasticDiffEq
 NLopt
 DiffEqMonteCarlo
 DelayDiffEq
-Evolutionary 0.2
+#Evolutionary
 BlackBoxOptim 

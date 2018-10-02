@@ -18,7 +18,7 @@ end a c
 p = [1.5,3.0]
 prob2 = ODEProblem(f2,u0,tspan,p)
 
-f3 = @ode_def_nohes LotkaVolterraAll begin
+f3 = @ode_def LotkaVolterraAll begin
   dx = a*x - b*x*y
   dy = -c*y + d*x*y
 end a b c d

@@ -73,7 +73,7 @@ end
 function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= :Epanechnikov,
                           loss_func = L2Loss,mpg_autodiff = false,
                           verbose = false,verbose_steps = 100,
-                          autodiff_prototype = mpg_autodiff ? zeros(prob.p) : nothing,
+                          autodiff_prototype = mpg_autodiff ? zeros(length(prob.p)) : nothing,
                           autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing)
     f = prob.f
     n = length(tpoints)
@@ -95,7 +95,7 @@ function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= :Epane
           f(du,estimated_solution[i,:],p,tpoints[i])
           sol[i] = copy(du)
         end
-        norm(value(loss_func(),vec(estimated_derivative'),vec(VectorOfArray(sol))))
+        sqrt(sum((vec(estimated_derivative') .- vec(VectorOfArray(sol))).^2))
     end
 
     if mpg_autodiff
