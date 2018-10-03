@@ -1,6 +1,7 @@
+using Optim, NLopt
+
 println("Use Two Stage Method to fit the parameter")
 
-@test_broken begin
 cost_function = two_stage_method(prob1,t,data)
 result = Optim.optimize(cost_function, 0.0, 10.0)
 @test result.minimizer[1] ≈ 1.5 atol=3e-1
@@ -23,5 +24,3 @@ for autodiff in (false, true)
   (minf,minx,ret) = NLopt.optimize(opt, [1.3,0.8,2.8,1.2])
   @test minx ≈ [1.5;1.0;3.0;1.0] atol=5e-1
 end
-end
-
