@@ -29,10 +29,12 @@ println("Use Optim NelderMead to fit the parameter")
 result_neldermead = Optim.optimize(cost_function2, [1.0,2.5], Optim.NelderMead())
 @test result_neldermead.minimizer ≈ [1.5;3.0] atol=3e-1
 
+#=
 println("Use Optim SimulatedAnnealing to fit the parameter")
 options = Optim.Options(iterations=100_000)
 result_simulatedannealing = Optim.optimize(obj, [1.0], Optim.SimulatedAnnealing(),options)
 @test result_simulatedannealing.minimizer ≈ [1.5] atol=3e-1
+=#
 
 result_simulatedannealing = Optim.optimize(cost_function2, [1.0,2.5], Optim.SimulatedAnnealing(),options)
 @test result_simulatedannealing.minimizer ≈ [1.5;3.0] atol=3e-1
