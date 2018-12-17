@@ -8,6 +8,21 @@ struct TwoStageCost{F,F2,D} <: Function
   estimated_derivative::D
 end
 
+struct MyTag end
+struct DiffCache{T<:AbstractArray, S<:AbstractArray}
+    du::T
+    dual_du::S
+end
+
+function DiffCache(T, size, ::Type{Val{chunk_size}}) where chunk_size
+    DiffCache(zeros(eltype(T), size...), zeros(eltype(ForwardDiff.Dual{nothing,T,chunk_size}), size...))
+end
+
+DiffCache(u::AbstractArray) = DiffCache(eltype(u),size(u),Val{ForwardDiff.pickchunksize(length(u))})
+
+get_tmp(dc::DiffCache, ::Type{T}) where T<:ForwardDiff.Dual = dc.dual_du
+get_tmp(dc::DiffCache, T) = dc.du
+
 (f::TwoStageCost)(p) = f.cost_function(p)
 (f::TwoStageCost)(p,g) = f.cost_function2(p,g)
 
@@ -83,12 +98,21 @@ function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= :Epane
     kernel_function = decide_kernel(kernel)
     e1 = [1;0]
     e2 = [0;1;0]
+    global du = similar(prob.u0) # have to adjust type for autodifferentiation
+    global sol = Vector{typeof(du)}(undef,n)
+    if mpg_autodiff
+      global du_cache = DiffCache(du)
+      global sol_cache = DiffCache(sol)
+    end
     construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,e1,e2,data,kernel_function,tpoints,h,n)
     # Step - 2
     cost_function = function (p)
-        # have to adjust type for autodifferentiation
-        du = similar(prob.u0, promote_type(eltype(prob.u0), eltype(p)))
-        sol = Vector{typeof(du)}(undef,n)
+        if mpg_autodiff
+          du_ = get_tmp(du_cache,eltype(p))
+          global du = reinterpret(eltype(p),du_)
+          sol_ = get_tmp(sol_cache,eltype(p))
+          global sol = reinterpret(eltype(p),sol_)
+        end 
         f = prob.f
         for i in 1:n
           est_sol = @view estimated_solution[:,i]
