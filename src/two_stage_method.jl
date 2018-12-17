@@ -98,20 +98,20 @@ function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= :Epane
     kernel_function = decide_kernel(kernel)
     e1 = [1;0]
     e2 = [0;1;0]
-    global du = similar(prob.u0) # have to adjust type for autodifferentiation
-    global sol = Vector{typeof(du)}(undef,n)
+    du = similar(prob.u0) # have to adjust type for autodifferentiation
+    sol = Vector{typeof(du)}(undef,n)
     if mpg_autodiff
-      global du_cache = DiffCache(du)
-      global sol_cache = DiffCache(sol)
+      du_cache = DiffCache(du)
+      sol_cache = DiffCache(sol)
     end
     construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,e1,e2,data,kernel_function,tpoints,h,n)
     # Step - 2
     cost_function = function (p)
         if mpg_autodiff
           du_ = get_tmp(du_cache,eltype(p))
-          global du = reinterpret(eltype(p),du_)
+          du = reinterpret(eltype(p),du_)
           sol_ = get_tmp(sol_cache,eltype(p))
-          global sol = reinterpret(eltype(p),sol_)
+          sol = reinterpret(eltype(p),sol_)
         end 
         f = prob.f
         for i in 1:n
