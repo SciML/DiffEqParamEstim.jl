@@ -1,4 +1,4 @@
-export L2Loss, Regularization, LogLikeLoss, prior_loss
+export L2Loss, Regularization, LogLikeLoss, prior_loss, l2lossgradient!
 
 struct Regularization{L,P} <: DiffEqBase.DECostFunction
   λ::L
@@ -189,4 +189,15 @@ function (f::LogLikeLoss)(sol::DiffEqBase.AbstractMonteCarloSolution)
   end
 
   ll
+end
+
+function l2lossgradient!(grad,sol,data,sensitivities,num_p)
+  fill!(grad,0.0)
+  data_x_size = size(data,1)
+  my_grad = @. 2 * (data - sol)
+  u0len = length(data[1])
+  K = size(my_grad,2)
+  for k in 1:K, i in 1:num_p, j in 1:data_x_size
+    grad[i] -= my_grad[j,k]*sensitivities[i][j,k]
+  end
 end

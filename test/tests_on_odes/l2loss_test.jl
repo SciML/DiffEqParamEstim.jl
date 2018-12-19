@@ -1,4 +1,4 @@
-using BlackBoxOptim
+using BlackBoxOptim, Optim
 
 cost_function = build_loss_objective(prob1,Tsit5(),L2Loss(t,data),
                                      maxiters=10000,verbose=false)
@@ -23,3 +23,13 @@ cost_function = build_loss_objective(prob3,Tsit5(),L2Loss(t,data,differ_weight=0
 bound3 = Tuple{Float64, Float64}[(1, 2),(0, 2), (1, 4), (0, 2)]
 result = bboptimize(cost_function;SearchRange = bound3, MaxSteps = 11e3)
 @test result.archive_output.best_candidate ≈ [1.5;1.0;3.0;1.0] atol=5e-1
+
+println("SA for gradient")
+cost_function = build_loss_objective(prob1,Tsit5(),L2Loss(t,data),
+                                     maxiters=10000,verbose=false,lsa_gradient = true)
+bound1 = Tuple{Float64, Float64}[(1, 2)]
+function g_!(stor,x)
+    cost_function.cost_function2(x,stor)
+end
+result = Optim.optimize(cost_function.cost_function,g_!,[1.0], Optim.ConjugateGradient())
+@test result.minimizer[1] ≈ 1.5 atol=3e-1
