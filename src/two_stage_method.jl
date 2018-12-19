@@ -102,7 +102,7 @@ function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= :Epane
     sol = Vector{typeof(du)}(undef,n)
     if mpg_autodiff
       du_cache = DiffCache(du)
-      sol_cache = DiffCache(sol)
+      sol_cache = Vector{typeof(du_cache)}(undef,n)
     end
     construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,e1,e2,data,kernel_function,tpoints,h,n)
     # Step - 2
@@ -110,8 +110,8 @@ function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= :Epane
         if mpg_autodiff
           du_ = get_tmp(du_cache,eltype(p))
           du = reinterpret(eltype(p),du_)
-          sol_ = get_tmp(sol_cache,eltype(p))
-          sol = reinterpret(eltype(p),sol_)
+          sol_ = map(i -> get_tmp(i,eltype(p)),sol_cache)
+          sol = map(i -> reinterpret(eltype(p),i),sol_)
         end 
         f = prob.f
         for i in 1:n
@@ -119,7 +119,7 @@ function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= :Epane
           f(du,est_sol,p,tpoints[i])
           sol[i] = copy(du)
         end
-        sqrt(sum((vec(estimated_derivative) .- vec(VectorOfArray(sol))).^2))
+        sum(abs2(vec(estimated_derivative) .- vec(VectorOfArray(sol))))
     end
 
     if mpg_autodiff
