@@ -31,7 +31,7 @@ function decide_kernel(kernel)
         return Epanechnikov_kernel
     elseif kernel == :Uniform
         return Uniform_kernel
-    elseif kernel == :TriTriangular
+    elseif kernel == :Triangular
         return Triangular_kernel
     elseif kernel == :Quartic
       return Quartic_Kernel
