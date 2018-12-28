@@ -5,11 +5,25 @@ struct DiffEqObjective{F,F2} <: Function
   cost_function2::F2
 end
 
-function diffeq_sen_full(f, u0, tspan, p, t; alg=Tsit5(), sensalg=SensitivityAlg(), kwargs...)
+function diffeq_sen_full(f, u0, tspan, p, t; alg=Tsit5(), kwargs...)
   prob = ODELocalSensitivityProblem(f,u0,tspan,p)
-  sol = solve(prob,alg;sensealg=sensalg,kwargs...)(t)
+  sol = solve(prob,alg;kwargs...)(t)
   nvar = length(u0)
   sol[1:nvar,:], [sol[i*nvar+1:i*nvar+nvar,:] for i in 1:length(p)]
+end
+
+function diffeq_sen_l2(df, u0, tspan, p, t, data, alg=Tsit5();kwargs...)
+  prob = ODEProblem(df,u0,tspan,p)
+  sol = solve(prob, alg,saveat=t; kwargs...)
+  function dg(out,u,p,t,i) 
+    fill!(out,0.0)
+    my_grad = @. -1 * 2 * (data - u)
+    u0len = length(data[1])
+    for i in 1:u0len
+      out[i] = sum(my_grad[i,:])
+    end
+  end
+  adjoint_sensitivities(sol,alg,dg,t,kwargs...)
 end
 
 (f::DiffEqObjective)(x) = f.cost_function(x)
@@ -20,7 +34,7 @@ function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization
                               verbose_opt = false,verbose_steps = 100,
                               prob_generator = STANDARD_PROB_GENERATOR,
                               autodiff_prototype = mpg_autodiff ? zero(prob.p) : nothing,
-                              autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing,lsa_gradient = false,
+                              autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing,lsa_gradient = false,adjsa_gradient= false,
                               kwargs...)
   if verbose_opt
     count = 0 # keep track of # function evaluations
@@ -56,9 +70,16 @@ function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization
   if mpg_autodiff
     gcfg = ForwardDiff.GradientConfig(cost_function, autodiff_prototype, autodiff_chunk)
     g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
-  elseif lsa_gradient && typeof(loss) == L2Loss
-    sol_,sens = diffeq_sen_full(prob.f,pro.u0,pro.tspan,loss.t)
-    g! = (x,out) -> l2lossgradient!(out,sol_,loss.data,sens,length(pro.p))
+  elseif lsa_gradient 
+    function g!(x,out)
+      sol_,sens = diffeq_sen_full(prob.f,prob.u0,prob.tspan,x,loss.t,alg=alg,kwargs...)
+      l2lossgradient!(out,sol_,loss.data,sens,length(prob.p))
+    end
+  elseif adjsa_gradient
+    println("using asa")
+    function g!(x, out)
+      out = diffeq_sen_l2(prob.f,prob.u0,prob.tspan,x,loss.t,loss.data,alg)
+    end
   else
     g! = (x, out) -> Calculus.finite_difference!(cost_function,x,out,:central)
   end
@@ -67,6 +88,7 @@ function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization
   cost_function2 = function (p,grad)
     if length(grad)>0
       g!(p,grad)
+      println(grad)
     end
     cost_function(p)
   end
