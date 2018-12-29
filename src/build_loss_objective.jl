@@ -12,14 +12,13 @@ function diffeq_sen_full(f, u0, tspan, p, t; alg=Tsit5(), kwargs...)
   sol[1:nvar,:], [sol[i*nvar+1:i*nvar+nvar,:] for i in 1:length(p)]
 end
 
-function diffeq_sen_l2(df, u0, tspan, p, t, data, alg=Tsit5();kwargs...)
+function diffeq_sen_l2!(res, df, u0, tspan, p, t, data, alg=Tsit5();kwargs...)
   prob = ODEProblem(df,u0,tspan,p)
   sol = solve(prob, alg,saveat=t; kwargs...)
   function dg(out,u,p,t,i)
-    out = @. -1 * 2 * (data[:,i] - u)
+    @. out = -1 * 2 * (data[:,i] - u)
   end
-  println(adjoint_sensitivities(sol,alg,dg,t,kwargs...))
-  adjoint_sensitivities(sol,alg,dg,t,kwargs...)
+  res .= adjoint_sensitivities(sol,alg,dg,t,kwargs...)[1,:]
 end
 
 (f::DiffEqObjective)(x) = f.cost_function(x)
@@ -72,8 +71,7 @@ function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization
       l2lossgradient!(out,sol_,loss.data,sens,length(prob.p))
     end
   elseif adjsa_gradient
-    println("using asa")
-    g! = (x,out) -> out = diffeq_sen_l2(prob.f,prob.u0,prob.tspan,x,loss.t,loss.data,alg)
+    g! = (x,out) -> diffeq_sen_l2!(out,prob.f,prob.u0,prob.tspan,x,loss.t,loss.data,alg)
   else
     g! = (x, out) -> Calculus.finite_difference!(cost_function,x,out,:central)
   end
