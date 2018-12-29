@@ -16,7 +16,7 @@ function diffeq_sen_l2!(res, df, u0, tspan, p, t, data, alg=Tsit5();kwargs...)
   prob = ODEProblem(df,u0,tspan,p)
   sol = solve(prob, alg,saveat=t; kwargs...)
   function dg(out,u,p,t,i)
-    @. out = -1 * 2 * (data[:,i] - u)
+    @. out = 2 * (data[:,i] - u)
   end
   res .= adjoint_sensitivities(sol,alg,dg,t,kwargs...)[1,:]
 end
@@ -80,7 +80,6 @@ function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization
   cost_function2 = function (p,grad)
     if length(grad)>0
       g!(p,grad)
-      println(grad)
     end
     cost_function(p)
   end
