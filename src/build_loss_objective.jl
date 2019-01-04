@@ -12,7 +12,7 @@ function diffeq_sen_full(f, u0, tspan, p, t; alg=Tsit5(), kwargs...)
   sol[1:nvar,:], [sol[i*nvar+1:i*nvar+nvar,:] for i in 1:length(p)]
 end
 
-function diffeq_sen_l2!(res, df, u0, tspan, p, t, data, alg=Tsit5();kwargs...)
+function diffeq_sen_l2!(res, df, u0, tspan, p, t, data, alg;kwargs...)
   prob = ODEProblem(df,u0,tspan,p)
   sol = solve(prob, alg,saveat=t; kwargs...)
   function dg(out,u,p,t,i)
@@ -65,10 +65,14 @@ function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization
   if mpg_autodiff
     gcfg = ForwardDiff.GradientConfig(cost_function, autodiff_prototype, autodiff_chunk)
     g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
-  elseif lsa_gradient 
-    function g!(x,out)
-      sol_,sens = diffeq_sen_full(prob.f,prob.u0,prob.tspan,x,loss.t;alg=alg)
-      l2lossgradient!(out,sol_,loss.data,sens,length(prob.p))
+  elseif lsa_gradient
+    if typeof(loss) <: L2Loss
+      function g!(x,out)
+        sol_,sens = diffeq_sen_full(prob.f,prob.u0,prob.tspan,x,loss.t;alg=alg)
+        l2lossgradient!(out,sol_,loss.data,sens,length(prob.p))
+      end
+    else
+      throw("LSA gradient only for L2Loss")
     end
   elseif adjsa_gradient
     g! = (x,out) -> diffeq_sen_l2!(out,prob.f,prob.u0,prob.tspan,x,loss.t,loss.data,alg)
