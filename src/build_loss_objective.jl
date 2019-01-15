@@ -5,7 +5,7 @@ struct DiffEqObjective{F,F2} <: Function
   cost_function2::F2
 end
 
-function diffeq_sen_full(f, u0, tspan, p, t; alg=Tsit5(), kwargs...)
+function diffeq_sen_full(f, u0, tspan, p, t; alg, kwargs...)
   prob = ODELocalSensitivityProblem(f,u0,tspan,p)
   sol = solve(prob,alg;kwargs...)(t)
   nvar = length(u0)
