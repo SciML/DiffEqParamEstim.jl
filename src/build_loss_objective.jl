@@ -5,28 +5,20 @@ struct DiffEqObjective{F,F2} <: Function
   cost_function2::F2
 end
 
-function diffeq_sen_full(f, u0, tspan, p, t; alg, kwargs...)
+function diffeq_sen_full(f, u0, tspan, p, t, alg; kwargs...)
   prob = ODELocalSensitivityProblem(f,u0,tspan,p)
   sol = solve(prob,alg;kwargs...)(t)
   nvar = length(u0)
   sol[1:nvar,:], [sol[i*nvar+1:i*nvar+nvar,:] for i in 1:length(p)]
 end
 
-function diffeq_sen_l2!(res, df, u0, tspan, p, loss, alg;prior,regularization,kwargs...)
+function diffeq_sen_l2!(res, df, u0, tspan, p, t, data, alg;kwargs...)
   prob = ODEProblem(df,u0,tspan,p)
-  sol = solve(prob, alg,saveat=loss.t; kwargs...)
+  sol = solve(prob, alg, saveat=t; kwargs...)
   function dg(out,u,p,t,i)
-    @. out = 2 * (loss.data[:,i] - u)
+    @. out = 2 * (data[:,i] - u)
   end
-  res .= adjoint_sensitivities(sol,alg,dg,loss.t,kwargs...)[1,:]
-  loss_val = loss(sol)
-  if prior != nothing
-    loss_val += prior_loss(prior,p)
-  end
-  if regularization != nothing
-    loss_val += regularization(p)
-  end
-  loss_val
+  res .= adjoint_sensitivities(sol,alg,dg,t,kwargs...)[1,:]
 end
 
 (f::DiffEqObjective)(x) = f.cost_function(x)
@@ -76,14 +68,14 @@ function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization
   elseif flsa_gradient
     if typeof(loss) <: L2Loss
       function g!(x,out)
-        sol_,sens = diffeq_sen_full(prob.f,prob.u0,prob.tspan,x,loss.t;alg=alg)
+        sol_,sens = diffeq_sen_full(prob.f,prob.u0,prob.tspan,x,loss.t,alg)
         l2lossgradient!(out,sol_,loss.data,sens,length(prob.p))
       end
     else
       throw("LSA gradient only for L2Loss")
     end
   elseif adjsa_gradient
-    g! = (x,out) -> diffeq_sen_l2!(out,prob.f,prob.u0,prob.tspan,x,loss,alg;prior = prior, regularization = regularization)
+    g! = (x,out) -> diffeq_sen_l2!(out,prob.f,prob.u0,prob.tspan,x,loss.t,loss.data,alg)
   else
     g! = (x, out) -> Calculus.finite_difference!(cost_function,x,out,:central)
   end
@@ -92,9 +84,7 @@ function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization
     if length(grad)>0
       g!(p,grad)
     end
-    if !adjsa_gradient
-      cost_function(p)
-    end
+    cost_function(p)
   end
   DiffEqObjective(cost_function,cost_function2)
 end
