@@ -26,7 +26,7 @@ result = bboptimize(cost_function;SearchRange = bound3, MaxSteps = 11e3)
 
 println("LSA for gradient")
 cost_function = build_loss_objective(prob1,Tsit5(),L2Loss(t,data),
-                                     maxiters=10000,verbose=false,lsa_gradient=true)
+                                     maxiters=10000,verbose=false,flsa_gradient=true)
 bound1 = Tuple{Float64, Float64}[(1, 2)]
 function g_!(stor,x)
     cost_function.cost_function2(x,stor)
