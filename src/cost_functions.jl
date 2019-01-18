@@ -33,14 +33,11 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
   data = f.data
   weight = f.data_weight
   diff_weight = f.differ_weight
-  fill_length = length(f.t)-length(sol)
-  for i in 1:fill_length
-    if eltype(sol.u) <: Number
-      push!(sol.u,Inf)
-    else
-      push!(sol.u,fill(Inf,size(sol[1])))
-    end
+
+  if sol.retcode != :Success
+      return Inf
   end
+
   sumsq = 0.0
 
   if weight == nothing
@@ -82,7 +79,13 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
   end
   sumsq
 end
-L2Loss(t,data;differ_weight=nothing,data_weight=nothing) = L2Loss(t,data,differ_weight,data_weight)
+
+# Cost functions are written assuming a data matrix
+# Turn vectors into a 1xN matrix
+matrixize(x) = typeof(x) <: Vector ? reshape(x,1,length(x)) : x
+
+L2Loss(t,data;differ_weight=nothing,data_weight=nothing) =
+      L2Loss(t,matrixize(data),matrixize(differ_weight),matrixize(data_weight))
 
 function (f::L2Loss)(sol::DiffEqBase.AbstractMonteCarloSolution)
   mean(f.(sol.u))
@@ -94,14 +97,13 @@ struct LogLikeLoss{T,D} <: DiffEqBase.DECostFunction
   diff_distributions::L where L<:Union{Nothing,D}
   weight
 end
-LogLikeLoss(t,data_distributions) = LogLikeLoss(t,data_distributions,nothing,nothing)
-LogLikeLoss(t,data_distributions,diff_distributions) = LogLikeLoss(t,data_distributions,diff_distributions,1)
+LogLikeLoss(t,data_distributions) = LogLikeLoss(t,matrixize(data_distributions),nothing,nothing)
+LogLikeLoss(t,data_distributions,diff_distributions) = LogLikeLoss(t,matrixize(data_distributions),matrixize(diff_distributions),1)
 
 function (f::LogLikeLoss)(sol::DESolution)
   distributions = f.data_distributions
-  fill_length = length(f.t)-length(sol)
-  for i in 1:fill_length
-    push!(sol.u,fill(Inf,size(sol[1])))
+  if sol.retcode != :Success
+      return Inf
   end
   ll = 0.0
 
@@ -146,11 +148,8 @@ end
 
 function (f::LogLikeLoss)(sol::DiffEqBase.AbstractMonteCarloSolution)
   distributions = f.data_distributions
-  for s in sol
-    fill_length = length(f.t)-length(s)
-    for i in 1:fill_length
-      push!(s.u,fill(Inf,size(s[1])))
-    end
+  if any((s.retcode != :Success for s in sol))
+      return Inf
   end
   ll = 0.0
   if eltype(distributions) <: UnivariateDistribution

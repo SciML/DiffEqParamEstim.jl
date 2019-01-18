@@ -36,11 +36,10 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem,alg,loss,
     sol = []
     loss_val = 0
     j = 1
-    data_my = solve(prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
     for i in 1:length(prob.u0):N
         tmp_prob = remake(prob;u0=p[i:i+length(prob.u0)-1],p=p[N+1:N+length(prob.p)],tspan=(time_dur[1],time_dur[end]))
         if typeof(loss) <: Union{L2Loss,LogLikeLoss}
-          push!(sol,solve(tmp_prob,alg,abstol=1e-12,reltol=1e-12;saveat=time_dur,save_everystep=false,dense=false,kwargs...))
+          push!(sol,solve(tmp_prob,alg;saveat=time_dur,save_everystep=false,dense=false,kwargs...))
           if (j+1)*time_len < length(loss.t)
             time_dur = loss.t[j*time_len+1:(j+1)*time_len+1]
           else
@@ -51,12 +50,16 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem,alg,loss,
         end
         j = j+1
     end
+    if any((s.retcode != :Success for s in sol))
+        return Inf
+    end
     u = [i for j in 1:length(sol) for i in sol[j].u[1:end-1]]
     t = [i for j in 1:length(sol) for i in sol[j].t[1:end-1]]
     push!(u,sol[end].u[end])
     push!(t,sol[end].t[end])
     sol_loss = Merged_Solution(u,t,sol)
-    sol_new = DiffEqBase.build_solution(prob,alg,loss.t,sol_loss.u)
+    sol_new = DiffEqBase.build_solution(prob,alg,loss.t,sol_loss.u,
+                                        retcode = :Success)
     loss_val = loss(sol_new)
     if prior != nothing
       loss_val += prior_loss(prior,p[end-length(prior):end])
