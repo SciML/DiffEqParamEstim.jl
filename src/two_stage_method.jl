@@ -94,7 +94,7 @@ function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= :Epane
           f(du,est_sol,p,tpoints[i])
           sol[i] = copy(du)
         end
-        sqrt(sum(abs2(vec(estimated_derivative)[i] - vec(VectorOfArray(sol))[i]) for i in 1:length(vec(estimated_derivative))))
+        sqrt(sum(abs2,vec(estimated_derivative)[i] - vec(VectorOfArray(sol))[i] for i in 1:length(vec(estimated_derivative))))
     end
 
     if mpg_autodiff
