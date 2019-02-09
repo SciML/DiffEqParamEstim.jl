@@ -29,6 +29,7 @@ struct L2Loss{T,D,U,W,G} <: DiffEqBase.DECostFunction
   differ_weight::U
   data_weight::W
   colloc_grad::G
+  dudt::G
 end
 
 function (f::L2Loss)(sol::DiffEqBase.DESolution)
@@ -36,6 +37,7 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
   weight = f.data_weight
   diff_weight = f.differ_weight
   colloc_grad = f.colloc_grad
+  dudt = f.dudt
 
   if sol.retcode != :Success
       return Inf
@@ -81,15 +83,10 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
     end
   end
   if colloc_grad != nothing
-    dudt = zeros(size(colloc_grad))
-    tmp = zeros(size(colloc_grad)[1])
     for i = 1:size(colloc_grad)[2]
-      sol.prob.f.f(tmp, sol.u[i], sol.prob.p, sol.t)
-      for j = 1:length(tmp)
-        dudt[j,i] = tmp[j]
-      end
+      sol.prob.f.f(@view(dudt[:,i]), sol.u[i], sol.prob.p, sol.t)
     end
-    sumsq += sum(sum((dudt - colloc_grad).^2, dims=2), dims=1)[1]
+    sumsq += sum(abs2, x - y for (x,y) in zip(dudt, colloc_grad))
   end
   sumsq
 end
@@ -98,9 +95,10 @@ end
 # Turn vectors into a 1xN matrix
 matrixize(x) = typeof(x) <: Vector ? reshape(x,1,length(x)) : x
 
-L2Loss(t,data;differ_weight=nothing,data_weight=nothing, colloc_grad=nothing) =
-    L2Loss(t,matrixize(data),matrixize(differ_weight),matrixize(data_weight),
-        matrixize(colloc_grad))
+L2Loss(t,data;differ_weight=nothing,data_weight=nothing,colloc_grad=nothing,
+  dudt=nothing) = L2Loss(t,matrixize(data),matrixize(differ_weight),
+    matrixize(data_weight),matrixize(colloc_grad),
+      colloc_grad == nothing ? nothing : zeros(size(colloc_grad)))
 
 function (f::L2Loss)(sol::DiffEqBase.AbstractMonteCarloSolution)
   mean(f.(sol.u))
