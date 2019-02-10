@@ -84,7 +84,7 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
   end
   if colloc_grad != nothing
     for i = 1:size(colloc_grad)[2]
-      sol.prob.f.f(@view(dudt[:,i]), sol.u[i], sol.prob.p, sol.t)
+      sol.prob.f.f(@view(dudt[:,i]), sol.u[i], sol.prob.p, sol.t[i])
     end
     sumsq += sum(abs2, x - y for (x,y) in zip(dudt, colloc_grad))
   end

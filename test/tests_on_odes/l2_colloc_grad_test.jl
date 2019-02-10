@@ -2,7 +2,7 @@ weight = 1.0e-6
 
 cost_function = build_loss_objective(prob1,Tsit5(),L2Loss(t,data,colloc_grad=colloc_grad(t, data)),
                                      maxiters=10000,verbose=false)
-result = Optim.optimize(cost_function, 1., 2)
+result = Optim.optimize(cost_function, 1., 2.)
 @test result.minimizer ≈ 1.5 atol=3e-1
 
 
