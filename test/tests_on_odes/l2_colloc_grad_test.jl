@@ -1,6 +1,3 @@
-using DifferentialEquations, DiffEqParamEstim, Test, Optim
-
-
 weight = 1.0e-6
 
 cost_function = build_loss_objective(prob1,Tsit5(),L2Loss(t,data,colloc_grad=colloc_grad(t, data)),
