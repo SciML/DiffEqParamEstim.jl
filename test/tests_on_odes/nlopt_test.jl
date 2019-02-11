@@ -7,7 +7,7 @@ obj = build_loss_objective(prob1,Tsit5(),L2Loss(t,data),
 
 opt = Opt(:LN_COBYLA, 1)
 min_objective!(opt, obj)
-(minf,minx,ret) = NLopt.optimize(opt,[1.3])
+(minf,minx,ret) = NLopt.optimize(opt,[1.4])
 @test minx[1] ≈ 1.5 atol=1e-3
 
 opt = Opt(:GN_ESCH, 1)
