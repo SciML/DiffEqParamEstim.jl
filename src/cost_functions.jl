@@ -1,4 +1,5 @@
-export L2Loss, Regularization, LogLikeLoss, prior_loss, l2lossgradient!
+export L2Loss, Regularization, LogLikeLoss, prior_loss, l2lossgradient!,
+        colloc_grad
 
 struct Regularization{L,P} <: DiffEqBase.DECostFunction
   λ::L
@@ -22,17 +23,21 @@ function prior_loss(prior,p)
   ll
 end
 
-struct L2Loss{T,D,U,W} <: DiffEqBase.DECostFunction
+struct L2Loss{T,D,U,W,G} <: DiffEqBase.DECostFunction
   t::T
   data::D
   differ_weight::U
   data_weight::W
+  colloc_grad::G
+  dudt::G
 end
 
 function (f::L2Loss)(sol::DiffEqBase.DESolution)
   data = f.data
   weight = f.data_weight
   diff_weight = f.differ_weight
+  colloc_grad = f.colloc_grad
+  dudt = f.dudt
 
   if sol.retcode != :Success
       return Inf
@@ -77,6 +82,12 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
       end
     end
   end
+  if colloc_grad != nothing
+    for i = 1:size(colloc_grad)[2]
+      sol.prob.f.f(@view(dudt[:,i]), sol.u[i], sol.prob.p, sol.t[i])
+    end
+    sumsq += sum(abs2, x - y for (x,y) in zip(dudt, colloc_grad))
+  end
   sumsq
 end
 
@@ -84,11 +95,22 @@ end
 # Turn vectors into a 1xN matrix
 matrixize(x) = typeof(x) <: Vector ? reshape(x,1,length(x)) : x
 
-L2Loss(t,data;differ_weight=nothing,data_weight=nothing) =
-      L2Loss(t,matrixize(data),matrixize(differ_weight),matrixize(data_weight))
+L2Loss(t,data;differ_weight=nothing,data_weight=nothing,colloc_grad=nothing,
+  dudt=nothing) = L2Loss(t,matrixize(data),matrixize(differ_weight),
+    matrixize(data_weight),matrixize(colloc_grad),
+      colloc_grad == nothing ? nothing : zeros(size(colloc_grad)))
 
 function (f::L2Loss)(sol::DiffEqBase.AbstractMonteCarloSolution)
   mean(f.(sol.u))
+end
+
+#t - 1xN array, data - mxN array, returns mxN array
+function colloc_grad(t::T, data::D) where {T, D}
+  splines = [Dierckx.Spline1D(t, data[i,:]) for i = 1:size(data)[1]]
+  grad = [Dierckx.derivative(spline, t[1:end]) for spline in splines]
+  grad = [[grad[1][i],grad[2][i]] for i = 1:length(grad[1])]
+  grad = convert(Array, VectorOfArray(grad))
+  return grad
 end
 
 struct LogLikeLoss{T,D} <: DiffEqBase.DECostFunction
