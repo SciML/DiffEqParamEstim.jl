@@ -39,7 +39,7 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
   colloc_grad = f.colloc_grad
   dudt = f.dudt
 
-  if sol.retcode != :Success
+  if any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
       return Inf
   end
 
@@ -124,7 +124,7 @@ LogLikeLoss(t,data_distributions,diff_distributions) = LogLikeLoss(t,matrixize(d
 
 function (f::LogLikeLoss)(sol::DESolution)
   distributions = f.data_distributions
-  if sol.retcode != :Success
+  if any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
       return Inf
   end
   ll = 0.0
@@ -170,7 +170,7 @@ end
 
 function (f::LogLikeLoss)(sol::DiffEqBase.AbstractMonteCarloSolution)
   distributions = f.data_distributions
-  if any((s.retcode != :Success for s in sol))
+  if any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
       return Inf
   end
   ll = 0.0
