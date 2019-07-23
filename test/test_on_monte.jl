@@ -1,5 +1,5 @@
 using DiffEqParamEstim, OrdinaryDiffEq, StochasticDiffEq, ParameterizedFunctions,
-      DiffEqBase, RecursiveArrayTools, DiffEqMonteCarlo
+      DiffEqBase, RecursiveArrayTools
 using Test
 
 pf_func = function (du,u,p,t)
@@ -17,7 +17,7 @@ t = collect(range(0, stop=10, length=200))
 randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
 data = convert(Array,randomized)
 
-monte_prob = MonteCarloProblem(prob)
+monte_prob = EnsembleProblem(prob)
 obj = build_loss_objective(monte_prob,Tsit5(),L2Loss(t,data),maxiters=10000,
                                                       verbose=false,num_monte=5)
 
@@ -32,7 +32,7 @@ end
 prob = SDEProblem(pf_func,pg_func,u0,tspan,p)
 sol = solve(prob,SRIW1())
 
-monte_prob = MonteCarloProblem(prob)
+monte_prob = EnsembleProblem(prob)
 
 # Too stochastic for CI
 #=
