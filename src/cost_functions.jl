@@ -39,9 +39,12 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
   colloc_grad = f.colloc_grad
   dudt = f.dudt
 
-  if any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
-      return Inf
+  if sol_tmp isa DiffEqBase.AbstractEnsembleSolution
+    failure = any((s.retcode != :Success for s in sol_tmp)) && any((s.retcode != :Terminated for s in sol_tmp))
+  else
+    failure = sol_tmp.retcode != :Success && sol_tmp != :Terminated
   end
+  failure && return Inf
 
   sumsq = 0.0
 
@@ -124,9 +127,12 @@ LogLikeLoss(t,data_distributions,diff_distributions) = LogLikeLoss(t,matrixize(d
 
 function (f::LogLikeLoss)(sol::DESolution)
   distributions = f.data_distributions
-  if any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
-      return Inf
+  if sol_tmp isa DiffEqBase.AbstractEnsembleSolution
+    failure = any((s.retcode != :Success for s in sol_tmp)) && any((s.retcode != :Terminated for s in sol_tmp))
+  else
+    failure = sol_tmp.retcode != :Success && sol_tmp != :Terminated
   end
+  failure && return Inf
   ll = 0.0
 
   if eltype(distributions) <: UnivariateDistribution
@@ -170,9 +176,12 @@ end
 
 function (f::LogLikeLoss)(sol::DiffEqBase.AbstractMonteCarloSolution)
   distributions = f.data_distributions
-  if any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
-      return Inf
+  if sol_tmp isa DiffEqBase.AbstractEnsembleSolution
+    failure = any((s.retcode != :Success for s in sol_tmp)) && any((s.retcode != :Terminated for s in sol_tmp))
+  else
+    failure = sol_tmp.retcode != :Success && sol_tmp != :Terminated
   end
+  failure && return Inf
   ll = 0.0
   if eltype(distributions) <: UnivariateDistribution
     for j in 1:length(f.t), i in 1:length(sol[1][1])
