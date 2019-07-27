@@ -29,5 +29,5 @@ ParameterizedFunctions = "65888b18-ceab-5e60-b2b9-181511a3b968"
 StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
-[target]
+[targets]
 test = ["Test", "BlackBoxOptim", "DelayDiffEq", "LeastSquaresOptim", "NLopt", "Optim", "OrdinaryDiffEq", "ParameterizedFunctions", "StochasticDiffEq"]
