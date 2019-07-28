@@ -16,8 +16,8 @@ PenaltyFunctions = "06bb1623-fdd5-5ca2-a01c-88eae3ea319e"
 RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 
 [compat]
-julia = "1"
 DiffEqBase = ">=5.16.0"
+julia = "1"
 
 [extras]
 BlackBoxOptim = "a134a8b2-14d6-55f6-9291-3336d3ab0209"
@@ -27,8 +27,9 @@ NLopt = "76087f3c-5699-56af-9a33-bf431cd00edd"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
 ParameterizedFunctions = "65888b18-ceab-5e60-b2b9-181511a3b968"
+SteadyStateDiffEq = "9672c7b4-1e72-59bd-8a11-6ac3964bc41f"
 StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "BlackBoxOptim", "DelayDiffEq", "LeastSquaresOptim", "NLopt", "Optim", "OrdinaryDiffEq", "ParameterizedFunctions", "StochasticDiffEq"]
+test = ["Test", "BlackBoxOptim", "DelayDiffEq", "LeastSquaresOptim", "NLopt", "Optim", "OrdinaryDiffEq", "ParameterizedFunctions", "StochasticDiffEq", "SteadyStateDiffEq"]
