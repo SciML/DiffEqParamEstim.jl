@@ -32,6 +32,40 @@ struct L2Loss{T,D,U,W,G} <: DiffEqBase.DECostFunction
   dudt::G
 end
 
+function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
+  data = f.data
+  weight = f.data_weight
+  diff_weight = f.differ_weight
+  colloc_grad = f.colloc_grad
+  dudt = f.dudt
+
+  @show sol.u
+
+  if sol isa DiffEqBase.AbstractEnsembleSolution
+    failure = any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
+  else
+    failure = sol.retcode != :Success && sol != :Terminated
+  end
+  failure && return Inf
+
+  sumsq = 0.0
+
+  if weight == nothing
+    @inbounds for i in 1:length(sol)
+      sumsq +=(data[i] - sol[i])^2
+    end
+  else
+    @inbounds for i in 1:length(sol)
+      if typeof(weight) <: Real
+        sumsq = sumsq + ((data[i] - sol[i])^2)*weight
+      else
+        sumsq = sumsq + ((data[i] - sol[i])^2)*weight[i]
+      end
+    end
+  end
+  sumsq
+end
+
 function (f::L2Loss)(sol::DiffEqBase.DESolution)
   data = f.data
   weight = f.data_weight
@@ -103,7 +137,7 @@ L2Loss(t,data;differ_weight=nothing,data_weight=nothing,colloc_grad=nothing,
     matrixize(data_weight),matrixize(colloc_grad),
       colloc_grad == nothing ? nothing : zeros(size(colloc_grad)))
 
-function (f::L2Loss)(sol::DiffEqBase.AbstractMonteCarloSolution)
+function (f::L2Loss)(sol::DiffEqBase.AbstractEnsembleSolution)
   mean(f.(sol.u))
 end
 
@@ -174,7 +208,7 @@ function (f::LogLikeLoss)(sol::DESolution)
   ll
 end
 
-function (f::LogLikeLoss)(sol::DiffEqBase.AbstractMonteCarloSolution)
+function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
   distributions = f.data_distributions
   if sol_tmp isa DiffEqBase.AbstractEnsembleSolution
     failure = any((s.retcode != :Success for s in sol_tmp)) && any((s.retcode != :Terminated for s in sol_tmp))
