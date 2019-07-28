@@ -1,7 +1,7 @@
 name = "DiffEqParamEstim"
 uuid = "1130ab10-4a5a-5621-a13d-e4788d82bd4c"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "1.7.0"
+version = "1.7.1"
 
 [deps]
 Calculus = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
@@ -29,5 +29,5 @@ ParameterizedFunctions = "65888b18-ceab-5e60-b2b9-181511a3b968"
 StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
-[target]
+[targets]
 test = ["Test", "BlackBoxOptim", "DelayDiffEq", "LeastSquaresOptim", "NLopt", "Optim", "OrdinaryDiffEq", "ParameterizedFunctions", "StochasticDiffEq"]
