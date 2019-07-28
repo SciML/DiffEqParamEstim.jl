@@ -17,6 +17,7 @@ RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 
 [compat]
 julia = "1"
+DiffEqBase = ">=5.16.0"
 
 [extras]
 BlackBoxOptim = "a134a8b2-14d6-55f6-9291-3336d3ab0209"
