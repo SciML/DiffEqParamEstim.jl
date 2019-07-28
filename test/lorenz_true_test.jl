@@ -6,9 +6,8 @@
 # used. This means that the option which is set to get the correct timepoints
 # is saveat, not tstops!
 
-using DifferentialEquations, RecursiveArrayTools
-using NLopt
-using BlackBoxOptim
+using DifferentialEquations, RecursiveArrayTools, ParameterizedFunctions
+using NLopt, DiffEqParamEstim, BlackBoxOptim, Optim
 
 Xiang2015Bounds = Tuple{Float64, Float64}[(9, 11), (20, 30), (2, 3)] # for local optimizations
 xlow_bounds = [9.0,20.0,2.0]
@@ -17,17 +16,18 @@ LooserBounds = Tuple{Float64, Float64}[(0, 22), (0, 60), (0, 6)] # for global op
 GloIniPar = [0.0, 0.5, 0.1] # for global optimizations
 LocIniPar = [9.0, 20.0, 2.0] # for local optimization
 
-g1 = @ode_def_nohes LorenzExample begin
+g1 = @ode_def LorenzExample begin
   dx = σ*(y-x)
   dy = x*(ρ-z) - y
   dz = x*y - β*z
-end σ=>10.0 ρ=>28.0 β=>2.6666
+end σ ρ β
 
 r0 = [0.1;0.0;0.0]
 tspan = (0.0,30.0)
-prob = ODEProblem(g1,r0,tspan)
+p = [10.0,28.0,2.66666]
+prob = ODEProblem(g1,r0,tspan,p)
 tspan2 = (0.0,3.0)
-prob_short = ODEProblem(g1,r0,tspan2)
+prob_short = ODEProblem(g1,r0,tspan2,p)
 
 dt = 30.0/3000
 tf = 30.0

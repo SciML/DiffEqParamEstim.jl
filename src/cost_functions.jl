@@ -39,10 +39,10 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
   colloc_grad = f.colloc_grad
   dudt = f.dudt
 
-  if sol_tmp isa DiffEqBase.AbstractEnsembleSolution
-    failure = any((s.retcode != :Success for s in sol_tmp)) && any((s.retcode != :Terminated for s in sol_tmp))
+  if sol isa DiffEqBase.AbstractEnsembleSolution
+    failure = any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
   else
-    failure = sol_tmp.retcode != :Success && sol_tmp != :Terminated
+    failure = sol.retcode != :Success && sol != :Terminated
   end
   failure && return Inf
 
