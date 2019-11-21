@@ -16,6 +16,7 @@ PenaltyFunctions = "06bb1623-fdd5-5ca2-a01c-88eae3ea319e"
 RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 
 [compat]
+Calculus = "0.5"
 DiffEqSensitivity = "4.3"
 LsqFit = "0.8"
 ForwardDiff = "0.10"
