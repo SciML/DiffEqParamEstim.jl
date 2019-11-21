@@ -16,8 +16,13 @@ PenaltyFunctions = "06bb1623-fdd5-5ca2-a01c-88eae3ea319e"
 RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 
 [compat]
-DiffEqBase = ">=5.16.0"
 LsqFit = "0.8"
+ForwardDiff = "0.10"
+RecursiveArrayTools = "1.0"
+Dierckx = "0.4"
+DiffEqBase = "6"
+PenaltyFunctions = "0.1"
+Distributions = "0.21"
 julia = "1"
 
 [extras]
