@@ -15,7 +15,7 @@ result = Optim.optimize(cost_function, [1.3,2.8], Optim.BFGS())
 
 cost_function = build_loss_objective(prob3,Tsit5(),L2Loss(t,data,
   differ_weight=weight,colloc_grad=colloc_grad(t, data)), maxiters=10000,verbose=false)
-result = Optim.optimize(cost_function, [1.3,0.8,2.8,1.2], Optim.BFGS())
+result = Optim.optimize(cost_function, [1.4,0.9,2.9,1.2], Optim.BFGS())
 @test result.minimizer ≈ [1.5,1.0,3.0,1.0] atol=3e-1
 
 
