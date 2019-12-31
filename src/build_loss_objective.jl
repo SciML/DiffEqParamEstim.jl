@@ -6,7 +6,7 @@ struct DiffEqObjective{F,F2} <: Function
 end
 
 function diffeq_sen_full(f, u0, tspan, p, t, alg; kwargs...)
-  prob = ODELocalSensitivityProblem(f,u0,tspan,p)
+  prob = ODEForwardSensitivityProblem(f,u0,tspan,p)
   sol = solve(prob,alg;kwargs...)(t)
   nvar = length(u0)
   sol[1:nvar,:], [sol[i*nvar+1:i*nvar+nvar,:] for i in 1:length(p)]

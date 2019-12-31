@@ -19,7 +19,7 @@ RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 Calculus = "0.5"
 Dierckx = "0.4"
 DiffEqBase = "6"
-DiffEqSensitivity = "4.3, 5.0, 6.0"
+DiffEqSensitivity = "6"
 Distributions = "0.21"
 ForwardDiff = "0.10"
 LsqFit = "0.8, 0.9"
@@ -35,9 +35,10 @@ NLopt = "76087f3c-5699-56af-9a33-bf431cd00edd"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
 ParameterizedFunctions = "65888b18-ceab-5e60-b2b9-181511a3b968"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SteadyStateDiffEq = "9672c7b4-1e72-59bd-8a11-6ac3964bc41f"
 StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "BlackBoxOptim", "DelayDiffEq", "LeastSquaresOptim", "NLopt", "Optim", "OrdinaryDiffEq", "ParameterizedFunctions", "StochasticDiffEq", "SteadyStateDiffEq"]
+test = ["Test", "BlackBoxOptim", "DelayDiffEq", "LeastSquaresOptim", "NLopt", "Optim", "OrdinaryDiffEq", "ParameterizedFunctions", "Random", "StochasticDiffEq", "SteadyStateDiffEq"]
