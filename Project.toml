@@ -23,7 +23,7 @@ DiffEqSensitivity = "6"
 Distributions = "0.21, 0.22, 0.23"
 ForwardDiff = "0.10"
 LsqFit = "0.8, 0.9, 0.10"
-PenaltyFunctions = "0.1"
+PenaltyFunctions = "0.1, 0.2"
 RecursiveArrayTools = "1.0, 2.0"
 julia = "1"
 
