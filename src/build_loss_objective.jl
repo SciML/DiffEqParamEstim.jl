@@ -18,7 +18,7 @@ function diffeq_sen_l2!(res, df, u0, tspan, p, t, data, alg;kwargs...)
   function dg(out,u,p,t,i)
     @. out = 2 * (data[:,i] - u)
   end
-  res .= adjoint_sensitivities(sol,alg,dg,t,kwargs...)[1,:]
+  res .= adjoint_sensitivities(sol,alg,dg,t,kwargs...)[2][1,:]
 end
 
 (f::DiffEqObjective)(x) = f.cost_function(x)
