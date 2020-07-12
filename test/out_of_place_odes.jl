@@ -1,4 +1,4 @@
-using OrdinaryDiffEq
+using OrdinaryDiffEq, Test
 
 function LotkaVolterraTest_not_inplace(u,a,t)
     b,c,d = 1.0,3.0,1.0

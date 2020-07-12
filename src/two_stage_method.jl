@@ -95,6 +95,8 @@ function construct_oop_cost_function(f,du,preview_est_sol,preview_est_deriv,tpoi
   end
 end
 
+get_chunksize(cs::Type{Val{CS}}) where CS = CS
+
 function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= EpanechnikovKernel(),
                           loss_func = L2Loss,mpg_autodiff = false,
                           verbose = false,verbose_steps = 100,
@@ -113,9 +115,9 @@ function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= Epanec
     else
       cost_function = construct_oop_cost_function(f,du,preview_est_sol,preview_est_deriv,tpoints)
     end
-    
+
     if mpg_autodiff
-      gcfg = ForwardDiff.GradientConfig(cost_function, autodiff_prototype, autodiff_chunk)
+      gcfg = ForwardDiff.GradientConfig(cost_function, prob.p, ForwardDiff.Chunk{get_chunksize(autodiff_chunk)}())
       g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
     else
       g! = (x, out) -> Calculus.finite_difference!(cost_function,x,out,:central)
