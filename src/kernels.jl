@@ -1,6 +1,19 @@
 # Kernel definition is taken from here: https://en.wikipedia.org/wiki/Kernel_(statistics)#Kernel_functions_in_common_use
 
-function Epanechnikov_kernel(t)
+abstract type CollocationKernel end
+struct EpanechnikovKernel <: CollocationKernel end
+struct UniformKernel <: CollocationKernel end
+struct TriangularKernel <: CollocationKernel end
+struct QuarticKernel <: CollocationKernel end
+struct TriweightKernel <: CollocationKernel end
+struct TricubeKernel <: CollocationKernel end
+struct GaussianKernel <: CollocationKernel end
+struct CosineKernel <: CollocationKernel end
+struct LogisticKernel <: CollocationKernel end
+struct SigmoidKernel <: CollocationKernel end
+struct SilvermanKernel <: CollocationKernel end
+
+function calckernel(::EpanechnikovKernel,t)
     if abs(t) > 1
         return 0
     else
@@ -8,7 +21,7 @@ function Epanechnikov_kernel(t)
     end
 end
 
-function Uniform_kernel(t)
+function calckernel(::UniformKernel,t)
     if abs(t) > 1
         return 0
     else
@@ -16,7 +29,7 @@ function Uniform_kernel(t)
     end
 end
 
-function Triangular_kernel(t)
+function calckernel(::TriangularKernel,t)
     if abs(t) > 1
         return 0
     else
@@ -24,7 +37,7 @@ function Triangular_kernel(t)
     end
 end
 
-function Quartic_Kernel(t)
+function calckernel(::QuarticKernel,t)
   if abs(t)>0
     return 0
   else
@@ -32,7 +45,7 @@ function Quartic_Kernel(t)
   end
 end
 
-function Triweight_Kernel(t)
+function calckernel(::TriweightKernel,t)
   if abs(t)>0
     return 0
   else
@@ -40,7 +53,7 @@ function Triweight_Kernel(t)
   end
 end
 
-function Tricube_Kernel(t)
+function calckernel(::TricubeKernel,t)
   if abs(t)>0
     return 0
   else
@@ -48,11 +61,11 @@ function Tricube_Kernel(t)
   end
 end
 
-function Gaussian_Kernel(t)
+function calckernel(::GaussianKernel,t)
   exp(-0.5*t^2)/(sqrt(2*π))
 end
 
-function Cosine_Kernel(t)
+function calckernel(::CosineKernel,t)
   if abs(t)>0
     return 0
   else
@@ -60,14 +73,14 @@ function Cosine_Kernel(t)
   end
 end
 
-function Logistic_Kernel(t)
+function calckernel(::LogisticKernel,t)
   1/(exp(t)+2+exp(-t))
 end
 
-function Sigmoid_Kernel(t)
+function calckernel(::SigmoidKernel,t)
   2/(π*(exp(t)+exp(-t)))
 end
 
-function Silverman_Kernel(t)
+function calckernel(::SilvermanKernel,t)
   sin(abs(t)/2+π/4)*0.5*exp(-abs(t)/sqrt(2))
 end
