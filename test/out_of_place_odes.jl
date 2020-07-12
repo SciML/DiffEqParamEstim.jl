@@ -1,4 +1,4 @@
-using OrdinaryDiffEq
+using OrdinaryDiffEq, Test
 
 function LotkaVolterraTest_not_inplace(u,a,t)
     b,c,d = 1.0,3.0,1.0
@@ -27,3 +27,26 @@ cost_function = build_loss_objective(prob,Tsit5(),L2Loss(t,data),
                                      maxiters=10000,verbose=false)
 import Optim
 result = Optim.optimize(cost_function, 0.0, 10.0)
+
+# two-stage OOP regression test
+
+function ff(du, u, p, t)
+    du .= p .* u
+end
+function ff(u, p, t)
+    p .* u
+end
+rc=62
+ps = repeat([-0.001], rc)
+tspan = (7.0, 84.0)
+u0 = 3.4 .+ ones(rc)
+t = collect(range(minimum(tspan), stop=maximum(tspan), length=157))
+prob = ODEProblem(ff, u0, tspan, ps)
+prob_oop = ODEProblem{false}(ff, u0, tspan, ps)
+data = Array(solve(prob, Tsit5(), saveat = t))
+ptest = ones(rc)
+
+obj_ts = two_stage_method(prob, t, data; kernel=:Sigmoid)
+@test obj_ts(ptest) ≈ 418.3400017500223
+obj_ts = two_stage_method(prob_oop, t, data; kernel=:Sigmoid)
+@test obj_ts(ptest) ≈ 418.3400017500223

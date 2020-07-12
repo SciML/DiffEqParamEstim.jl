@@ -11,94 +11,113 @@ end
 (f::TwoStageCost)(p) = f.cost_function(p)
 (f::TwoStageCost)(p,g) = f.cost_function2(p,g)
 
-function decide_kernel(kernel)
+decide_kernel(kernel::CollocationKernel) = kernel
+function decide_kernel(kernel::Symbol)
     if kernel == :Epanechnikov
-        return Epanechnikov_kernel
+        return EpanechnikovKernel()
     elseif kernel == :Uniform
-        return Uniform_kernel
+        return UniformKernel()
     elseif kernel == :Triangular
-        return Triangular_kernel
+        return TriangularKernel()
     elseif kernel == :Quartic
-      return Quartic_Kernel
+      return QuarticKernel()
     elseif kernel == :Triweight
-      return Triweight_Kernel
+      return TriweightKernel()
     elseif kernel == :Tricube
-      return Tricube_Kernel
+      return TricubeKernel()
     elseif kernel == :Gaussian
-      return Gaussian_Kernel
+      return GaussianKernel()
     elseif kernel == :Cosine
-      return Cosine_Kernel
+      return CosineKernel()
     elseif kernel == :Logistic
-      return Logistic_Kernel
+      return LogisticKernel()
     elseif kernel == :Sigmoid
-      return Sigmoid_Kernel
+      return SigmoidKernel()
     else
-      return Silverman_Kernel
+      return SilvermanKernel()
     end
 end
 
 
 function construct_t1(t,tpoints)
-    T1 = []
-    for i in 1:length(tpoints)
-        push!(T1,[1 tpoints[i]-t])
-    end
-    foldl(vcat,T1)
+    hcat(ones(eltype(tpoints),length(tpoints)),tpoints.-t)
 end
 function construct_t2(t,tpoints)
-    T2 = []
-    for i in 1:length(tpoints)
-        push!(T2,[1 tpoints[i]-t (tpoints[i]-t)^2])
-    end
-    foldl(vcat,T2)
+  hcat(ones(eltype(tpoints),length(tpoints)),tpoints.-t,(tpoints.-t).^2)
 end
-function construct_w(t,tpoints,h,kernel_function)
-    n = length(tpoints)
-    W = zeros(n)
-    for i in 1:n
-        W[i] = kernel_function((tpoints[i]-t)/h)/h
-    end
+function construct_w(t,tpoints,h,kernel)
+    W = @. calckernel((kernel,),(tpoints-t)/h)/h
     Matrix(Diagonal(W))
 end
-function construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,e1,e2,data,kernel_function,tpoints,h,n)
-  for i in 1:n
-      T1 = construct_t1(tpoints[i],tpoints)
-      T2 = construct_t2(tpoints[i],tpoints)
-      W = construct_w(tpoints[i],tpoints,h,kernel_function)
-      estimated_solution[:,i] = e1'*inv(T1'*W*T1)*T1'*W*data'
-      estimated_derivative[:,i] = e2'*inv(T2'*W*T2)T2'*W*data'
+function construct_estimated_solution_and_derivative!(data,kernel,tpoints)
+  _one = oneunit(first(data))
+  _zero = zero(first(data))
+  e1 = [_one;_zero]
+  e2 = [_zero;_one;_zero]
+  n = length(tpoints)
+  h = (n^(-1/5))*(n^(-3/35))*((log(n))^(-1/16))
+
+  x = map(tpoints) do _t
+      T1 = construct_t1(_t,tpoints)
+      T2 = construct_t2(_t,tpoints)
+      W = construct_w(_t,tpoints,h,kernel)
+      e2'*inv(T2'*W*T2)T2'*W*data',e1'*inv(T1'*W*T1)*T1'*W*data'
+  end
+  estimated_derivative = reduce(hcat,transpose.(first.(x)))
+  estimated_solution = reduce(hcat,transpose.(last.(x)))
+  estimated_derivative,estimated_solution
+end
+
+function construct_iip_cost_function(f,du,preview_est_sol,preview_est_deriv,tpoints)
+  function (p)
+      _du = DiffEqBase.get_tmp(du,p)
+      vecdu = vec(_du)
+      cost = zero(first(p))
+      for i in 1:length(preview_est_sol)
+        est_sol = preview_est_sol[i]
+        f(_du,est_sol,p,tpoints[i])
+        vecdu .= vec(preview_est_deriv[i]) .- vec(_du)
+        cost += sum(abs2,vecdu)
+      end
+      sqrt(cost)
   end
 end
 
-function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= :Epanechnikov,
+function construct_oop_cost_function(f,du,preview_est_sol,preview_est_deriv,tpoints)
+  function (p)
+      cost = zero(first(p))
+      for i in 1:length(preview_est_sol)
+        est_sol = preview_est_sol[i]
+        _du = f(est_sol,p,tpoints[i])
+        cost += sum(abs2,vec(preview_est_deriv[i]) .- vec(_du))
+      end
+      sqrt(cost)
+  end
+end
+
+get_chunksize(cs::Type{Val{CS}}) where CS = CS
+
+function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= EpanechnikovKernel(),
                           loss_func = L2Loss,mpg_autodiff = false,
                           verbose = false,verbose_steps = 100,
-                          autodiff_prototype = mpg_autodiff ? zeros(length(prob.p)) : nothing,
-                          autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing)
+                          autodiff_chunk = Val{ForwardDiff.pickchunksize(length(prob.p))})
     f = prob.f
-    n = length(tpoints)
-    h = (n^(-1/5))*(n^(-3/35))*((log(n))^(-1/16))
-    estimated_solution = zeros(size(data)[1],n)
-    estimated_derivative = zeros(size(data)[1],n)
     kernel_function = decide_kernel(kernel)
-    e1 = [1;0]
-    e2 = [0;1;0]
-    construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,e1,e2,data,kernel_function,tpoints,h,n)
+    estimated_derivative,estimated_solution = construct_estimated_solution_and_derivative!(data,kernel_function,tpoints)
+
     # Step - 2
-    cost_function = function (p)
-        du = similar(prob.u0, promote_type(eltype(prob.u0), eltype(p)))
-        sol = Vector{typeof(du)}(undef,n)
-        f = prob.f
-        for i in 1:n
-          est_sol = @view estimated_solution[:,i]
-          f(du,est_sol,p,tpoints[i])
-          sol[i] = copy(du)
-        end
-        sqrt(sum(abs2,vec(estimated_derivative)[i] - vec(VectorOfArray(sol))[i] for i in 1:length(vec(estimated_derivative))))
+
+    du = DiffEqBase.dualcache(similar(prob.u0), autodiff_chunk)
+    preview_est_sol = [@view estimated_solution[:,i] for i in 1:size(estimated_solution,2)]
+    preview_est_deriv = [@view estimated_derivative[:,i] for i in 1:size(estimated_solution,2)]
+    if DiffEqBase.isinplace(prob)
+      cost_function = construct_iip_cost_function(f,du,preview_est_sol,preview_est_deriv,tpoints)
+    else
+      cost_function = construct_oop_cost_function(f,du,preview_est_sol,preview_est_deriv,tpoints)
     end
 
     if mpg_autodiff
-      gcfg = ForwardDiff.GradientConfig(cost_function, autodiff_prototype, autodiff_chunk)
+      gcfg = ForwardDiff.GradientConfig(cost_function, prob.p, ForwardDiff.Chunk{get_chunksize(autodiff_chunk)}())
       g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
     else
       g! = (x, out) -> Calculus.finite_difference!(cost_function,x,out,:central)
