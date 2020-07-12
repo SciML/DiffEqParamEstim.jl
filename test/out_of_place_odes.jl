@@ -30,7 +30,7 @@ result = Optim.optimize(cost_function, 0.0, 10.0)
 
 # two-stage OOP regression test
 
-function ff(u, p, t)
+function ff(du, u, p, t)
     du .= p .* u
 end
 function ff(u, p, t)
