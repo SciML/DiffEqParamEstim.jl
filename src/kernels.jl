@@ -1,7 +1,5 @@
 # Kernel definition is taken from here: https://en.wikipedia.org/wiki/Kernel_(statistics)#Kernel_functions_in_common_use
 
-export Epanechnikov_kernel, Uniform_kernel, Triangular_kernel, Quartic_Kernel, Triweight_Kernel, Tricube_Kernel, Gaussian_Kernel, Cosine_Kernel, Logistic_Kernel, Sigmoid_Kernel, Silverman_Kernel
-
 function Epanechnikov_kernel(t)
     if abs(t) > 1
         return 0
