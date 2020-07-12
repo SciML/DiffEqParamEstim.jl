@@ -70,11 +70,25 @@ function construct_estimated_solution_and_derivative!(estimated_solution,estimat
   end
 end
 
+function construct_cost_function(f,du,preview_est_sol,preview_est_deriv,tpoints)
+  function (p)
+      _du = DiffEqBase.get_tmp(du,p)
+      vecdu = vec(_du)
+      cost = zero(first(p))
+      for i in 1:length(preview_est_sol)
+        est_sol = preview_est_sol[i]
+        f(_du,est_sol,p,tpoints[i])
+        vecdu .= vec(preview_est_deriv[i]) .- vec(_du)
+        cost += sum(abs2,vecdu)
+      end
+      sqrt(cost)
+  end
+end
+
 function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= :Epanechnikov,
                           loss_func = L2Loss,mpg_autodiff = false,
                           verbose = false,verbose_steps = 100,
-                          autodiff_prototype = mpg_autodiff ? zeros(length(prob.p)) : nothing,
-                          autodiff_chunk = mpg_autodiff ? ForwardDiff.Chunk(autodiff_prototype) : nothing)
+                          autodiff_chunk = Val{ForwardDiff.pickchunksize(length(prob.p))})
     f = prob.f
     n = length(tpoints)
     h = (n^(-1/5))*(n^(-3/35))*((log(n))^(-1/16))
@@ -84,18 +98,13 @@ function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= :Epane
     e1 = [1;0]
     e2 = [0;1;0]
     construct_estimated_solution_and_derivative!(estimated_solution,estimated_derivative,e1,e2,data,kernel_function,tpoints,h,n)
+
     # Step - 2
-    cost_function = function (p)
-        du = similar(prob.u0, promote_type(eltype(prob.u0), eltype(p)))
-        sol = Vector{typeof(du)}(undef,n)
-        f = prob.f
-        for i in 1:n
-          est_sol = @view estimated_solution[:,i]
-          f(du,est_sol,p,tpoints[i])
-          sol[i] = copy(du)
-        end
-        sqrt(sum(abs2,vec(estimated_derivative)[i] - vec(VectorOfArray(sol))[i] for i in 1:length(vec(estimated_derivative))))
-    end
+
+    du = DiffEqBase.dualcache(similar(prob.u0), autodiff_chunk)
+    preview_est_sol = [@view estimated_solution[:,i] for i in 1:size(estimated_solution,2)]
+    preview_est_deriv = [@view estimated_derivative[:,i] for i in 1:size(estimated_solution,2)]
+    cost_function = construct_cost_function(f,du,preview_est_sol,preview_est_deriv,tpoints)
 
     if mpg_autodiff
       gcfg = ForwardDiff.GradientConfig(cost_function, autodiff_prototype, autodiff_chunk)
