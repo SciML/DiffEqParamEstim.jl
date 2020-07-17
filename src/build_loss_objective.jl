@@ -24,7 +24,7 @@ end
 (f::DiffEqObjective)(x) = f.cost_function(x)
 (f::DiffEqObjective)(x,y) = f.cost_function2(x,y)
 
-function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization=nothing;
+function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization=nothing,args...;
                               prior=nothing,mpg_autodiff = false,
                               verbose_opt = false,verbose_steps = 100,
                               prob_generator = STANDARD_PROB_GENERATOR,
@@ -37,9 +37,9 @@ function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization
   cost_function = function (p)
     tmp_prob = prob_generator(prob,p)
     if typeof(loss) <: Union{L2Loss,LogLikeLoss}
-      sol = solve(tmp_prob,alg;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
+      sol = solve(tmp_prob,alg,args...;saveat=loss.t,save_everystep=false,dense=false,kwargs...)
     else
-      sol = solve(tmp_prob,alg;kwargs...)
+      sol = solve(tmp_prob,alg,args...;kwargs...)
     end
 
     loss_val = loss(sol)
