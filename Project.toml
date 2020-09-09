@@ -17,7 +17,7 @@ RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 
 [compat]
 Calculus = "0.5"
-Dierckx = "0.4"
+Dierckx = "0.4, 0.5"
 DiffEqBase = "6"
 DiffEqSensitivity = "6"
 Distributions = "0.21, 0.22, 0.23"
