@@ -42,9 +42,9 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
   @show sol.u
 
   if sol isa DiffEqBase.AbstractEnsembleSolution
-    failure = any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
+    failure = any(s.retcode !== :Success && s.retcode !== :Terminated for s in sol)
   else
-    failure = sol.retcode != :Success && sol.retcode != :Terminated
+    failure = sol.retcode !== :Success && sol.retcode !== :Terminated
   end
   failure && return Inf
 
@@ -74,9 +74,9 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
   dudt = f.dudt
 
   if sol isa DiffEqBase.AbstractEnsembleSolution
-    failure = any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
+    failure = any(s.retcode !== :Success && s.retcode !== :Terminated for s in sol)
   else
-    failure = sol.retcode != :Success && sol.retcode != :Terminated
+    failure = sol.retcode !== :Success && sol.retcode !== :Terminated
   end
   failure && return Inf
 
@@ -162,9 +162,9 @@ LogLikeLoss(t,data_distributions,diff_distributions) = LogLikeLoss(t,matrixize(d
 function (f::LogLikeLoss)(sol::DESolution)
   distributions = f.data_distributions
   if sol isa DiffEqBase.AbstractEnsembleSolution
-    failure = any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
+    failure = any(s.retcode !== :Success && s.retcode !== :Terminated for s in sol)
   else
-    failure = sol.retcode != :Success && sol.retcode != :Terminated
+    failure = sol.retcode !== :Success && sol.retcode !== :Terminated
   end
   failure && return Inf
   ll = 0.0
@@ -211,9 +211,9 @@ end
 function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
   distributions = f.data_distributions
   if sol_tmp isa DiffEqBase.AbstractEnsembleSolution
-    failure = any((s.retcode != :Success for s in sol_tmp)) && any((s.retcode != :Terminated for s in sol_tmp))
+    failure = any(s.retcode !== :Success && s.retcode !== :Terminated for s in sol_tmp)
   else
-    failure = sol_tmp.retcode != :Success && sol_tmp.retcode != :Terminated
+    failure = sol_tmp.retcode !== :Success && sol_tmp.retcode !== :Terminated
   end
   failure && return Inf
   ll = 0.0
