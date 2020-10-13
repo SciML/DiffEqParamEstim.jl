@@ -44,7 +44,7 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
   if sol isa DiffEqBase.AbstractEnsembleSolution
     failure = any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
   else
-    failure = sol.retcode != :Success && sol != :Terminated
+    failure = sol.retcode != :Success && sol.retcode != :Terminated
   end
   failure && return Inf
 
@@ -76,7 +76,7 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
   if sol isa DiffEqBase.AbstractEnsembleSolution
     failure = any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
   else
-    failure = sol.retcode != :Success && sol != :Terminated
+    failure = sol.retcode != :Success && sol.retcode != :Terminated
   end
   failure && return Inf
 
@@ -164,7 +164,7 @@ function (f::LogLikeLoss)(sol::DESolution)
   if sol isa DiffEqBase.AbstractEnsembleSolution
     failure = any((s.retcode != :Success for s in sol)) && any((s.retcode != :Terminated for s in sol))
   else
-    failure = sol.retcode != :Success && sol != :Terminated
+    failure = sol.retcode != :Success && sol.retcode != :Terminated
   end
   failure && return Inf
   ll = 0.0
@@ -213,7 +213,7 @@ function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
   if sol_tmp isa DiffEqBase.AbstractEnsembleSolution
     failure = any((s.retcode != :Success for s in sol_tmp)) && any((s.retcode != :Terminated for s in sol_tmp))
   else
-    failure = sol_tmp.retcode != :Success && sol_tmp != :Terminated
+    failure = sol_tmp.retcode != :Success && sol_tmp.retcode != :Terminated
   end
   failure && return Inf
   ll = 0.0
