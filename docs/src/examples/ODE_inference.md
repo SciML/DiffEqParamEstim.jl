@@ -32,7 +32,7 @@ to turn the result of an ODE into a matrix.
 
 If we plot the solution with the parameter at `a=1.42`, we get the following:
 
-![Parameter Estimation Not Fit](assets/paramest_notfit.png)
+![Parameter Estimation Not Fit](../assets/paramest_notfit.png)
 
 Notice that after one period this solution begins to drift very far off: this
 problem is sensitive to the choice of `a`.
@@ -64,7 +64,7 @@ plot(vals,[cost_function(i) for i in vals],yscale=:log10,
      lw = 3)
 ```
 
-![1 Parameter Likelihood](assets/1paramcost.png)
+![1 Parameter Likelihood](../assets/1paramcost.png)
 
 Here we see that there is a very well-defined minimum in our cost function at
 the real parameter (because this is where the solution almost exactly fits the
@@ -82,7 +82,7 @@ result = optimize(cost_function, 0.0, 10.0)
 This returns `result.minimizer[1]==1.5` as the best parameter to match the data.
 When we plot the fitted equation on the data, we receive the following:
 
-![Parameter Estimation Fit](assets/paramest_fit.png)
+![Parameter Estimation Fit](../assets/paramest_fit.png)
 
 Thus we see that after fitting, the lines match up with the generated data and
 receive the right parameter value.
@@ -402,7 +402,7 @@ sol = OrdinaryDiffEq.solve(best_mp |> model_ode, Tsit5())
 plot(getindex.(sol.(t),1))
 scatter!(mock_data, markersize=2)
 ```
-![jumpestimationplot](assets/jumpestimationplot.png)
+![jumpestimationplot](../assets/jumpestimationplot.png)
 ## Generalized Likelihood Example
 
 In this example we will demo the likelihood-based approach to parameter fitting.
@@ -488,7 +488,7 @@ heatmap(prange,prange,[obj([j,i]) for i in prange, j in prange],
         title="Likelihood Landscape")
 ```
 
-![2 Parameter Likelihood](assets/2paramlike.png)
+![2 Parameter Likelihood](../assets/2paramlike.png)
 
 Recall that this is the negative loglikelihood and thus the minimum is the
 maximum of the likelihood. There is a clear valley where the first parameter
@@ -501,7 +501,7 @@ plot(prange,[obj([1.5,i]) for i in prange],lw=3,
      xlabel = "Parameter 2", ylabel = "Objective Function Value")
 ```
 
-![1 Parameter Likelihood](assets/1paramlike.png)
+![1 Parameter Likelihood](../assets/1paramlike.png)
 
 we can see that there's still a clear minimum at the true value. Thus we will
 use the global optimizers from BlackBoxOptim.jl to find the values. We set our
