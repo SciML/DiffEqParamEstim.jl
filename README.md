@@ -1,6 +1,6 @@
 # DiffEqParamEstim.jl
 
-[![Build Status](https://travis-ci.com/SciML/DiffEqParamEstim.jl.svg?branch=master)](https://travis-ci.com/SciML/DiffEqParamEstim.jl)
+[![Build Status](https://github.com/SciML/DiffEqParamEstim.jl/workflows/CI/badge.svg)](https://github.com/SciML/DiffEqParamEstim.jl/actions?query=workflow%3ACI)
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](http://diffeqparamestim.sciml.ai/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](http://diffeqparamestim.sciml.ai/dev/)
 
