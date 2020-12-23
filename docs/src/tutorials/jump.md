@@ -1,4 +1,4 @@
-## Using JuMP with DiffEqParamEstim
+# Using JuMP with DiffEqParamEstim
 
 [JuMP](https://github.com/JuliaOpt/JuMP.jl) is a domain-specific modeling language
 for mathematical optimization embedded in Julia.

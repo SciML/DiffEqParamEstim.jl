@@ -1,4 +1,4 @@
-## Global Optimization via NLopt
+# Global Optimization via NLopt
 
 The `build_loss_objective` function builds an objective function which is able
 to be used with MathOptInterface-associated solvers. This includes packages like

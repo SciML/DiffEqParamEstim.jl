@@ -1,4 +1,4 @@
-## Generalized Likelihood Inference
+# Generalized Likelihood Inference
 
 In this example we will demo the likelihood-based approach to parameter fitting.
 First let's generate a dataset to fit. We will re-use the Lotka-Volterra equation
