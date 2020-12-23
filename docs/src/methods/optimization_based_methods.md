@@ -1,6 +1,8 @@
 # Optimization-Based Methods
 
-## Nonlinear Regression
+## The Objective Function Builders
+
+### Standard Nonlinear Regression
 
 `build_loss_objective` builds an objective function to be used with Optim.jl
 and MathProgBase-associated solvers like NLopt.
@@ -24,7 +26,7 @@ and the values at the steps every `verbose_steps` steps. `mpg_autodiff` uses
 autodifferentiation to define the derivative for the MathProgBase solver.
 The extra keyword arguments are passed to the differential equation solver.
 
-## Multiple Shooting objective
+### Multiple Shooting
 
 Multiple Shooting is generally used in Boundary Value Problems (BVP) and is
 more robust than the regular objective function used in these problems. It
@@ -54,22 +56,7 @@ as `build_loss_objective`. It also has the option for `discontinuity_error` as
 a keyword argument which assigns weight to the error occurring due to the
 discontinuity that arises from the breaking up of the time span.
 
-## Two Stage method (Non-Parametric Collocation)
-
-The two-stage method is a collocation method for estimating parameters without
-requiring repeated solving of the differential equation. It does so by
-determining a smoothed estimated trajectory of the data (local quadratic polynomial
-fit by least squares) and optimizing
-the derivative function and the data's timepoints to match the derivatives
-of the smoothed trajectory. This method has less accuracy than other methods
-but is much faster, and is a good method to try first to get in the general
-"good parameter" region, to then finish using one of the other methods.
-
-```julia
-function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
-                          loss_func = L2DistLoss,mpg_autodiff = false,
-                          verbose = false,verbose_steps = 100)
-```
+## Detailed Explanations of Arguments
 
 ### The Loss Function
 
@@ -205,38 +192,7 @@ prob_generator = (prob,p) -> remake(prob.f,u0=p)
 
 which simply uses `p` as the initial condition in the initial value problem.
 
-## LeastSquaresOptim.jl objective
-
-`build_lsoptim_objective` builds an objective function to be used with LeastSquaresOptim.jl.
-
-```julia
-build_lsoptim_objective(prob,tspan,t,data;
-                        prob_generator = (prob,p) -> remake(prob,u0=convert.(eltype(p),prob.u0),p=p),
-                        kwargs...)
-```
-
-The arguments are the same as `build_loss_objective`.
-
-## lm_fit
-
-`lm_fit` is a function for fitting the parameters of an ODE using the Levenberg-Marquardt
-algorithm. This algorithm is really bad and thus not recommended since, for example,
-the Optim.jl algorithms on an L2 loss are more performant and robust. However,
-this is provided for completeness as most other differential equation libraries
-use an LM-based algorithm, so this allows one to test the increased effectiveness
-of not using LM.
-
-```julia
-lm_fit(prob::DEProblem,tspan,t,data,p0;
-       prob_generator = (prob,p) -> remake(prob,u0=convert.(eltype(p),prob.u0),p=p),
-       kwargs...)
-```
-
-The arguments are similar to before, but with `p0` being the initial conditions
-for the parameters and the `kwargs` as the args passed to the LsqFit `curve_fit`
-function (which is used for the LM solver). This returns the fitted parameters.
-
-## MAP estimate
+## Using the Objectives for MAP estimates
 
 You can also add a prior option to `build_loss_objective` and `multiple_shooting_objective` that essentially turns it into MAP by multiplying the loglikelihood (the cost) by the prior. The option was added as a keyword argument `priors`, it can take in either an array of univariate distributions for each of the parameters or a multivariate distribution.
 
