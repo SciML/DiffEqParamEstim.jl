@@ -12,15 +12,13 @@ makedocs(
 
     pages=[
         "DiffEqParamEstim.jl: Parameter Estimation for Differential Equations" => "index.md",
+        "Tutorials" => Any[
+          "examples/ODE_inference.md",
+          "tutorials/stochastic_evaluations.md"
+        ],
         "Methods" => Any[
           "methods/recommended_methods.md",
           "methods/optimization_based_methods.md"
-        ],
-        "Examples" => Any[
-          "examples/ODE_inference.md"
-        ],
-        "Tutorials" => Any[
-          "tutorials/stochastic_evaluations.md"
         ],
     ]
 )
