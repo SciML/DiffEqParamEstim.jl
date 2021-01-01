@@ -22,7 +22,7 @@ struct Merged_Solution{T1,T2,T3}
 end
 
 function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
-           regularization = nothing; prior = nothing,
+           regularization = nothing; priors = nothing,
            mpg_autodiff = false, discontinuity_weight = 1.0,
            verbose_opt = false, verbose_steps = 100,
            prob_generator = STANDARD_MS_PROB_GENERATOR,
@@ -63,10 +63,10 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
         sol_new = DiffEqBase.build_solution(prob, alg, sol_loss.t, sol_loss.u,
                                             retcode = :Success)
         loss_val = loss(sol_new)
-        if prior != nothing
-            loss_val += prior_loss(prior, p[end-length(prior):end])
+        if priors !== nothing
+            loss_val += prior_loss(priors, p[end-length(priors):end])
         end
-        if regularization != nothing
+        if regularization !== nothing
             loss_val += regularization(p)
         end
         for k in 2:K
