@@ -44,10 +44,10 @@ function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization
 
     loss_val = loss(sol)
 
-    if priors != nothing
+    if priors !== nothing
       loss_val += prior_loss(priors,p)
     end
-    if regularization != nothing
+    if regularization !== nothing
       loss_val += regularization(p)
     end
 
