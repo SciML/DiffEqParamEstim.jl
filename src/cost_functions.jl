@@ -83,7 +83,7 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
   sumsq = 0.0
 
   if weight == nothing
-    @inbounds for i in 2:length(sol)
+    @inbounds for i in 1:length(sol)
       for j in 1:length(sol[i])
         sumsq +=(data[j,i] - sol[j,i])^2
       end
@@ -98,7 +98,7 @@ function (f::L2Loss)(sol::DiffEqBase.DESolution)
       end
     end
   else
-    @inbounds for i in 2:length(sol)
+    @inbounds for i in 1:length(sol)
       if typeof(weight) <: Real
         for j in 1:length(sol[i])
           sumsq = sumsq + ((data[j,i] - sol[j,i])^2)*weight
