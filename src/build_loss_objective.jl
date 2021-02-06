@@ -24,7 +24,7 @@ end
 (f::DiffEqObjective)(x) = f.cost_function(x)
 (f::DiffEqObjective)(x,y) = f.cost_function2(x,y)
 
-function build_loss_objective(prob::DiffEqBase.DEProblem,alg,loss,regularization=nothing,args...;
+function build_loss_objective(prob::SciMLBase.SciMLProblem,alg,loss,regularization=nothing,args...;
                               priors=nothing,mpg_autodiff = false,
                               verbose_opt = false,verbose_steps = 100,
                               prob_generator = STANDARD_PROB_GENERATOR,
