@@ -1,6 +1,8 @@
 module DiffEqParamEstim
 using DiffEqBase, LsqFit, PenaltyFunctions,
-      RecursiveArrayTools, ForwardDiff, Calculus, Distributions, LinearAlgebra, DiffEqSensitivity, Dierckx
+      RecursiveArrayTools, ForwardDiff, Calculus, Distributions,
+      LinearAlgebra, DiffEqSensitivity, Dierckx,
+      SciMLBase
 
 STANDARD_PROB_GENERATOR(prob,p) = remake(prob;u0=eltype(p).(prob.u0),p=p)
 STANDARD_PROB_GENERATOR(prob::EnsembleProblem,p) = EnsembleProblem(
