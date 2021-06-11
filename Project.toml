@@ -1,7 +1,7 @@
 name = "DiffEqParamEstim"
 uuid = "1130ab10-4a5a-5621-a13d-e4788d82bd4c"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "1.20.1"
+version = "1.21.0"
 
 [deps]
 Calculus = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
