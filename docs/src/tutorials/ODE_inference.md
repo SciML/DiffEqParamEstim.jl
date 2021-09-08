@@ -146,10 +146,11 @@ The result is a cost function which can be used with LeastSquaresOptim. For more
 details, consult the [documentation for LeastSquaresOptim.jl](https://github.com/matthieugomez/LeastSquaresOptim.jl):
 
 ```julia
+using LeastSquaresOptim # for LeastSquaresProblem
 x = [1.3,0.8,2.8,1.2]
 res = optimize!(LeastSquaresProblem(x = x, f! = cost_function,
                 output_length = length(t)*length(prob.u0)),
-                LeastSquaresOptim.Dogleg(),LeastSquaresOptim.LSMR())
+                LeastSquaresOptim.Dogleg(LeastSquaresOptim.LSMR()))
 ```
 
 We can see the results are:
@@ -199,6 +200,9 @@ This creates the objective function that can be passed to an optimizer from whic
 and the initial values of the short time periods keeping in mind the indexing.
 
 ```julia
+# ]add BlackBoxOptim
+using BlackBoxOptim
+
 result = bboptimize(ms_obj;SearchRange = bound, MaxSteps = 21e3)
 result.archive_output.best_candidate[end-1:end]
 ```
