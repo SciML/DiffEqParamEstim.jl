@@ -75,7 +75,7 @@ function construct_estimated_solution_and_derivative!(data,kernel,tpoints)
 end
 function construct_iip_cost_function(f,du,preview_est_sol,preview_est_deriv,tpoints)
   function (p)
-      _du = DiffEqBase.get_tmp(du,p)
+      _du = PreallocationTools.get_tmp(du,p)
       vecdu = vec(_du)
       cost = zero(first(p))
       for i in 1:length(preview_est_sol)
@@ -105,14 +105,14 @@ get_chunksize(cs::Type{Val{CS}}) where CS = CS
 function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= EpanechnikovKernel(),
                           loss_func = L2Loss,mpg_autodiff = false,
                           verbose = false,verbose_steps = 100,
-                          autodiff_chunk = Val{ForwardDiff.pickchunksize(length(prob.p))})
+                          autodiff_chunk = length(prob.p))
     f = prob.f
     kernel_function = decide_kernel(kernel)
     estimated_derivative,estimated_solution = construct_estimated_solution_and_derivative!(data,kernel_function,tpoints)
 
     # Step - 2
 
-    du = DiffEqBase.dualcache(similar(prob.u0), autodiff_chunk)
+    du = PreallocationTools.dualcache(similar(prob.u0), autodiff_chunk)
     preview_est_sol = [@view estimated_solution[:,i] for i in 1:size(estimated_solution,2)]
     preview_est_deriv = [@view estimated_derivative[:,i] for i in 1:size(estimated_solution,2)]
     if DiffEqBase.isinplace(prob)
