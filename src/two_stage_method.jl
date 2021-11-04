@@ -100,6 +100,7 @@ function construct_oop_cost_function(f,du,preview_est_sol,preview_est_deriv,tpoi
   end
 end
 
+get_chunksize(cs) = cs
 get_chunksize(cs::Type{Val{CS}}) where CS = CS
 
 function two_stage_method(prob::DiffEqBase.DEProblem,tpoints,data;kernel= EpanechnikovKernel(),
