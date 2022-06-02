@@ -1,5 +1,7 @@
 using Documenter, DiffEqParamEstim
 
+include("pages.jl")
+
 makedocs(
     sitename="DiffEqParamEstim.jl",
     authors="Chris Rackauckas et al.",
