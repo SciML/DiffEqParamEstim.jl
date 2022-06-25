@@ -1,7 +1,7 @@
 module DiffEqParamEstim
 using DiffEqBase, LsqFit, PenaltyFunctions,
       RecursiveArrayTools, ForwardDiff, Calculus, Distributions,
-      LinearAlgebra, DiffEqSensitivity, Dierckx,
+      LinearAlgebra, SciMLSensitivity, Dierckx,
       SciMLBase
 
 import PreallocationTools

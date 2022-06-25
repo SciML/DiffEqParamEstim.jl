@@ -39,8 +39,6 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
     colloc_grad = f.colloc_grad
     dudt = f.dudt
 
-    @show sol.u
-
     if sol isa DiffEqBase.AbstractEnsembleSolution
         failure = any(s.retcode !== :Success && s.retcode !== :Terminated for s in sol)
     else
