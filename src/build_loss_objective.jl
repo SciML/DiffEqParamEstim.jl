@@ -15,10 +15,11 @@ end
 function diffeq_sen_l2!(res, df, u0, tspan, p, t, data, alg; kwargs...)
     prob = ODEProblem(df, u0, tspan, p)
     sol = solve(prob, alg, saveat = t; kwargs...)
-    function dg(out, u, p, t, i)
+    function dg_discrete(out, u, p, t, i)
         @. out = 2 * (data[:, i] - u)
     end
-    res .= adjoint_sensitivities(sol, alg, dg, t, kwargs...)[2][1, :]
+    fill!(res, false)
+    res .-= adjoint_sensitivities(sol, alg; t, dg_discrete, kwargs...)[2][1, :]
 end
 
 (f::DiffEqObjective)(x) = f.cost_function(x)
