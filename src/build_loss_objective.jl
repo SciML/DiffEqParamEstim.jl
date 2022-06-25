@@ -18,7 +18,7 @@ function diffeq_sen_l2!(res, df, u0, tspan, p, t, data, alg; kwargs...)
     function dg_discrete(out, u, p, t, i)
         @. out = 2 * (data[:, i] - u)
     end
-    fill!(res,false)
+    fill!(res, false)
     res .-= adjoint_sensitivities(sol, alg; t, dg_discrete, kwargs...)[2][1, :]
 end
 
