@@ -64,7 +64,7 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
     sumsq
 end
 
-function (f::L2Loss)(sol::DiffEqBase.DESolution)
+function (f::L2Loss)(sol::DiffEqBase.AbstractDESolution)
     data = f.data
     weight = f.data_weight
     diff_weight = f.differ_weight
@@ -168,7 +168,7 @@ function LogLikeLoss(t, data_distributions, diff_distributions)
     LogLikeLoss(t, matrixize(data_distributions), matrixize(diff_distributions), 1)
 end
 
-function (f::LogLikeLoss)(sol::DESolution)
+function (f::LogLikeLoss)(sol::SciMLBase.AbstractDESolution)
     distributions = f.data_distributions
     if sol isa DiffEqBase.AbstractEnsembleSolution
         failure = any(s.retcode !== :Success && s.retcode !== :Terminated for s in sol)
