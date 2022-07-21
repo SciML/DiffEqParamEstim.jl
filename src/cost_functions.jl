@@ -64,7 +64,7 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
     sumsq
 end
 
-function (f::L2Loss)(sol::DiffEqBase.AbstractSciMLSolution)
+function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
     data = f.data
     weight = f.data_weight
     diff_weight = f.differ_weight
