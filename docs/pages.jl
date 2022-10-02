@@ -1,5 +1,4 @@
-pages = [
-    "DiffEqParamEstim.jl: Parameter Estimation for Differential Equations" => "index.md",
+pages = ["index.md",
     "Tutorials" => Any["tutorials/ODE_inference.md",
                        "tutorials/global_optimization.md",
                        "tutorials/jump.md",
