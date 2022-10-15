@@ -1,9 +1,9 @@
 module DiffEqParamEstim
 using DiffEqBase, LsqFit, PenaltyFunctions,
       RecursiveArrayTools, ForwardDiff, Calculus, Distributions,
-      LinearAlgebra, SciMLSensitivity, Dierckx,
-      SciMLBase
+      LinearAlgebra, SciMLSensitivity, Dierckx, DiffEqFlux, SciMLBase
 
+import DiffEqFlux.CollocationKernel
 import PreallocationTools
 STANDARD_PROB_GENERATOR(prob, p) = remake(prob; u0 = eltype(p).(prob.u0), p = p)
 function STANDARD_PROB_GENERATOR(prob::EnsembleProblem, p)
@@ -26,7 +26,6 @@ include("cost_functions.jl")
 include("lm_fit.jl")
 include("build_loss_objective.jl")
 include("build_lsoptim_objective.jl")
-include("kernels.jl")
 include("two_stage_method.jl")
 include("multiple_shooting_objective.jl")
 
