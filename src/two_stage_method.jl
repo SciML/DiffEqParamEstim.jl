@@ -82,7 +82,7 @@ function construct_iip_cost_function(f, du, preview_est_sol, preview_est_deriv, 
             vecdu .= vec(preview_est_deriv[i]) .- vec(_du)
             cost += sum(abs2, vecdu)
         end
-        sqrt(cost)
+        cost
     end
 end
 
@@ -94,7 +94,7 @@ function construct_oop_cost_function(f, du, preview_est_sol, preview_est_deriv, 
             _du = f(est_sol, p, tpoints[i])
             cost += sum(abs2, vec(preview_est_deriv[i]) .- vec(_du))
         end
-        sqrt(cost)
+        cost
     end
 end
 
