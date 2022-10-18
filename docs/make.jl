@@ -8,7 +8,7 @@ makedocs(sitename = "DiffEqParamEstim.jl",
          doctest = false,
          modules = [DiffEqParamEstim],
          format = Documenter.HTML(assets = ["assets/favicon.ico"],
-                                  canonical = "https://diffeqparamestim.sciml.ai/stable/"),
+                                  canonical = "https://docs.sciml.ai/DiffEqParamEstim/stable/"),
          pages = pages)
 
 deploydocs(repo = "github.com/SciML/DiffEqParamEstim.jl";
