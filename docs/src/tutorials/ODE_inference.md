@@ -25,7 +25,7 @@ randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
 data = convert(Array,randomized)
 ```
 
-Here we used `VectorOfArray` from [RecursiveArrayTools.jl](https://github.com/ChrisRackauckas/RecursiveArrayTools.jl)
+Here we used `VectorOfArray` from [RecursiveArrayTools.jl](https://docs.sciml.ai/RecursiveArrayTools/stable/)
 to turn the result of an ODE into a matrix.
 
 If we plot the solution with the parameter at `a=1.42`, we get the following:
