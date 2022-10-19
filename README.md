@@ -1,7 +1,7 @@
 # DiffEqParamEstim.jl
 
 [![Join the chat at https://julialang.zulipchat.com #sciml-bridged](https://img.shields.io/static/v1?label=Zulip&message=chat&color=9558b2&labelColor=389826)](https://julialang.zulipchat.com/#narrow/stream/279055-sciml-bridged)
-[![Global Docs](https://img.shields.io/badge/docs-SciML-blue.svg)](https://docs.sciml.ai/ParameterizedFunctions/stable/)
+[![Global Docs](https://img.shields.io/badge/docs-SciML-blue.svg)](https://docs.sciml.ai/DiffEqParamEstim/stable/)
 
 [![codecov](https://codecov.io/gh/SciML/DiffEqParamEstim.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/SciML/DiffEqParamEstim.jl)
 [![Build Status](https://github.com/SciML/DiffEqParamEstim.jl/workflows/CI/badge.svg)](https://github.com/SciML/DiffEqParamEstim.jl/actions?query=workflow%3ACI)
@@ -17,6 +17,6 @@ functionality should check out [DifferentialEquations.jl](https://github.com/Sci
 ## Tutorials and Documentation
 
 For information on using the package,
-[see the stable documentation](https://docs.sciml.ai/ParameterizedFunctions/stable/). Use the
-[in-development documentation](https://docs.sciml.ai/ParameterizedFunctions/dev/) for the version of
+[see the stable documentation](https://docs.sciml.ai/DiffEqParamEstim/stable/). Use the
+[in-development documentation](https://docs.sciml.ai/DiffEqParamEstim/dev/) for the version of
 the documentation, which contains the unreleased features.
