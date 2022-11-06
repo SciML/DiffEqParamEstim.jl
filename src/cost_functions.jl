@@ -40,9 +40,9 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
     dudt = f.dudt
 
     if sol isa DiffEqBase.AbstractEnsembleSolution
-        failure = any(s.retcode !== :Success && s.retcode !== :Terminated for s in sol)
+        failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol)
     else
-        failure = sol.retcode !== :Success && sol.retcode !== :Terminated
+        failure = !SciMLBase.successful_retcode(sol.retcode)
     end
     failure && return Inf
 
@@ -72,9 +72,9 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
     dudt = f.dudt
 
     if sol isa DiffEqBase.AbstractEnsembleSolution
-        failure = any(s.retcode !== :Success && s.retcode !== :Terminated for s in sol)
+        failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol)
     else
-        failure = sol.retcode !== :Success && sol.retcode !== :Terminated
+        failure = !SciMLBase.successful_retcode(sol.retcode)
     end
     failure && return Inf
 
@@ -171,9 +171,9 @@ end
 function (f::LogLikeLoss)(sol::SciMLBase.AbstractSciMLSolution)
     distributions = f.data_distributions
     if sol isa DiffEqBase.AbstractEnsembleSolution
-        failure = any(s.retcode !== :Success && s.retcode !== :Terminated for s in sol)
+        failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol)
     else
-        failure = sol.retcode !== :Success && sol.retcode !== :Terminated
+        failure = !SciMLBase.successful_retcode(sol.retcode)
     end
     failure && return Inf
     ll = 0.0
@@ -220,9 +220,9 @@ end
 function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
     distributions = f.data_distributions
     if sol_tmp isa DiffEqBase.AbstractEnsembleSolution
-        failure = any(s.retcode !== :Success && s.retcode !== :Terminated for s in sol_tmp)
+        failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol_tmp)
     else
-        failure = sol_tmp.retcode !== :Success && sol_tmp.retcode !== :Terminated
+        failure = !SciMLBase.successful_retcode(sol_tmp.retcode)
     end
     failure && return Inf
     ll = 0.0
