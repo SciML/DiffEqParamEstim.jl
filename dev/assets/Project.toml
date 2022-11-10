@@ -1,0 +1,6 @@
+[deps]
+DiffEqParamEstim = "1130ab10-4a5a-5621-a13d-e4788d82bd4c"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+
+[compat]
+Documenter = "0.27"
