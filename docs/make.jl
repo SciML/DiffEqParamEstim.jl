@@ -2,6 +2,8 @@ using Documenter, DiffEqParamEstim
 
 cp("./docs/Manifest.toml", "./docs/src/assets/Manifest.toml", force = true)
 cp("./docs/Project.toml", "./docs/src/assets/Project.toml", force = true)
+ENV["PLOTS_TEST"] = "true"
+ENV["GKSwstype"] = "100"
 
 include("pages.jl")
 
