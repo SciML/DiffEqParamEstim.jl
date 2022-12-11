@@ -4,6 +4,8 @@ We choose to optimize the parameters on the Lotka-Volterra equation. We do so
 by defining the function as a function with parameters:
 
 ```@example ode
+using DifferentialEquations, RecursiveArrayTools, Plots, Optim, DiffEqParamEstim
+
 function f(du,u,p,t)
   du[1] = dx = p[1]*u[1] - u[1]*u[2]
   du[2] = dy = -3*u[2] + u[1]*u[2]
@@ -56,7 +58,6 @@ of parameter values:
 yscale
 ```@example ode
 vals = 0.0:0.1:10.0
-using Plots
 plot(vals,[cost_function(i) for i in vals],yscale=:log10,
      xaxis = "Parameter", yaxis = "Cost", title = "1-Parameter Cost Function",
      lw = 3)
