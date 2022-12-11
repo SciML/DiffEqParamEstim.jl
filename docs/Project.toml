@@ -10,6 +10,7 @@ RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 
 [compat]
 BlackBoxOptim = "0.6"
+DiffEqParamEstim = "1"
 DifferentialEquations = "7"
 Documenter = "0.27"
 LeastSquaresOptim = "0.8"
