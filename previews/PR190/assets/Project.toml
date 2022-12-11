@@ -1,0 +1,17 @@
+[deps]
+BlackBoxOptim = "a134a8b2-14d6-55f6-9291-3336d3ab0209"
+DiffEqParamEstim = "1130ab10-4a5a-5621-a13d-e4788d82bd4c"
+DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+LeastSquaresOptim = "0fc2ff8b-aaa3-5acd-a817-1944a5e08891"
+Optim = "429524aa-4258-5aef-a3af-852621145aeb"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
+
+[compat]
+BlackBoxOptim = "0.6"
+DifferentialEquations = "7"
+Documenter = "0.27"
+LeastSquaresOptim = "0.8"
+Optim = "1"
+Plots = "1"
