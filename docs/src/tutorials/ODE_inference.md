@@ -138,7 +138,7 @@ result_bfgs = Optim.optimize(cost_function, [1.3,0.8,2.8,1.2], Optim.BFGS())
 To solve it using LeastSquaresOptim.jl, we use the `build_lsoptim_objective` function:
 
 ```@example ode
-cost_function = build_lsoptim_objective(prob1,t,data,Tsit5())
+cost_function = build_lsoptim_objective(prob,t,data,Tsit5())
 ```
 
 The result is a cost function which can be used with LeastSquaresOptim. For more
@@ -150,25 +150,6 @@ x = [1.3,0.8,2.8,1.2]
 res = optimize!(LeastSquaresProblem(x = x, f! = cost_function,
                 output_length = length(t)*length(prob.u0)),
                 LeastSquaresOptim.Dogleg(LeastSquaresOptim.LSMR()))
-```
-
-We can see the results are:
-
-```@example ode
-println(res.minimizer)
-
-Results of Optimization Algorithm
- * Algorithm: Dogleg
- * Minimizer: [1.4995074428834114,0.9996531871795851,3.001556360700904,1.0006272074128821]
- * Sum of squares at Minimum: 0.035730
- * Iterations: 63
- * Convergence: true
- * |x - x'| < 1.0e-15: true
- * |f(x) - f(x')| / |f(x)| < 1.0e-14: false
- * |g(x)| < 1.0e-14: false
- * Function Calls: 64
- * Gradient Calls: 9
- * Multiplication Calls: 135
 ```
 
 and thus this algorithm was able to correctly identify all four parameters.
@@ -203,28 +184,12 @@ and the initial values of the short time periods keeping in mind the indexing.
 using BlackBoxOptim
 
 result = bboptimize(ms_obj;SearchRange = bound, MaxSteps = 21e3)
+```
+
+```@example ode
 result.archive_output.best_candidate[end-1:end]
 ```
-Giving us the results as
-```@example ode
-Starting optimization with optimizer BlackBoxOptim.DiffEvoOpt{BlackBoxOptim.FitPopulation{Float64},BlackBoxOptim.RadiusLimitedSelector,BlackBoxOptim.AdaptiveDiffEvoRandBin{3},BlackBoxOptim.RandomBound{BlackBoxOptim.RangePerDimSearchSpace}}
 
-Optimization stopped after 21001 steps and 136.60030698776245 seconds
-Termination reason: Max number of steps (21000) reached
-Steps per second = 153.7405036862868
-Function evals per second = 154.43596332393247
-Improvements/step = 0.17552380952380953
-Total function evaluations = 21096
-
-
-Best candidate found: [0.997396, 1.04664, 3.77834, 0.275823, 2.14966, 4.33106, 1.43777, 0.468442, 6.22221, 0.673358, 0.970036, 2.05182, 2.4216, 0.274394, 5.64131, 3.38132, 1.52826, 1.01721]
-
-Fitness: 0.126884213
-
-Out[4]:2-element Array{Float64,1}:
-        1.52826
-        1.01721
-```
 Here as our model had 2 parameters, we look at the last two indexes of `result` to get our parameter values and
 the rest of the values are the initial values of the shorter timespans as described in the reference section.
 
@@ -232,25 +197,7 @@ The objective function for Two Stage method can be created and passed to an opti
 
 ```@example ode
 two_stage_obj = two_stage_method(ms_prob,t,data)
-result = Optim.optimize(two_stage_obj, [1.3,0.8,2.8,1.2], Optim.BFGS()
-)
-Results of Optimization Algorithm
- * Algorithm: BFGS
- * Starting Point: [1.3,0.8,2.8,1.2]
- * Minimizer: [1.5035938533664717,0.9925731153746833, ...]
- * Minimum: 1.513400e+00
- * Iterations: 9
- * Convergence: true
-   * |x - x'| ≤ 0.0e+00: false
-     |x - x'| = 4.58e-10
-   * |f(x) - f(x')| ≤ 0.0e+00 |f(x)|: false
-     |f(x) - f(x')| = 5.87e-16 |f(x)|
-   * |g(x)| ≤ 1.0e-08: true
-     |g(x)| = 7.32e-11
-   * Stopped by an increasing objective: false
-   * Reached Maximum Number of Iterations: false
- * Objective Calls: 31
- * Gradient Calls: 31
+result = Optim.optimize(two_stage_obj, [1.3,0.8,2.8,1.2], Optim.BFGS())
 ```
 The default kernel used in the method is `Epanechnikov` others that are available are `Uniform`,  `Triangular`,
 `Quartic`, `Triweight`, `Tricube`, `Gaussian`, `Cosine`, `Logistic` and `Sigmoid`, this can be passed by the
