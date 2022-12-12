@@ -23,14 +23,9 @@ end
 
 function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
                                      regularization = nothing; priors = nothing,
-                                     mpg_autodiff = false, discontinuity_weight = 1.0,
+                                     discontinuity_weight = 1.0,
                                      verbose_opt = false, verbose_steps = 100,
                                      prob_generator = STANDARD_MS_PROB_GENERATOR,
-                                     autodiff_prototype = mpg_autodiff ?
-                                                          zeros(init_N_params) : nothing,
-                                     autodiff_chunk = mpg_autodiff ?
-                                                      ForwardDiff.Chunk(autodiff_prototype) :
-                                                      nothing,
                                      kwargs...)
     if verbose_opt
         count = 0 # keep track of # function evaluations
@@ -91,21 +86,5 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
         loss_val
     end
 
-    if mpg_autodiff
-        gcfg = ForwardDiff.GradientConfig(cost_function, autodiff_prototype,
-                                          autodiff_chunk)
-        g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
-    else
-        g! = (x, out) -> Calculus.finite_difference!(cost_function, x, out,
-                                                     :central)
-    end
-
-    cost_function2 = function (p, grad)
-        if length(grad) > 0
-            g!(p, grad)
-        end
-        cost_function(p)
-    end
-
-    DiffEqObjective(cost_function, cost_function2)
+    DiffEqObjective(cost_function, nothing)
 end

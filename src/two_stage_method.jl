@@ -1,14 +1,12 @@
 export TwoStageCost, two_stage_method
 
-struct TwoStageCost{F, F2, D} <: Function
+struct TwoStageCost{F, D} <: Function
     cost_function::F
-    cost_function2::F2
     estimated_solution::D
     estimated_derivative::D
 end
 
 (f::TwoStageCost)(p) = f.cost_function(p)
-(f::TwoStageCost)(p, g) = f.cost_function2(p, g)
 
 decide_kernel(kernel::CollocationKernel) = kernel
 function decide_kernel(kernel::Symbol)
@@ -127,32 +125,6 @@ function two_stage_method(prob::DiffEqBase.DEProblem, tpoints, data;
                                                     preview_est_deriv, tpoints)
     end
 
-    if mpg_autodiff
-        gcfg = ForwardDiff.GradientConfig(cost_function, prob.p,
-                                          ForwardDiff.Chunk{get_chunksize(autodiff_chunk)}())
-        g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
-    else
-        g! = (x, out) -> Calculus.finite_difference!(cost_function, x, out, :central)
-    end
-    if verbose
-        count = 0 # keep track of # function evaluations
-    end
-    cost_function2 = function (p, grad)
-        if length(grad) > 0
-            g!(p, grad)
-        end
-        loss_val = cost_function(p)
-        if verbose
-            count::Int += 1
-            if mod(count, verbose_steps) == 0
-                println("Iteration: $count")
-                println("Current Cost: $loss_val")
-                println("Parameters: $p")
-            end
-        end
-        loss_val
-    end
-
-    return TwoStageCost(cost_function, cost_function2, estimated_solution,
+    return TwoStageCost(cost_function, estimated_solution,
                         estimated_derivative)
 end

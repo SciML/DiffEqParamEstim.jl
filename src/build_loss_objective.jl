@@ -1,6 +1,6 @@
 export DiffEqObjective, build_loss_objective
 
-struct DiffEqObjective{F, F2} <: Function
+struct DiffEqObjective{F <: Function, F2 <: Union{Function, Nothing}}
     cost_function::F
     cost_function2::F2
 end
@@ -23,17 +23,13 @@ function diffeq_sen_l2!(res, df, u0, tspan, p, t, data, alg; kwargs...)
 end
 
 (f::DiffEqObjective)(x) = f.cost_function(x)
-(f::DiffEqObjective)(x, y) = f.cost_function2(x, y)
 
 function build_loss_objective(prob::SciMLBase.AbstractSciMLProblem, alg, loss,
                               regularization = nothing, args...;
-                              priors = nothing, mpg_autodiff = false,
+                              priors = nothing, autodiff = false,
                               verbose_opt = false, verbose_steps = 100,
                               prob_generator = STANDARD_PROB_GENERATOR,
-                              autodiff_prototype = mpg_autodiff ? zero(prob.p) : nothing,
-                              autodiff_chunk = mpg_autodiff ?
-                                               ForwardDiff.Chunk(autodiff_prototype) :
-                                               nothing, flsa_gradient = false,
+                              flsa_gradient = false,
                               adjsa_gradient = false,
                               kwargs...)
     if verbose_opt
@@ -68,10 +64,7 @@ function build_loss_objective(prob::SciMLBase.AbstractSciMLProblem, alg, loss,
         loss_val
     end
 
-    if mpg_autodiff
-        gcfg = ForwardDiff.GradientConfig(cost_function, autodiff_prototype, autodiff_chunk)
-        g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
-    elseif flsa_gradient
+    if flsa_gradient
         if typeof(loss) <: L2Loss
             function g!(x, out)
                 sol_, sens = diffeq_sen_full(prob.f, prob.u0, prob.tspan, x, loss.t, alg)
@@ -83,15 +76,17 @@ function build_loss_objective(prob::SciMLBase.AbstractSciMLProblem, alg, loss,
     elseif adjsa_gradient
         g! = (x, out) -> diffeq_sen_l2!(out, prob.f, prob.u0, prob.tspan, x, loss.t,
                                         loss.data, alg)
-    else
-        g! = (x, out) -> Calculus.finite_difference!(cost_function, x, out, :central)
     end
 
-    cost_function2 = function (p, grad)
-        if length(grad) > 0
-            g!(p, grad)
+    if flsa_gradient || adjsa_gradient
+        cost_function2 = function (p, grad)
+            if length(grad) > 0
+                g!(p, grad)
+            end
+            cost_function(p)
         end
-        cost_function(p)
+    else
+        cost_function2 = nothing
     end
     DiffEqObjective(cost_function, cost_function2)
 end
