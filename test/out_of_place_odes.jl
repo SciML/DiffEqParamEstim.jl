@@ -46,7 +46,9 @@ prob_oop = ODEProblem{false}(ff, u0, tspan, ps)
 data = Array(solve(prob, Tsit5(), saveat = t))
 ptest = ones(rc)
 
-obj_ts = two_stage_method(prob, t, data; kernel = :Sigmoid)
+obj_ts = two_stage_method(prob, t, data; kernel = SigmoidKernel())
+@test obj_ts(ptest) ≈ 418.3400017500223^2
+obj_ts = two_stage_method(prob_oop, t, data; kernel = SigmoidKernel())
 @test obj_ts(ptest) ≈ 418.3400017500223^2
 obj_ts = two_stage_method(prob_oop, t, data; kernel = :Sigmoid)
 @test obj_ts(ptest) ≈ 418.3400017500223^2
