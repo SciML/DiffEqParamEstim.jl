@@ -24,14 +24,10 @@ end
 function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
                                      regularization = nothing; priors = nothing,
                                      discontinuity_weight = 1.0,
-                                     verbose_opt = false, verbose_steps = 100,
                                      prob_generator = STANDARD_MS_PROB_GENERATOR,
                                      kwargs...)
-    if verbose_opt
-        count = 0 # keep track of # function evaluations
-    end
 
-    cost_function = function (p)
+    cost_function = function (p, nothing)
         t0, tf = prob.tspan
         P, N = length(prob.p), length(prob.u0)
         K = Int((length(p) - P) / N)
@@ -75,16 +71,8 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
                                 (sol[k][1] - sol[k - 1][end]) .^ 2)
             end
         end
-        if verbose_opt
-            count::Int += 1
-            if mod(count, verbose_steps) == 0
-                println("Iteration: $count")
-                println("Current Cost: $loss_val")
-                println("Parameters: $p")
-            end
-        end
         loss_val
     end
 
-    DiffEqObjective(cost_function, nothing)
+    return OptimizationFunction(cost_function)
 end

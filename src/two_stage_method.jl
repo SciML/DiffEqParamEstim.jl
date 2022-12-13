@@ -6,7 +6,7 @@ struct TwoStageCost{F, D} <: Function
     estimated_derivative::D
 end
 
-(f::TwoStageCost)(p) = f.cost_function(p)
+(f::TwoStageCost)(p, _ = nothing) = f.cost_function(p, _)
 
 decide_kernel(kernel::CollocationKernel) = kernel
 function decide_kernel(kernel::Symbol)
@@ -69,23 +69,22 @@ function construct_estimated_solution_and_derivative!(data, kernel, tpoints)
     estimated_solution = reduce(hcat, transpose.(last.(x)))
     estimated_derivative, estimated_solution
 end
-function construct_iip_cost_function(f, du, preview_est_sol, preview_est_deriv, tpoints)
-    function (p)
-        _du = PreallocationTools.get_tmp(du, p)
-        vecdu = vec(_du)
-        cost = zero(first(p))
-        for i in 1:length(preview_est_sol)
-            est_sol = preview_est_sol[i]
-            f(_du, est_sol, p, tpoints[i])
-            vecdu .= vec(preview_est_deriv[i]) .- vec(_du)
-            cost += sum(abs2, vecdu)
-        end
-        cost
-    end
-end
 
-function construct_oop_cost_function(f, du, preview_est_sol, preview_est_deriv, tpoints)
-    function (p)
+function two_stage_objective(prob::DiffEqBase.DEProblem, tpoints, data;
+                          kernel = EpanechnikovKernel())
+    f = prob.f
+    kernel_function = decide_kernel(kernel)
+    estimated_derivative, estimated_solution = construct_estimated_solution_and_derivative!(data,
+                                                                                            kernel_function,
+                                                                                            tpoints)
+
+    # Step - 2
+    preview_est_sol = [@view estimated_solution[:, i]
+                       for i in 1:size(estimated_solution, 2)]
+    preview_est_deriv = [@view estimated_derivative[:, i]
+                         for i in 1:size(estimated_solution, 2)]
+
+    function cost_function(p, nothing)
         cost = zero(first(p))
         for i in 1:length(preview_est_sol)
             est_sol = preview_est_sol[i]
@@ -94,37 +93,7 @@ function construct_oop_cost_function(f, du, preview_est_sol, preview_est_deriv, 
         end
         cost
     end
-end
 
-get_chunksize(cs) = cs
-get_chunksize(cs::Type{Val{CS}}) where {CS} = CS
-
-function two_stage_method(prob::DiffEqBase.DEProblem, tpoints, data;
-                          kernel = EpanechnikovKernel(),
-                          loss_func = L2Loss, mpg_autodiff = false,
-                          verbose = false, verbose_steps = 100,
-                          autodiff_chunk = length(prob.p))
-    f = prob.f
-    kernel_function = decide_kernel(kernel)
-    estimated_derivative, estimated_solution = construct_estimated_solution_and_derivative!(data,
-                                                                                            kernel_function,
-                                                                                            tpoints)
-
-    # Step - 2
-
-    du = PreallocationTools.dualcache(similar(prob.u0), autodiff_chunk)
-    preview_est_sol = [@view estimated_solution[:, i]
-                       for i in 1:size(estimated_solution, 2)]
-    preview_est_deriv = [@view estimated_derivative[:, i]
-                         for i in 1:size(estimated_solution, 2)]
-    if DiffEqBase.isinplace(prob)
-        cost_function = construct_iip_cost_function(f, du, preview_est_sol,
-                                                    preview_est_deriv, tpoints)
-    else
-        cost_function = construct_oop_cost_function(f, du, preview_est_sol,
-                                                    preview_est_deriv, tpoints)
-    end
-
-    return TwoStageCost(cost_function, estimated_solution,
-                        estimated_derivative)
+    return OptimizationFunction(TwoStageCost(cost_function, estimated_solution,
+                        estimated_derivative))
 end
