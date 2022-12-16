@@ -1,5 +1,5 @@
-using DifferentialEquations, RecursiveArrayTools, ParameterizedFunctions
-using NLopt, DiffEqParamEstim, BlackBoxOptim, Optim
+using RecursiveArrayTools, ParameterizedFunctions, Zygote
+using OptimizationNLopt, DiffEqParamEstim, OptimizationBBO, OptimizationBBO.BlackBoxOptim
 Xiang2015Bounds = Tuple{Float64, Float64}[(9, 11), (20, 30), (2, 3)]
 
 g1 = @ode_def LorenzExample begin
@@ -34,184 +34,91 @@ data = convert(Array, solve(prob, Euler(), tstops = t))
 # Use BlackBoxOptim
 obj_short = build_loss_objective(prob_short, Euler(), L2Loss(t_short, data_short),
                                  tstops = t_short, dense = false)
-res1 = bboptimize(obj_short; SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
+res1 = bboptimize((x) -> obj_short(x, nothing); SearchRange = Xiang2015Bounds,
+                  MaxSteps = 11e3)
+optprob = Optimization.OptimizationProblem(obj_short, [9.0, 20.0, 2.0];
+                                           lb = [9.0, 20.0, 2.0],
+                                           ub = [11.0, 30.0, 3.0])
+res2 = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited())
 
 # Use NLopt
+obj_short = build_loss_objective(prob_short, Euler(), L2Loss(t_short, data_short),
+                                 Optimization.AutoForwardDiff(), tstops = t_short,
+                                 dense = false)
 opt = Opt(:GN_ORIG_DIRECT_L, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+optprob = Optimization.OptimizationProblem(obj_short, [9.0, 20.0, 2.0];
+                                           lb = [9.0, 20.0, 2.0],
+                                           ub = [11.0, 30.0, 3.0])
+@time res = solve(optprob, opt)
 
-opt = Opt(:GN_CRS2_LM, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+# opt = Opt(:GN_CRS2_LM, 3)
+# @time res = solve(optprob, opt)
 
-opt = Opt(:GN_ISRES, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+# opt = Opt(:GN_ISRES, 3)
+# @time res = solve(optprob, opt)
 
 opt = Opt(:LN_BOBYQA, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+@time res = solve(optprob, opt)
 
 opt = Opt(:LN_NELDERMEAD, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+@time res = solve(optprob, opt)
 
 opt = Opt(:LD_SLSQP, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+@time res = solve(optprob, opt)
 
 #####################
 # Fails to converge
 #####################
 
 opt = Opt(:GN_ESCH, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+res = solve(optprob, opt)
 
 opt = Opt(:LN_COBYLA, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+res = solve(optprob, opt)
 
 opt = Opt(:LN_NEWUOA_BOUND, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+res = solve(optprob, opt)
 
 opt = Opt(:LN_PRAXIS, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+res = solve(optprob, opt)
 
 opt = Opt(:LN_SBPLX, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+res = solve(optprob, opt)
 
-opt = Opt(:LD_MMA, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+# opt = Opt(:LD_MMA, 3)
+# res = solve(optprob, opt)
 
 opt = Opt(:LD_LBFGS, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+res = solve(optprob, opt)
 
 opt = Opt(:LD_TNEWTON_PRECOND_RESTART, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+res = solve(optprob, opt)
 
 opt = Opt(:LD_VAR2, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+res = solve(optprob, opt)
 
 ########
 
 #### Now let's solve the longer version
 
-obj = build_loss_objective(prob, Euler(), L2Loss(t, data), tstops = t, dense = false)
+obj = build_loss_objective(prob, Euler(), L2Loss(t, data), Optimization.AutoZygote(),
+                           tstops = t, dense = false)
 # res1 = bboptimize(obj;SearchRange = Xiang2015Bounds, MaxSteps = 8e3)
 
 opt = Opt(:GN_ORIG_DIRECT_L, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+res = solve(optprob, opt)
 
-opt = Opt(:GN_CRS2_LM, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+# opt = Opt(:GN_CRS2_LM, 3)
+# res = solve(optprob, opt)
 
-opt = Opt(:GN_ISRES, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+# opt = Opt(:GN_ISRES, 3)
+# res = solve(optprob, opt)
 
 opt = Opt(:LN_BOBYQA, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+res = solve(optprob, opt)
 
 opt = Opt(:LN_NELDERMEAD, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+res = solve(optprob, opt)
 
 opt = Opt(:LD_SLSQP, 3)
-lower_bounds!(opt, [9.0, 20.0, 2.0])
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short.cost_function2)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, [9.0, 20.0, 2.0])
+res = solve(optprob, opt)

@@ -1,4 +1,4 @@
-export TwoStageCost, two_stage_method
+export TwoStageCost, two_stage_objective
 
 struct TwoStageCost{F, D} <: Function
     cost_function::F
@@ -6,7 +6,7 @@ struct TwoStageCost{F, D} <: Function
     estimated_derivative::D
 end
 
-(f::TwoStageCost)(p, _ = nothing) = f.cost_function(p, _)
+(f::TwoStageCost)(p, _p = nothing) = f.cost_function(p, _p)
 
 decide_kernel(kernel::CollocationKernel) = kernel
 function decide_kernel(kernel::Symbol)
@@ -70,8 +70,36 @@ function construct_estimated_solution_and_derivative!(data, kernel, tpoints)
     estimated_derivative, estimated_solution
 end
 
-function two_stage_objective(prob::DiffEqBase.DEProblem, tpoints, data;
-                          kernel = EpanechnikovKernel())
+function construct_iip_cost_function(f, du, preview_est_sol, preview_est_deriv, tpoints)
+    function (p, nothing)
+        _du = PreallocationTools.get_tmp(du, p)
+        vecdu = vec(_du)
+        cost = zero(first(p))
+        for i in 1:length(preview_est_sol)
+            est_sol = preview_est_sol[i]
+            f(_du, est_sol, p, tpoints[i])
+            vecdu .= vec(preview_est_deriv[i]) .- vec(_du)
+            cost += sum(abs2, vecdu)
+        end
+        cost
+    end
+end
+
+function construct_oop_cost_function(f, du, preview_est_sol, preview_est_deriv, tpoints)
+    function (p, nothing)
+        cost = zero(first(p))
+        for i in 1:length(preview_est_sol)
+            est_sol = preview_est_sol[i]
+            _du = f(est_sol, p, tpoints[i])
+            cost += sum(abs2, vec(preview_est_deriv[i]) .- vec(_du))
+        end
+        cost
+    end
+end
+
+function two_stage_objective(prob::DiffEqBase.DEProblem, tpoints, data,
+                             adtype = SciMLBase.NoAD();
+                             kernel = EpanechnikovKernel())
     f = prob.f
     kernel_function = decide_kernel(kernel)
     estimated_derivative, estimated_solution = construct_estimated_solution_and_derivative!(data,
@@ -84,16 +112,12 @@ function two_stage_objective(prob::DiffEqBase.DEProblem, tpoints, data;
     preview_est_deriv = [@view estimated_derivative[:, i]
                          for i in 1:size(estimated_solution, 2)]
 
-    function cost_function(p, nothing)
-        cost = zero(first(p))
-        for i in 1:length(preview_est_sol)
-            est_sol = preview_est_sol[i]
-            _du = f(est_sol, p, tpoints[i])
-            cost += sum(abs2, vec(preview_est_deriv[i]) .- vec(_du))
-        end
-        cost
+    cost_function = if isinplace(prob)
+        construct_oop_cost_function(f, prob.u0, preview_est_sol, preview_est_deriv, tpoints)
+    else
+        construct_iip_cost_function(f, prob.u0, preview_est_sol, preview_est_deriv, tpoints)
     end
 
     return OptimizationFunction(TwoStageCost(cost_function, estimated_solution,
-                        estimated_derivative))
+                                             estimated_derivative), adtype)
 end

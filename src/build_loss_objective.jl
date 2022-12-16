@@ -1,12 +1,12 @@
 export build_loss_objective
 
 function build_loss_objective(prob::SciMLBase.AbstractSciMLProblem, alg, loss,
+                              adtype = SciMLBase.NoAD(),
                               regularization = nothing, args...;
                               priors = nothing,
                               prob_generator = STANDARD_PROB_GENERATOR,
                               kwargs...)
-
-    cost_function = function (p, nothing)
+    cost_function = function (p, _p = nothing)
         tmp_prob = prob_generator(prob, p)
         if typeof(loss) <: Union{L2Loss, LogLikeLoss}
             sol = solve(tmp_prob, alg, args...; saveat = loss.t, save_everystep = false,
@@ -23,9 +23,8 @@ function build_loss_objective(prob::SciMLBase.AbstractSciMLProblem, alg, loss,
         if regularization !== nothing
             loss_val += regularization(p)
         end
-
         loss_val
     end
 
-    OptimizationFunction(cost_function)
+    return OptimizationFunction(cost_function, adtype)
 end

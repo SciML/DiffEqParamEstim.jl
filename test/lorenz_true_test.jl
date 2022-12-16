@@ -6,8 +6,8 @@
 # used. This means that the option which is set to get the correct timepoints
 # is saveat, not tstops!
 
-using DifferentialEquations, RecursiveArrayTools, ParameterizedFunctions
-using NLopt, DiffEqParamEstim, BlackBoxOptim, Optim
+using RecursiveArrayTools, ParameterizedFunctions, SciMLSensitivity, ModelingToolkit
+using NLopt, DiffEqParamEstim, OptimizationBBO, OptimizationOptimJL
 
 Xiang2015Bounds = Tuple{Float64, Float64}[(9, 11), (20, 30), (2, 3)] # for local optimizations
 xlow_bounds = [9.0, 20.0, 2.0]
@@ -61,21 +61,30 @@ data = convert(Array, data_sol)
 # Note: Euler uses tstops to hit the estimation timepoints exactly since it's not adaptive
 obj_short = build_loss_objective(prob_short, Euler(), L2Loss(t_short, data_short),
                                  tstops = t_short)
-res1 = bboptimize(obj_short; SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
+res1 = bboptimize((x) -> obj_short(x, nothing); SearchRange = Xiang2015Bounds,
+                  MaxSteps = 11e3)
 # Euler could not recover the correct results since its error is too high!
 
-obj_short = build_loss_objective(prob_short, Tsit5(), L2Loss(t_short, data_short))
-res1 = bboptimize(obj_short; SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
+obj_short = build_loss_objective(prob_short, Tsit5(), L2Loss(t_short, data_short),
+                                 Optimization.AutoForwardDiff())
+optprob = Optimization.OptimizationProblem(obj_short, [9.0, 20.0, 2.0], lb = xlow_bounds,
+                                           ub = xhigh_bounds)
+res = solve(optprob, BBO_de_rand_1_bin_radiuslimited())
 # Tolernace is still too high to get close enough
 
 obj_short = build_loss_objective(prob_short, Tsit5(), L2Loss(t_short, data_short),
+                                 Optimization.AutoZygote(),
                                  reltol = 1e-9)
-res1 = bboptimize(obj_short; SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
+optprob = Optimization.OptimizationProblem(obj_short, [9.0, 20.0, 2.0], lb = xlow_bounds,
+                                           ub = xhigh_bounds)
+res = solve(optprob, BFGS())
 # With the tolerance lower, it achieves the correct solution in 4.5 seconds.
 
 obj_short = build_loss_objective(prob_short, Vern7(), L2Loss(t_short, data_short),
+                                 Optimization.AutoForwardDiff(),
                                  reltol = 1e-12, abstol = 1e-12)
-res1 = bboptimize(obj_short; SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
+optprob = Optimization.OptimizationProblem(obj_short, [9.0, 20.0, 2.0])
+res = solve(optprob, Newton())
 # But too much accuracy in the numerical solution of the ODE actually leads to
 # slower convergence, since each step takes longer!
 
@@ -85,100 +94,60 @@ res1 = bboptimize(obj_short; SearchRange = Xiang2015Bounds, MaxSteps = 11e3)
 
 # using NLopt
 obj_short = build_loss_objective(prob_short, Tsit5(), L2Loss(t_short, data_short),
+                                 Optimization.AutoForwardDiff(),
                                  reltol = 1e-14)
-
+optprob = Optimization.OptimizationProblem(obj_short, [9.0, 20.0, 2.0], lb = xlow_bounds,
+                                           ub = xhigh_bounds)
 opt = Opt(:GN_ORIG_DIRECT_L, 3)
-lower_bounds!(opt, LocIniPar)
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, LocIniPar)
+res = solve(optprob, opt)
 
-opt = Opt(:GN_CRS2_LM, 3)
-lower_bounds!(opt, LocIniPar)
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, LocIniPar)
+# opt = Opt(:GN_CRS2_LM, 3)
+# res = solve(optprob, opt)
 
-opt = Opt(:GN_ISRES, 3)
-lower_bounds!(opt, LocIniPar)
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, LocIniPar)
+# opt = Opt(:GN_ISRES, 3)
+# res = solve(optprob, opt)
 
 opt = Opt(:LN_BOBYQA, 3)
-lower_bounds!(opt, LocIniPar)
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, LocIniPar)
+res = solve(optprob, opt)
 # This one took 0.04 seconds! Wow!
 
 opt = Opt(:LN_NELDERMEAD, 3)
-lower_bounds!(opt, LocIniPar)
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, LocIniPar)
+res = solve(optprob, opt)
 
-opt = Opt(:LD_SLSQP, 3)
-lower_bounds!(opt, LocIniPar)
-upper_bounds!(opt, [11.0, 30.0, 3.0])
-min_objective!(opt, obj_short)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, LocIniPar)
+# opt = Opt(:LD_SLSQP, 3)
+# res = solve(optprob, opt)
 
 ################################################################################
 
 # Longer version
 
 obj = build_loss_objective(prob, Euler(), L2Loss(t, data), tstops = t)
-# res1 = bboptimize(obj;SearchRange = Xiang2015Bounds, MaxSteps = 8e3)
+res1 = bboptimize(x -> obj(x, nothing); SearchRange = Xiang2015Bounds, MaxSteps = 8e3)
 # Once again, Euler fails to convergence its error is too high
 
 obj = build_loss_objective(prob, Vern7(), L2Loss(t, data), reltol = 1e-14)
-# res1 = bboptimize(obj;SearchRange = Xiang2015Bounds, MaxSteps = 8e3)
+res1 = bboptimize(x -> obj(x, nothing); SearchRange = Xiang2015Bounds, MaxSteps = 8e3)
 # BB with Tsit5 converges just fine in 14.5 seconds
 
 opt = Opt(:GN_ORIG_DIRECT_L, 3)
-lower_bounds!(opt, zeros(3))
-upper_bounds!(opt, [22.0, 60.0, 6.0])
-min_objective!(opt, obj)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, GloIniPar)
+optprob = Optimization.OptimizationProblem(obj_short, GloIniPar, lb = first.(LooserBounds),
+                                           ub = last.(LooserBounds))
+res = solve(optprob, opt)
 
-opt = Opt(:GN_CRS2_LM, 3)
-lower_bounds!(opt, zeros(3))
-upper_bounds!(opt, [22.0, 60.0, 6.0])
-min_objective!(opt, obj)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, Int(1e5))
-@time (minf, minx, ret) = NLopt.optimize(opt, GloIniPar)
+# opt = Opt(:GN_CRS2_LM, 3)
+# optprob = Optimization.OptimizationProblem(obj_short, GloIniPar, lb = first.(LooserBounds),
+#                                            ub = last.(LooserBounds))
+# res = solve(optprob, opt)
 
-opt = Opt(:GN_ISRES, 3)
-lower_bounds!(opt, zeros(3))
-upper_bounds!(opt, [22.0, 60.0, 6.0])
-min_objective!(opt, obj)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, Int(1e6))
-@time (minf, minx, ret) = NLopt.optimize(opt, GloIniPar)
+# opt = Opt(:GN_ISRES, 3)
+# optprob = Optimization.OptimizationProblem(obj_short, GloIniPar, lb = first.(LooserBounds),
+#                                            ub = last.(LooserBounds))
+# res = solve(optprob, opt)
 
-opt = Opt(:GN_ESCH, 3)
-lower_bounds!(opt, zeros(3))
-upper_bounds!(opt, [22.0, 60.0, 6.0])
-min_objective!(opt, obj)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, Int(1e5))
-@time (minf, minx, ret) = NLopt.optimize(opt, GloIniPar)
+# opt = Opt(:GN_ESCH, 3)
+# optprob = Optimization.OptimizationProblem(obj_short, GloIniPar, lb = first.(LooserBounds),
+#                                            ub = last.(LooserBounds))
+# res = solve(optprob, opt)
 
 ################################################################
 
@@ -187,27 +156,22 @@ LocIniPar = [11.5312, 26.0192, 2.79983]
 opt = Opt(:LN_BOBYQA, 3)
 lower_bounds!(opt, xlow_bounds)
 upper_bounds!(opt, [13.0, 30.0, 3.0])
-min_objective!(opt, obj)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, Int(1e5))
-@time (minf, minx, ret) = NLopt.optimize(opt, LocIniPar)
+optprob = Optimization.OptimizationProblem(obj_short, LocIniPar)
+res = solve(optprob, opt)
+
 # Converges in 0.05 seconds!
 
 opt = Opt(:LN_NELDERMEAD, 3)
 lower_bounds!(opt, xlow_bounds)
 upper_bounds!(opt, [13.0, 30.0, 3.0])
-min_objective!(opt, obj)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, LocIniPar)
+optprob = Optimization.OptimizationProblem(obj_short, LocIniPar)
+res = solve(optprob, opt)
 
 opt = Opt(:LD_SLSQP, 3)
 lower_bounds!(opt, xlow_bounds)
 upper_bounds!(opt, [13.0, 30.0, 3.0])
-min_objective!(opt, obj)
-xtol_rel!(opt, 1e-12)
-maxeval!(opt, 10000)
-@time (minf, minx, ret) = NLopt.optimize(opt, LocIniPar)
+optprob = Optimization.OptimizationProblem(obj_short, LocIniPar)
+res = solve(optprob, opt)
 
 ################################################################################
 

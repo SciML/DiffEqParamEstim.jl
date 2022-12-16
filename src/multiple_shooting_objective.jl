@@ -22,12 +22,12 @@ struct Merged_Solution{T1, T2, T3}
 end
 
 function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
+                                     adtype = SciMLBase.NoAD(),
                                      regularization = nothing; priors = nothing,
                                      discontinuity_weight = 1.0,
                                      prob_generator = STANDARD_MS_PROB_GENERATOR,
                                      kwargs...)
-
-    cost_function = function (p, nothing)
+    cost_function = function (p, _p = nothing)
         t0, tf = prob.tspan
         P, N = length(prob.p), length(prob.u0)
         K = Int((length(p) - P) / N)
@@ -59,9 +59,10 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
         if priors !== nothing
             loss_val += prior_loss(priors, p[(end - length(priors)):end])
         end
-        if regularization !== nothing
+        if !isnothing(regularization)
             loss_val += regularization(p)
         end
+
         for k in 2:K
             if typeof(discontinuity_weight) <: Real
                 loss_val += discontinuity_weight *
@@ -74,5 +75,5 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
         loss_val
     end
 
-    return OptimizationFunction(cost_function)
+    return OptimizationFunction(cost_function, adtype)
 end
