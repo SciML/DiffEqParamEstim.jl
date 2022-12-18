@@ -1,4 +1,4 @@
-using OptimizationNLopt
+using OptimizationNLopt, Zygote
 
 println("Use NLOpt to fit the parameter")
 
@@ -28,15 +28,11 @@ res = solve(optprob, opt)
 
 # test differentiation
 
-for adtype in (Optimization.AutoZygote(), SciMLBase.NoAD())
-    global obj = build_loss_objective(prob1, Tsit5(), L2Loss(t, data), adtype;
-                                      maxiters = 10000)
-
-    global opt = Opt(:LD_MMA, 1)
-    xtol_rel!(opt, 1e-3)
-    maxeval!(opt, 10000)
-    global minf, minx, ret
-    optprob = OptimizationNLopt.OptimizationProblem(obj, [1.4])
-    res = solve(optprob, opt)
-    @test res.u[1]≈1.5 atol=1e-1
-end
+obj = build_loss_objective(prob1, Tsit5(), L2Loss(t, data), Optimization.AutoForwardDiff();
+                           maxiters = 10000) #zygote behaves weirdly here
+opt = Opt(:LD_MMA, 1)
+xtol_rel!(opt, 1e-3)
+maxeval!(opt, 10000)
+optprob = OptimizationNLopt.OptimizationProblem(obj, [1.3])
+res = solve(optprob, opt)
+@test res.u[1]≈1.5 atol=1e-1

@@ -17,20 +17,21 @@ t = collect(range(0, stop = 10, length = 30))
 randomized = VectorOfArray([(sol(t[i]) + 0.003randn(3)) for i in 1:length(t)])
 data = convert(Array, randomized)
 
-using DiffEqParamEstim, OptimizationNLopt, OptimizationOptimJL, ForwardDiff, FiniteDiff,
-      Zygote, Optimization, SciMLSensitivity
+using DiffEqParamEstim, OptimizationNLopt, OptimizationOptimJL, ForwardDiff, Zygote,
+      Optimization, SciMLSensitivity
 cost_function = build_loss_objective(prob, DFBDF(), L2Loss(t, data),
                                      Optimization.AutoZygote(), abstol = 1e-8,
                                      reltol = 1e-8, verbose = false)
-optprob = OptimizationProblem(cost_function, [0.01]; lb = [0.0], ub = [1.0])
+optprob = Optimization.OptimizationProblem(cost_function, [0.01]; lb = [0.0], ub = [1.0])
 res = solve(optprob, OptimizationOptimJL.BFGS())
 
 cost_function = build_loss_objective(prob, DFBDF(), L2Loss(t, data),
                                      Optimization.AutoForwardDiff(), abstol = 1e-8,
                                      reltol = 1e-8, verbose = false)
-optprob = OptimizationProblem(cost_function, [0.01]; lb = [0.0], ub = [1.0])
+optprob = Optimization.OptimizationProblem(cost_function, [0.01]; lb = [0.0], ub = [1.0])
 res = solve(optprob, OptimizationOptimJL.BFGS())
-opt = Opt(:GN_ESCH, 1)
+@test res.u[1]≈0.04 atol=5e-3
 
-res = solve(optprob, opt)
-# @test minx[1]≈0.04 atol=5e-3
+# opt = Opt(:GN_ESCH, 1)
+# res = solve(optprob, opt)
+# @test res.u[1]≈0.04 atol=5e-3

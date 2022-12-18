@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, Test, SciMLSensitivity
+using OrdinaryDiffEq, Test, SciMLSensitivity, Optimization, OptimizationOptimJL
 
 function LotkaVolterraTest_not_inplace(u, a, t)
     b, c, d = 1.0, 3.0, 1.0
@@ -26,7 +26,7 @@ soll = solve(prob, Tsit5())
 cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t, data),
                                      Optimization.AutoZygote(),
                                      maxiters = 10000, verbose = false)
-optprob = OptimizationProblem(cost_function, [1.0], lb = [0.0], ub = [10.0])
+optprob = Optimization.OptimizationProblem(cost_function, [1.0], lb = [0.0], ub = [10.0])
 sol = solve(optprob, BFGS())
 
 # two-stage OOP regression test

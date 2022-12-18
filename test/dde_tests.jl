@@ -33,8 +33,8 @@ cost_function = build_loss_objective(prob_opt, MethodOfSteps(Tsit5()),
                                      abstol = 1e-8,
                                      reltol = 1e-8)
 
-optprob = OptimizationProblem(cost_function, [1.0], lb = [0.0], ub = [1.0])
+optprob = Optimization.OptimizationProblem(cost_function, [1.0], lb = [0.0], ub = [1.0])
 opt = Opt(:GN_ESCH, 1)
 res = solve(optprob, BFGS())
 
-@test minx[1]≈0.5 atol=5e-3
+@test res.u[1]≈0.5 atol=5e-3

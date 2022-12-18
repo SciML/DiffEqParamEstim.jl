@@ -22,7 +22,8 @@ distributions = [fit_mle(Normal, aggregate_data[i, j, :]) for i in 1:2, j in 1:2
 obj = build_loss_objective(prob1, Tsit5(), LogLikeLoss(t, distributions), maxiters = 10000,
                            verbose = false)
 
-optprob = OptimizationProblem(obj, [2.0, 2.0], lb = [0.5, 0.5], ub = [5.0, 5.0])
+optprob = Optimization.OptimizationProblem(obj, [2.0, 2.0], lb = [0.5, 0.5],
+                                           ub = [5.0, 5.0])
 result = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 11e3)
 @test result.original.archive_output.best_candidate≈[1.5, 1.0] atol=1e-1
 
@@ -34,7 +35,8 @@ obj = build_loss_objective(prob1, Tsit5(),
                            LogLikeLoss(t, data_distributions, diff_distributions),
                            Optimization.AutoForwardDiff(), maxiters = 10000,
                            verbose = false)
-optprob = OptimizationProblem(obj, [2.0, 2.0], lb = [0.5, 0.5], ub = [5.0, 5.0])
+optprob = Optimization.OptimizationProblem(obj, [2.0, 2.0], lb = [0.5, 0.5],
+                                           ub = [5.0, 5.0])
 result = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 11e3)
 @test result.original.archive_output.best_candidate≈[1.5, 1.0] atol=1e-1
 
@@ -46,10 +48,12 @@ obj = build_loss_objective(prob1, Tsit5(),
                            LogLikeLoss(t, data_distributions, diff_distributions, 0.3),
                            Optimization.AutoForwardDiff(), maxiters = 10000,
                            verbose = false)
-optprob = OptimizationProblem(obj, [2.0, 2.0], lb = [0.5, 0.5], ub = [5.0, 5.0])
+optprob = Optimization.OptimizationProblem(obj, [2.0, 2.0], lb = [0.5, 0.5],
+                                           ub = [5.0, 5.0])
 result = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 11e3)
+@test result.u≈[1.5, 1.0] atol=1e-1
 using OptimizationBBO.BlackBoxOptim
-bboptimize((x) -> obj(x, nothing), SearchRange = bound1)
+result = bboptimize(obj, SearchRange = [(0.5, 5.0), (0.5, 5.0)], MaxSteps = 11e3)
 @test result.archive_output.best_candidate≈[1.5, 1.0] atol=1e-1
 
 distributions = [fit_mle(MvNormal, aggregate_data[:, j, :]) for j in 1:200]
@@ -61,6 +65,7 @@ obj = build_loss_objective(prob1, Tsit5(),
                            LogLikeLoss(t, distributions, diff_distributions),
                            Optimization.AutoForwardDiff(), maxiters = 10000,
                            verbose = false, priors = priors)
-optprob = OptimizationProblem(obj, [2.0, 2.0], lb = [0.5, 0.5], ub = [5.0, 5.0])
+optprob = Optimization.OptimizationProblem(obj, [2.0, 2.0], lb = [0.5, 0.5],
+                                           ub = [5.0, 5.0])
 result = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 11e3)
-@test result.archive_output.best_candidate≈[1.5, 1.0] atol=1e-1
+@test result.u≈[1.5, 1.0] atol=1e-1

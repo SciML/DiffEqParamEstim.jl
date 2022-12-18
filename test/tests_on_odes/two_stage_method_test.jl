@@ -1,4 +1,4 @@
-using Optim, NLopt
+using Optim, NLopt, OptimizationOptimJL
 
 println("Use Two Stage Method to fit the parameter")
 
