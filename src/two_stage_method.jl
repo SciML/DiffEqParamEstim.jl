@@ -71,7 +71,7 @@ function construct_estimated_solution_and_derivative!(data, kernel, tpoints)
 end
 
 function construct_iip_cost_function(f, du, preview_est_sol, preview_est_deriv, tpoints)
-    function (p, nothing)
+    function (p, _)
         _du = PreallocationTools.get_tmp(du, p)
         vecdu = vec(_du)
         cost = zero(first(p))
