@@ -21,7 +21,7 @@ Dierckx = "0.4, 0.5"
 DiffEqBase = "6"
 Distributions = "0.25"
 ForwardDiff = "0.10"
-LsqFit = "0.8, 0.9, 0.10, 0.11, 0.12"
+LsqFit = "0.8, 0.9, 0.10, 0.11, 0.12, 0.13"
 PenaltyFunctions = "0.1, 0.2, 0.3"
 PreallocationTools = "0.2, 0.3, 0.4"
 RecursiveArrayTools = "1.0, 2.0"
@@ -50,4 +50,4 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [targets]
-test = ["Test", "BlackBoxOptim", "DelayDiffEq", "ForwardDiff", "NLopt", "Optim",  "Optimization", "OptimizationBBO", "OptimizationNLopt", "OptimizationOptimJL", "OrdinaryDiffEq", "ParameterizedFunctions", "Random", "SciMLSensitivity", "StochasticDiffEq", "SteadyStateDiffEq", "Sundials", "Zygote"]
+test = ["Test", "BlackBoxOptim", "DelayDiffEq", "ForwardDiff", "NLopt", "Optim", "Optimization", "OptimizationBBO", "OptimizationNLopt", "OptimizationOptimJL", "OrdinaryDiffEq", "ParameterizedFunctions", "Random", "SciMLSensitivity", "StochasticDiffEq", "SteadyStateDiffEq", "Sundials", "Zygote"]
