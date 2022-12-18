@@ -1,5 +1,5 @@
 using DiffEqParamEstim, OrdinaryDiffEq, StochasticDiffEq, ParameterizedFunctions,
-      DiffEqBase, RecursiveArrayTools
+      DiffEqBase, RecursiveArrayTools, OptimizationOptimJL, Zygote
 using Test
 
 pf_func = function (du, u, p, t)
@@ -18,13 +18,13 @@ randomized = VectorOfArray([(sol(t[i]) + 0.01randn(2)) for i in 1:length(t)])
 data = convert(Array, randomized)
 
 monte_prob = EnsembleProblem(prob)
-obj = build_loss_objective(monte_prob, Tsit5(), L2Loss(t, data), maxiters = 10000,
+obj = build_loss_objective(monte_prob, Tsit5(), L2Loss(t, data),
+                           Optimization.AutoForwardDiff(), maxiters = 10000,
                            abstol = 1e-8, reltol = 1e-8,
                            verbose = false, trajectories = 25)
-
-import Optim
-result = Optim.optimize(obj, [1.3, 0.8], Optim.BFGS())
-@test result.minimizer≈[1.5, 1.0] atol=3e-1
+optprob = Optimization.OptimizationProblem(obj, [1.3, 0.8])
+result = solve(optprob, Optim.BFGS())
+@test result.u≈[1.5, 1.0] atol=3e-1
 
 pg_func = function (du, u, p, t)
     du[1] = 1e-6u[1]

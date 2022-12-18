@@ -17,7 +17,7 @@ t = collect(range(0, stop = 10, length = 30))
 randomized = VectorOfArray([(sol(t[i]) + 0.03randn(2)) for i in 1:length(t)])
 data = convert(Array, randomized)
 
-using DiffEqParamEstim, NLopt
+using DiffEqParamEstim, OptimizationNLopt
 
 function f_lotka2(du, u, h, p, t)
     du[1] = 0.5 * u[1] - p[1] * u[1] * u[2]
@@ -29,14 +29,12 @@ p = [0.5]
 
 prob_opt = DDEProblem(f_lotka2, u0, h, tspan, p, constant_lags = [0.5])
 cost_function = build_loss_objective(prob_opt, MethodOfSteps(Tsit5()),
-                                     L2Loss(t, data), maxiter = 10000, abstol = 1e-8,
-                                     reltol = 1e-8, verbose = false)
+                                     L2Loss(t, data), Optimization.AutoZygote(),
+                                     abstol = 1e-8,
+                                     reltol = 1e-8)
 
+optprob = Optimization.OptimizationProblem(cost_function, [1.0], lb = [0.0], ub = [1.0])
 opt = Opt(:GN_ESCH, 1)
-min_objective!(opt, cost_function.cost_function2)
-lower_bounds!(opt, [0.0])
-upper_bounds!(opt, [1.0])
-maxeval!(opt, 10000)
+res = solve(optprob, BFGS())
 
-(minf, minx, ret) = NLopt.optimize(opt, [0.2])
-@test minx[1]≈0.5 atol=5e-3
+@test res.u[1]≈0.5 atol=5e-3

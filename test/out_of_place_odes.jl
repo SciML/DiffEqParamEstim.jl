@@ -1,10 +1,10 @@
-using OrdinaryDiffEq, Test
+using OrdinaryDiffEq, Test, SciMLSensitivity, Optimization, OptimizationOptimJL
 
 function LotkaVolterraTest_not_inplace(u, a, t)
     b, c, d = 1.0, 3.0, 1.0
     x, y = u[1], u[2]
     du = zeros(eltype(u), 2)
-    du[1] = a * x - b * x * y
+    du[1] = a[1] * x - b * x * y
     du[2] = -c * y + d * x * y
     du
 end
@@ -24,9 +24,10 @@ data = convert(Array, randomized)
 soll = solve(prob, Tsit5())
 
 cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t, data),
+                                     Optimization.AutoZygote(),
                                      maxiters = 10000, verbose = false)
-import Optim
-result = Optim.optimize(cost_function, 0.0, 10.0)
+optprob = Optimization.OptimizationProblem(cost_function, [1.0], lb = [0.0], ub = [10.0])
+sol = solve(optprob, BFGS())
 
 # two-stage OOP regression test
 
@@ -46,7 +47,7 @@ prob_oop = ODEProblem{false}(ff, u0, tspan, ps)
 data = Array(solve(prob, Tsit5(), saveat = t))
 ptest = ones(rc)
 
-obj_ts = two_stage_method(prob, t, data; kernel = :Sigmoid)
+obj_ts = two_stage_objective(prob, t, data; kernel = :Sigmoid)
 @test obj_ts(ptest) ≈ 418.3400017500223^2
-obj_ts = two_stage_method(prob_oop, t, data; kernel = :Sigmoid)
+obj_ts = two_stage_objective(prob_oop, t, data; kernel = :Sigmoid)
 @test obj_ts(ptest) ≈ 418.3400017500223^2

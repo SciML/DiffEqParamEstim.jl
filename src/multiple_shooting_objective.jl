@@ -22,21 +22,12 @@ struct Merged_Solution{T1, T2, T3}
 end
 
 function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
+                                     adtype = SciMLBase.NoAD(),
                                      regularization = nothing; priors = nothing,
-                                     mpg_autodiff = false, discontinuity_weight = 1.0,
-                                     verbose_opt = false, verbose_steps = 100,
+                                     discontinuity_weight = 1.0,
                                      prob_generator = STANDARD_MS_PROB_GENERATOR,
-                                     autodiff_prototype = mpg_autodiff ?
-                                                          zeros(init_N_params) : nothing,
-                                     autodiff_chunk = mpg_autodiff ?
-                                                      ForwardDiff.Chunk(autodiff_prototype) :
-                                                      nothing,
                                      kwargs...)
-    if verbose_opt
-        count = 0 # keep track of # function evaluations
-    end
-
-    cost_function = function (p)
+    cost_function = function (p, _)
         t0, tf = prob.tspan
         P, N = length(prob.p), length(prob.u0)
         K = Int((length(p) - P) / N)
@@ -68,9 +59,10 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
         if priors !== nothing
             loss_val += prior_loss(priors, p[(end - length(priors)):end])
         end
-        if regularization !== nothing
+        if !isnothing(regularization)
             loss_val += regularization(p)
         end
+
         for k in 2:K
             if typeof(discontinuity_weight) <: Real
                 loss_val += discontinuity_weight *
@@ -80,32 +72,8 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
                                 (sol[k][1] - sol[k - 1][end]) .^ 2)
             end
         end
-        if verbose_opt
-            count::Int += 1
-            if mod(count, verbose_steps) == 0
-                println("Iteration: $count")
-                println("Current Cost: $loss_val")
-                println("Parameters: $p")
-            end
-        end
         loss_val
     end
 
-    if mpg_autodiff
-        gcfg = ForwardDiff.GradientConfig(cost_function, autodiff_prototype,
-                                          autodiff_chunk)
-        g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
-    else
-        g! = (x, out) -> Calculus.finite_difference!(cost_function, x, out,
-                                                     :central)
-    end
-
-    cost_function2 = function (p, grad)
-        if length(grad) > 0
-            g!(p, grad)
-        end
-        cost_function(p)
-    end
-
-    DiffEqObjective(cost_function, cost_function2)
+    return OptimizationFunction(cost_function, adtype)
 end

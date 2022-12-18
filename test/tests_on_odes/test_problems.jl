@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, ParameterizedFunctions, DiffEqBase, RecursiveArrayTools
+using OrdinaryDiffEq, ParameterizedFunctions, RecursiveArrayTools
 
 # Here are the problems to solve
 

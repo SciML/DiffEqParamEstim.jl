@@ -1,14 +1,12 @@
-export TwoStageCost, two_stage_method
+export TwoStageCost, two_stage_objective
 
-struct TwoStageCost{F, F2, D} <: Function
+struct TwoStageCost{F, D} <: Function
     cost_function::F
-    cost_function2::F2
     estimated_solution::D
     estimated_derivative::D
 end
 
-(f::TwoStageCost)(p) = f.cost_function(p)
-(f::TwoStageCost)(p, g) = f.cost_function2(p, g)
+(f::TwoStageCost)(p, _p = nothing) = f.cost_function(p, _p)
 
 decide_kernel(kernel::CollocationKernel) = kernel
 function decide_kernel(kernel::Symbol)
@@ -71,8 +69,9 @@ function construct_estimated_solution_and_derivative!(data, kernel, tpoints)
     estimated_solution = reduce(hcat, transpose.(last.(x)))
     estimated_derivative, estimated_solution
 end
+
 function construct_iip_cost_function(f, du, preview_est_sol, preview_est_deriv, tpoints)
-    function (p)
+    function (p, _)
         _du = PreallocationTools.get_tmp(du, p)
         vecdu = vec(_du)
         cost = zero(first(p))
@@ -87,7 +86,7 @@ function construct_iip_cost_function(f, du, preview_est_sol, preview_est_deriv, 
 end
 
 function construct_oop_cost_function(f, du, preview_est_sol, preview_est_deriv, tpoints)
-    function (p)
+    function (p, _)
         cost = zero(first(p))
         for i in 1:length(preview_est_sol)
             est_sol = preview_est_sol[i]
@@ -98,14 +97,9 @@ function construct_oop_cost_function(f, du, preview_est_sol, preview_est_deriv, 
     end
 end
 
-get_chunksize(cs) = cs
-get_chunksize(cs::Type{Val{CS}}) where {CS} = CS
-
-function two_stage_method(prob::DiffEqBase.DEProblem, tpoints, data;
-                          kernel = EpanechnikovKernel(),
-                          loss_func = L2Loss, mpg_autodiff = false,
-                          verbose = false, verbose_steps = 100,
-                          autodiff_chunk = length(prob.p))
+function two_stage_objective(prob::DiffEqBase.DEProblem, tpoints, data,
+                             adtype = SciMLBase.NoAD();
+                             kernel = EpanechnikovKernel())
     f = prob.f
     kernel_function = decide_kernel(kernel)
     estimated_derivative, estimated_solution = construct_estimated_solution_and_derivative!(data,
@@ -113,46 +107,17 @@ function two_stage_method(prob::DiffEqBase.DEProblem, tpoints, data;
                                                                                             tpoints)
 
     # Step - 2
-
-    du = PreallocationTools.dualcache(similar(prob.u0), autodiff_chunk)
     preview_est_sol = [@view estimated_solution[:, i]
                        for i in 1:size(estimated_solution, 2)]
     preview_est_deriv = [@view estimated_derivative[:, i]
                          for i in 1:size(estimated_solution, 2)]
-    if DiffEqBase.isinplace(prob)
-        cost_function = construct_iip_cost_function(f, du, preview_est_sol,
-                                                    preview_est_deriv, tpoints)
+
+    cost_function = if isinplace(prob)
+        construct_oop_cost_function(f, prob.u0, preview_est_sol, preview_est_deriv, tpoints)
     else
-        cost_function = construct_oop_cost_function(f, du, preview_est_sol,
-                                                    preview_est_deriv, tpoints)
+        construct_iip_cost_function(f, prob.u0, preview_est_sol, preview_est_deriv, tpoints)
     end
 
-    if mpg_autodiff
-        gcfg = ForwardDiff.GradientConfig(cost_function, prob.p,
-                                          ForwardDiff.Chunk{get_chunksize(autodiff_chunk)}())
-        g! = (x, out) -> ForwardDiff.gradient!(out, cost_function, x, gcfg)
-    else
-        g! = (x, out) -> Calculus.finite_difference!(cost_function, x, out, :central)
-    end
-    if verbose
-        count = 0 # keep track of # function evaluations
-    end
-    cost_function2 = function (p, grad)
-        if length(grad) > 0
-            g!(p, grad)
-        end
-        loss_val = cost_function(p)
-        if verbose
-            count::Int += 1
-            if mod(count, verbose_steps) == 0
-                println("Iteration: $count")
-                println("Current Cost: $loss_val")
-                println("Parameters: $p")
-            end
-        end
-        loss_val
-    end
-
-    return TwoStageCost(cost_function, cost_function2, estimated_solution,
-                        estimated_derivative)
+    return OptimizationFunction(TwoStageCost(cost_function, estimated_solution,
+                                             estimated_derivative), adtype)
 end
