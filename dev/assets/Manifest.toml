@@ -290,7 +290,7 @@ uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
 version = "5.14.2"
 
 [[deps.DiffEqParamEstim]]
-deps = ["Calculus", "Dierckx", "DiffEqBase", "Distributions", "LinearAlgebra", "LsqFit", "PenaltyFunctions", "PreallocationTools", "RecursiveArrayTools", "SciMLBase"]
+deps = ["Calculus", "Dierckx", "DiffEqBase", "Distributions", "LinearAlgebra", "PenaltyFunctions", "PreallocationTools", "RecursiveArrayTools", "SciMLBase"]
 path = "/home/runner/work/DiffEqParamEstim.jl/DiffEqParamEstim.jl"
 uuid = "1130ab10-4a5a-5621-a13d-e4788d82bd4c"
 version = "1.28.0"
@@ -801,12 +801,6 @@ git-tree-sha1 = "f63e9022be00102b6d135b3363680e5befa8e227"
 uuid = "bdcacae8-1622-11e9-2a5c-532679323890"
 version = "0.12.142"
 
-[[deps.LsqFit]]
-deps = ["Distributions", "ForwardDiff", "LinearAlgebra", "NLSolversBase", "OptimBase", "Random", "StatsBase"]
-git-tree-sha1 = "91aa1442e63a77f101aff01dec5a821a17f43922"
-uuid = "2fda8390-95c7-5789-9bda-21331edee243"
-version = "0.12.1"
-
 [[deps.MacroTools]]
 deps = ["Markdown", "Random"]
 git-tree-sha1 = "42324d08725e200c23d4dfb549e0d5d89dede2d2"
@@ -923,12 +917,6 @@ deps = ["Compat", "FillArrays", "ForwardDiff", "LineSearches", "LinearAlgebra", 
 git-tree-sha1 = "1903afc76b7d01719d9c30d3c7d501b61db96721"
 uuid = "429524aa-4258-5aef-a3af-852621145aeb"
 version = "1.7.4"
-
-[[deps.OptimBase]]
-deps = ["NLSolversBase", "Printf", "Reexport"]
-git-tree-sha1 = "9cb1fee807b599b5f803809e85c81b582d2009d6"
-uuid = "87e2bd06-a317-5318-96d9-3ecbac512eee"
-version = "2.0.2"
 
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
