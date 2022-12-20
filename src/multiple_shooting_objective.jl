@@ -27,7 +27,7 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
                                      discontinuity_weight = 1.0,
                                      prob_generator = STANDARD_MS_PROB_GENERATOR,
                                      kwargs...)
-    cost_function = function (p, _)
+    cost_function = function (p, _ = nothing)
         t0, tf = prob.tspan
         P, N = length(prob.p), length(prob.u0)
         K = Int((length(p) - P) / N)
