@@ -71,7 +71,7 @@ function construct_estimated_solution_and_derivative!(data, kernel, tpoints)
 end
 
 function construct_iip_cost_function(f, du, preview_est_sol, preview_est_deriv, tpoints)
-    function (p, _)
+    function (p, _ = nothing)
         _du = PreallocationTools.get_tmp(du, p)
         vecdu = vec(_du)
         cost = zero(first(p))
@@ -86,7 +86,7 @@ function construct_iip_cost_function(f, du, preview_est_sol, preview_est_deriv, 
 end
 
 function construct_oop_cost_function(f, du, preview_est_sol, preview_est_deriv, tpoints)
-    function (p, _)
+    function (p, _ = nothing)
         cost = zero(first(p))
         for i in 1:length(preview_est_sol)
             est_sol = preview_est_sol[i]
