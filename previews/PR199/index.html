@@ -13,14 +13,15 @@ Pkg.add(&quot;DiffEqParamEstim&quot;)</code></pre><h2 id="Contributing"><a class
   [36348300] OptimizationOptimJL v0.1.5
   [91a5bcdd] Plots v1.38.0
   [731186ca] RecursiveArrayTools v2.34.0
+  [1ed8b502] SciMLSensitivity v7.11.1
   [e88e6eb3] Zygote v0.6.51</code></pre></details><details><summary>and using this machine and Julia version.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Julia Version 1.8.3
 Commit 0434deb161e (2022-11-14 20:14 UTC)
 Platform Info:
   OS: Linux (x86_64-linux-gnu)
-  CPU: 2 × Intel(R) Xeon(R) Platinum 8171M CPU @ 2.60GHz
+  CPU: 2 × Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
   WORD_SIZE: 64
   LIBM: libopenlibm
-  LLVM: libLLVM-13.0.1 (ORCJIT, skylake-avx512)
+  LLVM: libLLVM-13.0.1 (ORCJIT, icelake-server)
   Threads: 1 on 2 virtual cores</code></pre></details><details><summary>A more complete overview of all dependencies and their versions is also provided.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/work/DiffEqParamEstim.jl/DiffEqParamEstim.jl/docs/Manifest.toml`
   [a4c015fc] ANSIColoredPrinters v0.0.1
   [621f4979] AbstractFFTs v1.2.1
@@ -33,6 +34,7 @@ Platform Info:
   [015c0d05] ArrayInterfaceOffsetArrays v0.1.7
   [b0d46f97] ArrayInterfaceStaticArrays v0.1.5
   [dd5226c6] ArrayInterfaceStaticArraysCore v0.1.3
+  [a2b0951a] ArrayInterfaceTracker v0.1.1
   [4c555306] ArrayLayouts v0.8.16
   [aae01518] BandedMatrices v0.17.9
   [d1d4a3ce] BitFlags v0.1.7
@@ -43,6 +45,7 @@ Platform Info:
   [2a0fbf3d] CPUSummary v0.1.30
   [a9c8d775] CPUTime v1.0.0
   [49dc2e85] Calculus v0.5.1
+  [7057c7e9] Cassette v0.3.11
   [082447d4] ChainRules v1.46.0
   [d360d2e6] ChainRulesCore v1.15.6
   [9e997f8a] ChangesOfVariables v0.1.4
@@ -77,7 +80,10 @@ Platform Info:
   [ffbed154] DocStringExtensions v0.9.3
   [e30172f5] Documenter v0.27.23
   [fa6b7ba4] DualNumbers v0.6.8
+  [da5c29d0] EllipsisNotation v1.6.0
   [4e289a0a] EnumX v1.0.4
+  [7da242da] Enzyme v0.10.12
+  [f151be2c] EnzymeCore v0.1.0
   [d4d017d3] ExponentialUtilities v1.22.0
   [e2ba6199] ExprTools v0.1.8
   [c87230d0] FFMPEG v0.4.1
@@ -91,8 +97,10 @@ Platform Info:
   [f6369f11] ForwardDiff v0.10.34
   [069b7b12] FunctionWrappers v1.1.3
   [77dc65aa] FunctionWrappersWrappers v0.1.1
+⌅ [d9f16b24] Functors v0.3.0
   [0c68f7d7] GPUArrays v8.5.0
   [46192b85] GPUArraysCore v0.1.2
+  [61eb1bfa] GPUCompiler v0.16.7
   [28b8d3ca] GR v0.71.2
   [c145ed77] GenericSchur v0.5.3
   [86223c79] Graphs v1.7.4
@@ -136,10 +144,13 @@ Platform Info:
   [46d2c3a1] MuladdMacro v0.2.4
   [d41bc354] NLSolversBase v7.8.3
   [2774e3e8] NLsolve v4.5.1
+  [872c559c] NNlib v0.8.11
   [77ba4419] NaNMath v1.0.1
+  [d8793406] ObjectFile v0.3.7
   [6fe1bfb0] OffsetArrays v1.12.8
   [4d8831e6] OpenSSL v1.3.2
   [429524aa] Optim v1.7.4
+  [3bd65402] Optimisers v0.2.14
   [7f7a1694] Optimization v3.10.0
   [3e6eede4] OptimizationBBO v0.1.4
   [36348300] OptimizationOptimJL v0.1.5
@@ -173,12 +184,14 @@ Platform Info:
   [05181044] RelocatableFolders v1.0.0
   [ae029012] Requires v1.3.0
   [ae5879a3] ResettableStacks v1.1.1
+  [37e2e3b7] ReverseDiff v1.14.4
   [79098fc4] Rmath v0.7.0
   [7e49a35a] RuntimeGeneratedFunctions v0.5.5
   [3cdde19b] SIMDDualNumbers v0.1.1
   [94e857df] SIMDTypes v0.1.0
   [476501e8] SLEEFPirates v0.6.37
   [0bca4576] SciMLBase v1.79.0
+  [1ed8b502] SciMLSensitivity v7.11.1
   [6c6a2e73] Scratch v1.1.1
   [efcf1570] Setfield v1.1.1
   [992d4aef] Showoff v1.0.3
@@ -200,6 +213,7 @@ Platform Info:
   [789caeaf] StochasticDiffEq v6.57.3
   [7792a7ef] StrideArraysCore v0.4.4
   [09ab397b] StructArrays v0.6.14
+  [53d494c1] StructIO v0.3.0
   [c3572dad] Sundials v4.11.4
   [2efcf032] SymbolicIndexingInterface v0.2.1
   [3783bdb8] TableTraits v1.0.1
@@ -207,6 +221,8 @@ Platform Info:
   [62fd8b95] TensorCore v0.1.1
   [5d786b92] TerminalLoggers v0.1.6
   [8290d209] ThreadingUtilities v0.5.0
+  [a759f4b9] TimerOutputs v0.5.22
+  [9f7883ad] Tracker v0.2.22
   [3bb67fe8] TranscodingStreams v0.9.10
   [a2a6695c] TreeViews v0.3.0
   [d5829a12] TriangularSolve v0.1.15
@@ -222,6 +238,7 @@ Platform Info:
   [6e34b625] Bzip2_jll v1.0.8+0
   [83423d85] Cairo_jll v1.16.1+1
   [cd4c43a9] Dierckx_jll v0.1.0+0
+⌅ [7cc45869] Enzyme_jll v0.0.43+0
   [2e619515] Expat_jll v2.4.8+0
   [b22a6f82] FFMPEG_jll v4.4.2+2
   [a3f928ae] Fontconfig_jll v2.13.93+0
@@ -339,4 +356,4 @@ Platform Info:
   [3f19e933] p7zip_jll v17.4.0+0
 Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated -m`</code></pre></details>You can also download the
 <a href="https://github.com/SciML/DiffEqParamEstim.jl/tree/gh-pages/v1.28.0/assets/Manifest.toml">manifest</a> file and the
-<a href="https://github.com/SciML/DiffEqParamEstim.jl/tree/gh-pages/v1.28.0/assets/Project.toml">project</a> file.</article><nav class="docs-footer"><a class="docs-footer-nextpage" href="tutorials/ODE_inference/">Optimization-Based ODE Parameter Estimation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Wednesday 21 December 2022 10:02">Wednesday 21 December 2022</span>. Using Julia version 1.8.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+<a href="https://github.com/SciML/DiffEqParamEstim.jl/tree/gh-pages/v1.28.0/assets/Project.toml">project</a> file.</article><nav class="docs-footer"><a class="docs-footer-nextpage" href="tutorials/ODE_inference/">Optimization-Based ODE Parameter Estimation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Wednesday 21 December 2022 10:38">Wednesday 21 December 2022</span>. Using Julia version 1.8.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
