@@ -1,15 +1,16 @@
 # DiffEqParamEstim.jl: Parameter Estimation for Differential Equations
 
-DiffEqParamEstim.jl is a package for simplified parameter estimation with 
+DiffEqParamEstim.jl is a package for simplified parameter estimation with
 [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl)
-While not as expansive as [SciMLSensitivity.jl](https://sensitivity.sciml.ai/dev/), 
-it's a simple and helpful for new users who want to quickly run standard parameter 
-estimation routines for model callibration on not too large of models (<100 parameters 
-or ODEs). 
+While not as expansive as [SciMLSensitivity.jl](https://sensitivity.sciml.ai/dev/),
+it's provides a simple interface for users who want to quickly run standard parameter
+estimation routines for model calibration on not too large of models (<100 parameters
+or ODEs). It is designed to integrate with [Optimization.jl](https://github.com/SciML/Optimization.jl)
+interface or directly use with an optimization package.
 
 !!! note
 
-    For much larger models and more complex setups (multiple datasets, batching, etc.) see 
+    For much larger models and more complex setups (multiple datasets, batching, etc.) see
     [SciMLSensitivity](https://sensitivity.sciml.ai/dev/).
 
 
@@ -68,7 +69,7 @@ Pkg.status(;mode = PKGMODE_MANIFEST) # hide
 </details>
 ```
 ```@raw html
-You can also download the 
+You can also download the
 <a href="
 ```
 ```@eval

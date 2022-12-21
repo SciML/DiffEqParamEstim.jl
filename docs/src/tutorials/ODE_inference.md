@@ -4,7 +4,8 @@ We choose to optimize the parameters on the Lotka-Volterra equation. We do so
 by defining the function as a function with parameters:
 
 ```@example ode
-using DifferentialEquations, RecursiveArrayTools, Plots, Optim, DiffEqParamEstim
+using DifferentialEquations, RecursiveArrayTools, Plots, Optim, DiffEqParamEstim, BlackBoxOptim
+using Optimization, Zygote, OptimizationOptimJL, OptimizationBBO
 
 function f(du,u,p,t)
   du[1] = dx = p[1]*u[1] - u[1]*u[2]
@@ -85,10 +86,15 @@ Thus we see that after fitting, the lines match up with the generated data and
 receive the right parameter value.
 
 We can also use the multivariate optimization functions. For example, we can use
-the `BFGS` algorithm to optimize the parameter starting at `a=1.42` using:
+the `BFGS` algorithm to optimize the parameter starting at `a=1.42`. By default, Optim.jl only uses ForwardDiff to
+generate the derivatives, but with the Optimization.jl interface that decouples the derivative generation from the optimization library
+we can use any library we want. Here we use Zygote.jl to generate the derivatives:
 
 ```@example ode
-result = optimize(cost_function, [1.42], BFGS())
+cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t,data), Optimization.AutoZygote(),
+                                      maxiters=10000,verbose=false)
+optprob = Optimization.OptimizationProblem(cost_function, [1.42])
+result = solve(optprob, BFGS())
 ```
 
 Note that some of the algorithms may be sensitive to the initial condition. For more
@@ -96,12 +102,13 @@ details on using Optim.jl, see the [documentation for Optim.jl](https://julianls
 We can improve our solution by noting that the Lotka-Volterra equation requires that
 the parameters are positive. Thus [following the Optim.jl documentation](https://julianlsolvers.github.io/Optim.jl/stable/#user/minimization/#box-constrained-optimization)
 we can add box constraints to ensure the optimizer only checks between 0.0 and 3.0
-which improves the efficiency of our algorithm:
+which improves the efficiency of our algorithm. We pass the `lb` and `ub` keyword arguments to the `OptimizationProblem` to pass these bounds to the optimizer:
 
 ```@example ode
 lower = [0.0]
 upper = [3.0]
-result = optimize(cost_function, lower, upper, [1.42], Fminbox(BFGS()))
+optprob = Optimization.OptimizationProblem(cost_function, [1.42], lb = lower, ub = upper)
+result = solve(optprob, BFGS())
 ```
 
 Lastly, we can use the same tools to estimate multiple parameters simultaneously.
@@ -122,37 +129,19 @@ prob = ODEProblem(f2,u0,tspan,p)
 We can build an objective function and solve the multiple parameter version just as before:
 
 ```@example ode
-cost_function = build_loss_objective(prob,Tsit5(),L2Loss(t,data),
-                                      maxiters=10000,verbose=false)
-result_bfgs = Optim.optimize(cost_function, [1.3,0.8,2.8,1.2], Optim.BFGS())
+optprob = Optimization.OptimizationProblem(cost_function, [1.3,0.8,2.8,1.2])
+result_bfgs = solve(optprob, BFGS())
 ```
+
 We can also use First-Differences in L2Loss by passing the kwarg `differ_weight` which decides the contribution of the
 differencing loss to the total loss.
 
 ```@example ode
-cost_function = build_loss_objective(prob,Tsit5(),L2Loss(t,data,differ_weight=0.3,data_weight=0.7),
+cost_function = build_loss_objective(prob,Tsit5(),L2Loss(t,data,differ_weight=0.3,data_weight=0.7), Optimization.AutoZygote(),
                                       maxiters=10000,verbose=false)
-result_bfgs = Optim.optimize(cost_function, [1.3,0.8,2.8,1.2], Optim.BFGS())
+optprob = OptimizationProblem(cost_function, [1.3,0.8,2.8,1.2])
+result_bfgs = solve(optprob, BFGS())
 ```
-
-To solve it using LeastSquaresOptim.jl, we use the `build_lsoptim_objective` function:
-
-```@example ode
-cost_function = build_lsoptim_objective(prob,t,data,Tsit5())
-```
-
-The result is a cost function which can be used with LeastSquaresOptim. For more
-details, consult the [documentation for LeastSquaresOptim.jl](https://github.com/matthieugomez/LeastSquaresOptim.jl):
-
-```@example ode
-using LeastSquaresOptim # for LeastSquaresProblem
-x = [1.3,0.8,2.8,1.2]
-res = optimize!(LeastSquaresProblem(x = x, f! = cost_function,
-                output_length = length(t)*length(prob.u0)),
-                LeastSquaresOptim.Dogleg(LeastSquaresOptim.LSMR()))
-```
-
-and thus this algorithm was able to correctly identify all four parameters.
 
 We can also use Multiple Shooting method by creating a `multiple_shooting_objective`
 
@@ -173,17 +162,14 @@ bound = Tuple{Float64, Float64}[(0, 10),(0, 10),(0, 10),(0, 10),
                                 (0, 10),(0, 10),(0, 10),(0, 10),(0, 10),(0, 10)]
 
 
-ms_obj = multiple_shooting_objective(ms_prob,Tsit5(),L2Loss(t,data);discontinuity_weight=1.0,abstol=1e-12,reltol=1e-12)
+ms_obj = multiple_shooting_objective(ms_prob, Tsit5(), L2Loss(t, data), Optimization.AutoZygote(); discontinuity_weight = 1.0, abstol = 1e-12, reltol = 1e-12)
 ```
 
 This creates the objective function that can be passed to an optimizer from which we can then get the parameter values
 and the initial values of the short time periods keeping in mind the indexing.
 
 ```@example ode
-# ]add BlackBoxOptim
-using BlackBoxOptim
-
-result = bboptimize(ms_obj;SearchRange = bound, MaxSteps = 21e3)
+result = bboptimize(ms_obj; SearchRange = bound, MaxSteps = 21e3)
 ```
 
 ```@example ode
@@ -196,10 +182,12 @@ the rest of the values are the initial values of the shorter timespans as descri
 The objective function for Two Stage method can be created and passed to an optimizer as
 
 ```@example ode
-two_stage_obj = two_stage_method(ms_prob,t,data)
-result = Optim.optimize(two_stage_obj, [1.3,0.8,2.8,1.2], Optim.BFGS())
+two_stage_obj = two_stage_objective(ms_prob, t, data)
+optprob = Optimization.OptimizationProblem(two_stage_obj, [1.3,0.8,2.8,1.2])
+result = solve(optprob, Optim.BFGS())
 ```
+
 The default kernel used in the method is `Epanechnikov` others that are available are `Uniform`,  `Triangular`,
 `Quartic`, `Triweight`, `Tricube`, `Gaussian`, `Cosine`, `Logistic` and `Sigmoid`, this can be passed by the
 `kernel` keyword argument. `loss_func` keyword argument can be used to pass the loss function (cost function) you want
- to use and `mpg_autodiff` enables Auto Differentiation.
+ to use and passing a valid [`adtype` argument](https://docs.sciml.ai/Optimization/stable/tutorials/intro/#Controlling-Gradient-Calculations-(Automatic-Differentiation)) enables Auto Differentiation.

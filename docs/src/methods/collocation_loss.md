@@ -10,7 +10,7 @@ but is much faster, and is a good method to try first to get in the general
 "good parameter" region, to then finish using one of the other methods.
 
 ```julia
-function two_stage_method(prob::DEProblem,tpoints,data;kernel= :Epanechnikov,
-                          loss_func = L2DistLoss,mpg_autodiff = false,
-                          verbose = false,verbose_steps = 100)
+function two_stage_objective(prob::DEProblem, tpoints, data, adtype = SciMLBase.NoAD(),;
+                          kernel= :Epanechnikov,
+                          loss_func = L2DistLoss)
 ```

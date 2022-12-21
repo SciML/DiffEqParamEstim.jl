@@ -13,6 +13,6 @@ etc.
 
 However, this method requires repeated solution of the differential equation.
 If the data is temporal data, the most efficient method is the
-`two_stage_method` which does not require repeated solutions but is not as
-accurate. Usage of the `two_stage_method` should have a post-processing step
+`two_stage_objective` which does not require repeated solutions but is not as
+accurate. Usage of the `two_stage_objective` should have a post-processing step
 which refines using a method like `build_loss_objective`.

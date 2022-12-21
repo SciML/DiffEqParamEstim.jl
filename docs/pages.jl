@@ -7,6 +7,5 @@ pages = ["index.md",
                        "tutorials/ensemble.md"],
     "Methods" => Any["methods/recommended_methods.md",
                      "methods/optimization_based_methods.md",
-                     "methods/collocation_loss.md",
-                     "methods/alternative_objectives.md"],
+                     "methods/collocation_loss.md"],
 ]
