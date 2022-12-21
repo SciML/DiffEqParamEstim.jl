@@ -1,4 +1,8 @@
-# Optimization-Based ODE Parameter Estimation
+# Getting Started with Optimization-Based ODE Parameter Estimation
+
+In this tutorial we will showcase how to estimate the parameters of an ordinary
+differential equation using DiffEqParamEstim.jl. DiffEqParamEstim.jl is a high
+level tool that makes common parameter estimation tasks simple.
 
 We choose to optimize the parameters on the Lotka-Volterra equation. We do so
 by defining the function as a function with parameters:
