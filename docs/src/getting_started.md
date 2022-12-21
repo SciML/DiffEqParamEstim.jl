@@ -76,7 +76,7 @@ To build the objective function for Optim.jl, we simply call the `build_loss_obj
 function:
 
 ```@example ode
-cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t,data), 
+cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t,data),
                                      Optimization.AutoForwardDiff(),
                                      maxiters=10000,verbose=false)
 ```
@@ -89,12 +89,12 @@ process. If the integrator stops early (due to divergence), then those parameter
 are given an infinite loss, and thus this is a quick way to avoid bad parameters.
 We set `verbose=false` because this divergence can get noisy. The `Optimization.AutoForwardDiff()`
 is a choice of automatic differentiation, i.e. how the gradients are calculated.
-For more information on this choice, see 
-[the automatic differentiation choice API](https://docs.sciml.ai/Optimization/stable/API/optimization_function/#Automatic-Differentiation-Construction-Choice-Recommendations). 
+For more information on this choice, see
+[the automatic differentiation choice API](https://docs.sciml.ai/Optimization/stable/API/optimization_function/#Automatic-Differentiation-Construction-Choice-Recommendations).
 
-!!! note 
+!!! note
     A good rule of thumb is to use `Optimization.AutoForwardDiff()` for less than 100
-    parameters + states, and `Optimization.AutoZygote()` for more. 
+    parameters + states, and `Optimization.AutoZygote()` for more.
 
 Before optimizing, let's visualize our cost function by plotting it for a range
 of parameter values:
@@ -133,10 +133,10 @@ details on using Optim.jl, see the [documentation for Optim.jl](https://julianls
 ### Adding Bounds Constraints
 
 We can improve our solution by noting that the Lotka-Volterra equation requires that
-the parameters are positive. Thus 
+the parameters are positive. Thus
 [following the Optimization.jl documentation](https://docs.sciml.ai/Optimization/stable/API/optimization_problem/)
 we can add box constraints to ensure the optimizer only checks between `0.0` and `3.0`
-which improves the efficiency of our algorithm. We pass the `lb` and `ub` keyword 
+which improves the efficiency of our algorithm. We pass the `lb` and `ub` keyword
 arguments to the `OptimizationProblem` to pass these bounds to the optimizer:
 
 ```@example ode
@@ -166,7 +166,7 @@ prob = ODEProblem(f2,u0,tspan,p)
 We can build an objective function and solve the multiple parameter version just as before:
 
 ```@example ode
-cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t,data), 
+cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t,data),
                                      Optimization.AutoForwardDiff(),
                                      maxiters=10000,verbose=false)
 optprob = Optimization.OptimizationProblem(cost_function, [1.3,0.8,2.8,1.2])
@@ -176,13 +176,13 @@ result_bfgs = solve(optprob, BFGS())
 ### Alternative Cost Functions for Increased Robustness
 
 The `build_loss_objective` with `L2Loss` is the most naive approach for parameter estimation.
-There are many other 
+There are many other
 
 We can also use First-Differences in L2Loss by passing the kwarg `differ_weight` which decides the contribution of the
 differencing loss to the total loss.
 
 ```@example ode
-cost_function = build_loss_objective(prob,Tsit5(),L2Loss(t,data,differ_weight=0.3,data_weight=0.7), 
+cost_function = build_loss_objective(prob,Tsit5(),L2Loss(t,data,differ_weight=0.3,data_weight=0.7),
                                       Optimization.AutoForwardDiff(),
                                       maxiters=10000,verbose=false)
 optprob = OptimizationProblem(cost_function, [1.3,0.8,2.8,1.2])
@@ -208,7 +208,7 @@ bound = Tuple{Float64, Float64}[(0, 10),(0, 10),(0, 10),(0, 10),
                                 (0, 10),(0, 10),(0, 10),(0, 10),(0, 10),(0, 10)]
 
 
-ms_obj = multiple_shooting_objective(ms_prob, Tsit5(), L2Loss(t, data), Optimization.AutoForwardDiff(); 
+ms_obj = multiple_shooting_objective(ms_prob, Tsit5(), L2Loss(t, data), Optimization.AutoForwardDiff();
                                      discontinuity_weight = 1.0, abstol = 1e-12, reltol = 1e-12)
 ```
 
@@ -217,7 +217,8 @@ and the initial values of the short time periods keeping in mind the indexing. N
 a global optimization method to improve robustness even more:
 
 ```@example ode
-optsol_ms = solve(ms_obj, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10_000)
+optprob = OptimizationProblem(ms_obj, zeros(18), lb = first.(bound), ub = last.(bound))
+optsol_ms = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10_000)
 ```
 
 ```@example ode
@@ -230,7 +231,7 @@ the rest of the values are the initial values of the shorter timespans as descri
 The objective function for Two Stage method can be created and passed to an optimizer as
 
 ```@example ode
-two_stage_obj = two_stage_objective(ms_prob, t, data)
+two_stage_obj = two_stage_objective(ms_prob, t, data, Optimization.AutoForwardDiff())
 optprob = Optimization.OptimizationProblem(two_stage_obj, [1.3,0.8,2.8,1.2])
 result = solve(optprob, Optim.BFGS())
 ```
@@ -238,7 +239,7 @@ result = solve(optprob, Optim.BFGS())
 The default kernel used in the method is `Epanechnikov` others that are available are `Uniform`,  `Triangular`,
 `Quartic`, `Triweight`, `Tricube`, `Gaussian`, `Cosine`, `Logistic` and `Sigmoid`, this can be passed by the
 `kernel` keyword argument. `loss_func` keyword argument can be used to pass the loss function (cost function) you want
- to use and passing a valid 
+ to use and passing a valid
  [`adtype` argument](https://docs.sciml.ai/Optimization/stable/tutorials/intro/#Controlling-Gradient-Calculations-(Automatic-Differentiation)) enables Auto Differentiation.
 
 ## Conclusion
