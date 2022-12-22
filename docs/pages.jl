@@ -1,7 +1,6 @@
 pages = ["index.md",
     "getting_started.md",
     "Tutorials" => Any["tutorials/global_optimization.md",
-                       "tutorials/jump.md",
                        "tutorials/generalized_likelihood.md",
                        "tutorials/stochastic_evaluations.md",
                        "tutorials/ensemble.md"],
