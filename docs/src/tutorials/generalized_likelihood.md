@@ -4,7 +4,8 @@ In this example we will demo the likelihood-based approach to parameter fitting.
 First let's generate a dataset to fit. We will re-use the Lotka-Volterra equation
 but in this case fit just two parameters.
 
-```julia
+```@example likelihood
+using DifferentialEquations, DiffEqParamEstim, Optimization, OptimizationBBO
 f1 = function (du,u,p,t)
   du[1] = p[1] * u[1] - p[2] * u[1]*u[2]
   du[2] = -3.0 * u[2] + u[1]*u[2]
@@ -20,7 +21,7 @@ This is a function with two parameters, `[1.5,1.0]` which generates the same
 ODE solution as before. This time, let's generate 100 datasets where at each point
 adds a little bit of randomness:
 
-```julia
+```@example likelihood
 using RecursiveArrayTools # for VectorOfArray
 t = collect(range(0,stop=10,length=200))
 function generate_data(sol,t)
@@ -39,16 +40,15 @@ choose the `Normal` distribution. `aggregate_data[i,j,:]` is the array of points
 at the given component and time, and thus we find the distribution parameters
 which fits best at each time point via:
 
-```julia
+```@example likelihood
 using Distributions
 distributions = [fit_mle(Normal,aggregate_data[i,j,:]) for i in 1:2, j in 1:200]
 ```
 
 Notice for example that we have:
 
-```julia
-julia> distributions[1,1]
-Distributions.Normal{Float64}(μ=1.0022440583676806, σ=0.009851964521952437)
+```@example likelihood
+distributions[1,1]
 ```
 
 that is, it fit the distribution to have its mean just about where our original
@@ -67,8 +67,7 @@ distribution objects yourself).
 Once we have the matrix of distributions, we can build the objective function
 corresponding to that distribution fit:
 
-```julia
-using DiffEqParamEstim
+```@example likelihood
 obj = build_loss_objective(prob1,Tsit5(),LogLikeLoss(t,distributions),
                                      maxiters=10000,verbose=false)
 ```
@@ -103,32 +102,9 @@ use the global optimizers from BlackBoxOptim.jl to find the values. We set our
 search range to be from `0.5` to `5.0` for both of the parameters and let it
 optimize:
 
-```julia
-using BlackBoxOptim
+```@example likelihood
 bound1 = Tuple{Float64, Float64}[(0.5, 5),(0.5, 5)]
-result = bboptimize(obj;SearchRange = bound1, MaxSteps = 11e3)
-
-Starting optimization with optimizer BlackBoxOptim.DiffEvoOpt{BlackBoxOptim.FitPopulation{Float64},B
-lackBoxOptim.RadiusLimitedSelector,BlackBoxOptim.AdaptiveDiffEvoRandBin{3},BlackBoxOptim.RandomBound
-{BlackBoxOptim.RangePerDimSearchSpace}}
-0.00 secs, 0 evals, 0 steps
-0.50 secs, 1972 evals, 1865 steps, improv/step: 0.266 (last = 0.2665), fitness=-737.311433781
-1.00 secs, 3859 evals, 3753 steps, improv/step: 0.279 (last = 0.2913), fitness=-739.658421879
-1.50 secs, 5904 evals, 5799 steps, improv/step: 0.280 (last = 0.2830), fitness=-739.658433715
-2.00 secs, 7916 evals, 7811 steps, improv/step: 0.225 (last = 0.0646), fitness=-739.658433715
-2.50 secs, 9966 evals, 9861 steps, improv/step: 0.183 (last = 0.0220), fitness=-739.658433715
-
-Optimization stopped after 11001 steps and 2.7839999198913574 seconds
-Termination reason: Max number of steps (11000) reached
-Steps per second = 3951.50873439296
-Function evals per second = 3989.2242527195904
-Improvements/step = 0.165
-Total function evaluations = 11106
-
-
-Best candidate found: [1.50001, 1.00001]
-
-Fitness: -739.658433715
+optprob = OptimizationProblem(obj, [2.0, 2.0], lb = first.(bound1), ub = last.(bound1))
 ```
 
 This shows that it found the true parameters as the best fit to the likelihood.

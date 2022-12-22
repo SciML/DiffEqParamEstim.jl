@@ -72,7 +72,7 @@ end
 
 function construct_iip_cost_function(f, du, preview_est_sol, preview_est_deriv, tpoints)
     function (p, _ = nothing)
-        _du = PreallocationTools.get_tmp(du, p)
+        _du = PreallocationTools.get_tmp(PreallocationTools.DiffCache(du, length(p)), p)
         vecdu = vec(_du)
         cost = zero(first(p))
         for i in 1:length(preview_est_sol)
@@ -113,9 +113,9 @@ function two_stage_objective(prob::DiffEqBase.DEProblem, tpoints, data,
                          for i in 1:size(estimated_solution, 2)]
 
     cost_function = if isinplace(prob)
-        construct_oop_cost_function(f, prob.u0, preview_est_sol, preview_est_deriv, tpoints)
-    else
         construct_iip_cost_function(f, prob.u0, preview_est_sol, preview_est_deriv, tpoints)
+    else
+        construct_oop_cost_function(f, prob.u0, preview_est_sol, preview_est_deriv, tpoints)
     end
 
     return OptimizationFunction(TwoStageCost(cost_function, estimated_solution,

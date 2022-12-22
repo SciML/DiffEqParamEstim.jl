@@ -13,7 +13,7 @@ So, let's get an `EnsembleProblem` setup that solves with 10 different initial c
 This looks as follows:
 
 ```@example ensemble
-using DifferentialEquations, DiffEqParamEstim, Plots, Optim
+using DifferentialEquations, DiffEqParamEstim, Plots, Optimization, ForwardDiff, OptimizationOptimJL
 
 # Monte Carlo Problem Set Up for solving set of ODEs with different initial conditions
 
@@ -48,9 +48,9 @@ sim = solve(enprob,Tsit5(),trajectories=N)
 plot(sim)
 ```
 
-trajectories=N means "run N times", and each time it runs the problem returned by the prob_func, which is always the same problem but with the ith initial condition.
+`trajectories=N` means "run N times", and each time it runs the problem returned by the `prob_func`, which is always the same problem but with the `i`th initial condition.
 
-Now let's generate a dataset from that. Let's get data points at every t=0.1 using saveat,
+Now let's generate a dataset from that. Let's get data points at every t=0.1 using `saveat`,
 and then convert the solution into an array.
 
 ```@example ensemble
@@ -60,13 +60,13 @@ sim = solve(enprob,Tsit5(),trajectories=N,saveat=data_times)
 data = Array(sim)
 ```
 
-Here, data[i,j,k] is the same as sim[i,j,k] which is the same as sim[k][i,j] (where sim[k]
-is the kth solution). So data[i,j,k] is the jth timepoint of the ith variable in the kth
+Here, `data[i,j,k]` is the same as `sim[i,j,k]` which is the same as `sim[k][i,j]` (where `sim[k]`
+is the `k`th solution). So `data[i,j,k]` is the `j`th timepoint of the `i`th variable in the `k`th
 trajectory.
 
-Now let's build a loss function. A loss function is some loss(sol) that spits out a scalar
-for how far from optimal we are. In the documentation I show that we normally do loss =
-L2Loss(t,data), but we can bootstrap off of this. Instead lets build an array of N loss
+Now let's build a loss function. A loss function is some `loss(sol)` that spits out a scalar
+for how far from optimal we are. In the documentation I show that we normally do
+`loss = L2Loss(t,data)`, but we can bootstrap off of this. Instead lets build an array of `N` loss
 functions, each one with the correct piece of data.
 
 ```@example ensemble
@@ -74,13 +74,13 @@ functions, each one with the correct piece of data.
 losses = [L2Loss(data_times,data[:,:,i]) for i in 1:N]
 ```
 
-So losses[i] is a function which computes the loss of a solution against the data of the ith trajectory. So to build our true loss function, we sum the losses:
+So `losses[i]` is a function which computes the loss of a solution against the data of the ith trajectory. So to build our true loss function, we sum the losses:
 
 ```@example ensemble
 loss(sim) = sum(losses[i](sim[i]) for i in 1:N)
 ```
 
-As a double check, make sure that loss(sim) outputs zero (since we generated the data from sim). Now we generate data with other parameters:
+As a double check, make sure that `loss(sim)` outputs zero (since we generated the data from sim). Now we generate data with other parameters:
 
 ```@example ensemble
 prob = ODEProblem(pf_func,[1.0,1.0],(0.0,10.0),[1.2,0.8])
@@ -98,22 +98,22 @@ have what we need.
 Put this into build_loss_objective.
 
 ```@example ensemble
-obj = build_loss_objective(enprob,Tsit5(),loss,trajectories=N,
+obj = build_loss_objective(enprob,Tsit5(),loss,Optimization.AutoForwardDiff(),trajectories=N,
                            saveat=data_times)
 ```
 
-Notice that I added the kwargs for solve into this. They get passed to an internal solve
-command, so then the loss is computed on N trajectories at data_times.
+Notice that we added the kwargs for `solve` of the `EnsembleProblem` into this. They get passed to the internal `solve`
+command, so then the loss is computed on `N` trajectories at `data_times`.
 
-Thus we take this objective function over to any optimization package. I like to do quick
-things in Optim.jl. Here, since the Lotka-Volterra equation requires positive parameters,
-I use Fminbox to make sure the parameters stay positive. I start the optimization with
-[1.3,0.9], and Optim spits out that the true parameters are:
+Thus we take this objective function over to any optimization package. Here, since the Lotka-Volterra equation requires positive parameters,
+we use Fminbox to make sure the parameters stay within passed bounds. Let's start the optimization with
+[1.3,0.9], Optim spits out that the true parameters are:
 
 ```@example ensemble
 lower = zeros(2)
 upper = fill(2.0,2)
-result = optimize(obj, lower, upper, [1.3,0.9], Fminbox(BFGS()))
+optprob = OptimizationProblem(obj,[1.3,0.9],lb = lower,ub = upper)
+result = solve(optprob, Fminbox(BFGS()))
 ```
 
 ```@example ensemble
@@ -122,15 +122,16 @@ result
 
 Optim finds one but not the other parameter.
 
-I would run a test on synthetic data for your problem before using it on real data. Maybe
+It is advised to run a test on synthetic data for your problem before using it on real data. Maybe
 play around with different optimization packages, or add regularization. You may also want
 to decrease the tolerance of the ODE solvers via
 
 ```@example ensemble
-obj = build_loss_objective(enprob,Tsit5(),loss,trajectories=N,
+obj = build_loss_objective(enprob,Tsit5(),loss, Optimization.AutoForwardDiff(), trajectories=N,
                            abstol=1e-8,reltol=1e-8,
                            saveat=data_times)
-result = optimize(obj, lower, upper, [1.3,0.9], Fminbox(BFGS()))
+optprob = OptimizationProblem(obj, [1.3,0.9], lb = lower, ub = upper)
+result = solve(optprob, BFGS()) #OptimizationOptimJL detects that it's a box constrained problem and use Fminbox wrapper over BFGS
 ```
 
 ```@example ensemble
