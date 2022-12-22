@@ -5,10 +5,12 @@ to be used with MathOptInterface-associated solvers. This includes packages like
 IPOPT, NLopt, MOSEK, etc. Building off of the previous example, we can build a
 cost function for the single parameter optimization problem like:
 
-```julia
+```@example global_optimization
+using DifferentialEquations, Plots, DiffEqParamEstim, Optimization, OptimizationMOI, OptimizationNLopt, NLopt
+
 function f(du,u,p,t)
-  dx = p[1]*u[1] - u[1]*u[2]
-  dy = -3*u[2] + u[1]*u[2]
+  du[1] = p[1]*u[1] - u[1]*u[2]
+  du[2] = -3*u[2] + u[1]*u[2]
 end
 
 u0 = [1.0;1.0]
@@ -21,51 +23,44 @@ t = collect(range(0,stop=10,length=200))
 randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
 data = convert(Array,randomized)
 
-obj = build_loss_objective(prob,Tsit5(),L2Loss(t,data),maxiters=10000)
+obj = build_loss_objective(prob,Tsit5(),L2Loss(t,data),Optimization.AutoForwardDiff())
 ```
+
+You can either use the NLopt package directly or through either the OptimizationNLopt or OptimizationMOI which provides interface for all MathOptInterface compatible non-linear solvers.
 
 We can now use this `obj` as the objective function with MathProgBase solvers.
 For our example, we will use NLopt. To use the local derivative-free
 Constrained Optimization BY Linear Approximations algorithm, we can simply do:
 
-```julia
-using NLopt
+```@example global_optimization
 opt = Opt(:LN_COBYLA, 1)
-min_objective!(opt, obj)
-(minf,minx,ret) = NLopt.optimize(opt,[1.3])
+optprob = Optimization.OptimizationProblem(obj, [1.3])
+res = solve(optprob, opt)
 ```
 
-This finds a minimum at `[1.49997]`. For a modified evolutionary algorithm, we
-can use:
+For a modified evolutionary algorithm, we can use:
 
-```julia
+```@example global_optimization
 opt = Opt(:GN_ESCH, 1)
-min_objective!(opt, obj)
 lower_bounds!(opt,[0.0])
 upper_bounds!(opt,[5.0])
 xtol_rel!(opt,1e-3)
 maxeval!(opt, 100000)
-(minf,minx,ret) = NLopt.optimize(opt,[1.3])
+res = solve(optprob,opt)
 ```
 
 We can even use things like the Improved Stochastic Ranking Evolution Strategy
-(and add constraints if needed). This is done via:
+(and add constraints if needed). Let's use this through OptimizationMOI:
 
-```julia
-opt = Opt(:GN_ISRES, 1)
-min_objective!(opt, obj.cost_function2)
-lower_bounds!(opt,[-1.0])
-upper_bounds!(opt,[5.0])
-xtol_rel!(opt,1e-3)
-maxeval!(opt, 100000)
-(minf,minx,ret) = NLopt.optimize(opt,[0.2])
+```@example global_optimization
+optprob = Optimization.OptimizationProblem(obj, [0.2], lb = [-1.0], ub = [5.0])
+res = solve(optprob, OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer, "algorithm" => :GN_ISRES, "xtol_rel" => 1e-3, "maxeval" => 10000))
 ```
 
-which is very robust to the initial condition. The fastest result comes from the
-following:
+which is very robust to the initial condition. We can also directly use the NLopt interface as below. The fastest result comes from the
+following algorithm choice:
 
-```julia
-using NLopt
+```example global_optimization
 opt = Opt(:LN_BOBYQA, 1)
 min_objective!(opt, obj)
 (minf,minx,ret) = NLopt.optimize(opt,[1.3])

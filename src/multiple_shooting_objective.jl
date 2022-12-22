@@ -48,10 +48,8 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
         if any((!SciMLBase.successful_retcode(s.retcode) for s in sol))
             return Inf
         end
-        u = [uc for k in 1:K for uc in sol[k].u[1:(end - 1)]]
-        t = [tc for k in 1:K for tc in sol[k].t[1:(end - 1)]]
-        push!(u, sol[K].u[end])
-        push!(t, sol[K].t[end])
+        u = [uc for k in 1:K for uc in (k == K ? sol[k].u : sol[k].u[1:(end - 1)])]
+        t = [tc for k in 1:K for tc in (k == K ? sol[k].t : sol[k].t[1:(end - 1)])]
         sol_loss = Merged_Solution(u, t, sol)
         sol_new = DiffEqBase.build_solution(prob, alg, sol_loss.t, sol_loss.u,
                                             retcode = ReturnCode.Success)
