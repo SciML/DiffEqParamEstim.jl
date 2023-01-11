@@ -1,11 +1,11 @@
 # Fitting Ensembles of ODE Models to Data
 
-In this tutoiral we will showcase how to fit multiple models simultaniously to respective
+In this tutorial, we will showcase how to fit multiple models simultaneously to respective
 data sources. Let's dive right in!
 
 ## Formulating the Ensemble Model
 
-First you want to create a problem which solves multiple problems at the same time. This is
+First, you want to create a problem which solves multiple problems at the same time. This is
 the `EnsembleProblem`. When the parameter estimation tools say it will take any DEProblem,
 it really means ANY DEProblem, which includes `EnsembleProblem`.
 
@@ -48,7 +48,7 @@ sim = solve(enprob,Tsit5(),trajectories=N)
 plot(sim)
 ```
 
-`trajectories=N` means "run N times", and each time it runs the problem returned by the `prob_func`, which is always the same problem but with the `i`th initial condition.
+`trajectories=N` means “run N times”, and each time it runs the problem returned by the `prob_func`, which is always the same problem but with the `i`th initial condition.
 
 Now let's generate a dataset from that. Let's get data points at every t=0.1 using `saveat`,
 and then convert the solution into an array.
@@ -65,8 +65,8 @@ is the `k`th solution). So `data[i,j,k]` is the `j`th timepoint of the `i`th var
 trajectory.
 
 Now let's build a loss function. A loss function is some `loss(sol)` that spits out a scalar
-for how far from optimal we are. In the documentation I show that we normally do
-`loss = L2Loss(t,data)`, but we can bootstrap off of this. Instead lets build an array of `N` loss
+for how far from optimal we are. In the documentation, I show that we normally do
+`loss = L2Loss(t,data)`, but we can bootstrap off of this. Instead, let's build an array of `N` loss
 functions, each one with the correct piece of data.
 
 ```@example ensemble
@@ -92,8 +92,8 @@ sim = solve(enprob,Tsit5(),trajectories=N,saveat=data_times)
 loss(sim)
 ```
 
-and get a non-zero loss. So we now have our problem, our data, and our loss function... we
-have what we need.
+and get a non-zero loss. So, we now have our problem, our data, and our loss function…
+we have what we need.
 
 Put this into build_loss_objective.
 
@@ -105,9 +105,9 @@ obj = build_loss_objective(enprob,Tsit5(),loss,Optimization.AutoForwardDiff(),tr
 Notice that we added the kwargs for `solve` of the `EnsembleProblem` into this. They get passed to the internal `solve`
 command, so then the loss is computed on `N` trajectories at `data_times`.
 
-Thus we take this objective function over to any optimization package. Here, since the Lotka-Volterra equation requires positive parameters,
-we use Fminbox to make sure the parameters stay within passed bounds. Let's start the optimization with
-[1.3,0.9], Optim spits out that the true parameters are:
+Thus, we take this objective function over to any optimization package. Here, since the Lotka-Volterra equation requires positive parameters,
+we use Fminbox to make sure the parameters stay within the passed bounds.
+Let's start the optimization with [1.3,0.9], Optim spits out that the true parameters are:
 
 ```@example ensemble
 lower = zeros(2)

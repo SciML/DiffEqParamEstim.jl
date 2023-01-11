@@ -1,7 +1,7 @@
 # Global Optimization via NLopt
 
-The `build_loss_objective` function builds an objective function which is able
-to be used with MathOptInterface-associated solvers. This includes packages like
+The `build_loss_objective` function builds an objective function compatible
+with MathOptInterface-associated solvers. This includes packages like
 IPOPT, NLopt, MOSEK, etc. Building off of the previous example, we can build a
 cost function for the single parameter optimization problem like:
 
@@ -26,7 +26,7 @@ data = convert(Array,randomized)
 obj = build_loss_objective(prob,Tsit5(),L2Loss(t,data),Optimization.AutoForwardDiff())
 ```
 
-You can either use the NLopt package directly or through either the OptimizationNLopt or OptimizationMOI which provides interface for all MathOptInterface compatible non-linear solvers.
+You can either use the NLopt package directly or through either the OptimizationNLopt or OptimizationMOI which provides an interface for all MathOptInterface compatible non-linear solvers.
 
 We can now use this `obj` as the objective function with MathProgBase solvers.
 For our example, we will use NLopt. To use the local derivative-free
@@ -66,5 +66,5 @@ min_objective!(opt, obj)
 (minf,minx,ret) = NLopt.optimize(opt,[1.3])
 ```
 
-For more information, see the NLopt documentation for more details. And give IPOPT
-or MOSEK a try!
+For more information, see the NLopt documentation for more details.
+And give IPOPT or MOSEK a try!

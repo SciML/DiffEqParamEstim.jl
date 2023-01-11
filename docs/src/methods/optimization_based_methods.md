@@ -18,12 +18,12 @@ function build_loss_objective(prob::DEProblem, alg, loss,
 
 The first argument is the `DEProblem` to solve, and next is the `alg` to use.
 The `alg` must match the problem type, which can be any `DEProblem`
-(ODEs, SDEs, DAEs, DDEs, etc.). `regularization` defaults to nothing which has no regularization function.
+(ODEs, SDEs, DAEs, DDEs, etc.). `regularization` defaults to nothing, which has no regularization function.
 The extra keyword arguments are passed to the differential equation solver.
 
 ### Multiple Shooting
 
-Multiple Shooting is generally used in Boundary Value Problems (BVP) and is
+Multiple Shooting is often used in Boundary Value Problems (BVP) and is
 more robust than the regular objective function used in these problems. It
 proceeds as follows:
 
@@ -47,7 +47,7 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
 
 For consistency `multiple_shooting_objective` takes exactly the same arguments
 as `build_loss_objective`. It also has the option for `discontinuity_weight` as
-a keyword argument which assigns weight to the error occurring due to the
+a keyword argument, which assigns weight to the error occurring due to the
 discontinuity that arises from the breaking up of the time span.
 
 ## Detailed Explanations of Arguments
@@ -58,7 +58,7 @@ discontinuity that arises from the breaking up of the time span.
 loss(sol)
 ```
 
-is the function which reduces the problem's solution to a scalar which the
+is the function, which reduces the problem's solution to a scalar, which the
 optimizer will try to minimize. While this is very
 flexible, two convenience routines are included for fitting to data with standard
 cost functions:
@@ -68,7 +68,7 @@ L2Loss(t, data; differ_weight=nothing, data_weight=nothing,
               colloc_grad=nothing, dudt=nothing)
 ```
 
-where `t` is the set of timepoints which the data is found at, and
+where `t` is the set of timepoints which the data are found at, and
 `data` are the values that are known where each column corresponds to measures
 of the values of the system. `L2Loss` is an optimized version
 of the L2-distance. The `data_weight` is a scalar or vector
@@ -98,7 +98,7 @@ is the likelihood distributions from a `UnivariateDistribution` from
 corresponds to the likelihood at `t[i]` for component `j`. The second case is
 where `distributions[i]` is a `MultivariateDistribution` which corresponds to
 the likelihood at `t[i]` over the vector of components. This likelihood function
-then calculates the negative of the total loglikelihood over time as its objective
+then calculates the negative of the total log-likelihood over time as its objective
 value (negative since optimizers generally find minimums, and thus this corresponds
 to maximum likelihood estimation). The third term, `diff_distributions`, acts
 similarly but allows putting a distribution on the first difference terms
@@ -138,7 +138,7 @@ L2Loss(t, data, differ_weight=0.3, data_weight=0.7)
 First differencing incorporates the differences of data points at consecutive
 time points which adds more information about the trajectory in the loss
 function. Adding first differencing is helpful in cases where the `L2Loss`
-alone leads to non-identifiable parameters but adding a first differencing
+alone leads to non-identifiable parameters, but adding a first differencing
 term makes it more identifiable. This can be noted on stochastic differential
 equation models, where this aims to capture the autocorrelation and therefore
 helps us avoid getting the same stationary distribution despite different
@@ -205,7 +205,7 @@ which simply uses `p` as the initial condition in the initial value problem.
 ## Using the Objectives for MAP estimates
 
 You can also add a prior option to `build_loss_objective` and `multiple_shooting_objective` that
-essentially turns it into MAP by multiplying the loglikelihood (the cost) by the prior. The option is available
+essentially turns it into MAP by multiplying the log-likelihood (the cost) by the prior. The option is available
 as the keyword argument `priors`, it can take in either an array of univariate distributions for each of
 the parameters or a multivariate distribution.
 
