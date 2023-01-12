@@ -1,8 +1,8 @@
 # Generalized Likelihood Inference
 
-In this example we will demo the likelihood-based approach to parameter fitting.
-First let's generate a dataset to fit. We will re-use the Lotka-Volterra equation
-but in this case fit just two parameters.
+In this example, we will demo the likelihood-based approach to parameter fitting.
+First, let's generate a dataset to fit. We will re-use the Lotka-Volterra equation,
+but in this case, fit just two parameters.
 
 ```@example likelihood
 using DifferentialEquations, DiffEqParamEstim, Optimization, OptimizationBBO
@@ -31,11 +31,11 @@ end
 aggregate_data = convert(Array,VectorOfArray([generate_data(sol,t) for i in 1:100]))
 ```
 
-here with `t` we measure the solution at 200 evenly spaced points. Thus `aggregate_data`
+here, with `t` we measure the solution at 200 evenly spaced points. Thus, `aggregate_data`
 is a 2x200x100 matrix where `aggregate_data[i,j,k]` is the `i`th component at time
 `j` of the `k`th dataset. What we first want to do is get a matrix of distributions
 where `distributions[i,j]` is the likelihood of component `i` at take `j`. We
-can do this via `fit_mle` on a chosen distributional form. For simplicity we
+can do this via `fit_mle` on a chosen distributional form. For simplicity, we
 choose the `Normal` distribution. `aggregate_data[i,j,:]` is the array of points
 at the given component and time, and thus we find the distribution parameters
 which fits best at each time point via:
@@ -51,13 +51,13 @@ Notice for example that we have:
 distributions[1,1]
 ```
 
-that is, it fit the distribution to have its mean just about where our original
-solution was and the variance is about how much noise we added to the dataset.
-This this is a good check to see that the distributions we are trying to fit
+that is, it fits the distribution to have its mean just about where our original
+solution was, and the variance is about how much noise we added to the dataset.
+This is a good check to see that the distributions we are trying to fit
 our parameters to makes sense.
 
-Note that in this case the `Normal` distribution was a good choice, and in many
-cases it's a nice go-to choice, but one should experiment with other choices
+Note that in this case the `Normal` distribution was a good choice, and often
+it's a nice go-to choice, but one should experiment with other choices
 of distributions as well. For example, a `TDist` can be an interesting way to
 incorporate robustness to outliers since low degrees of free T-distributions
 act like Normal distributions but with longer tails (though `fit_mle` does not
@@ -72,7 +72,7 @@ obj = build_loss_objective(prob1,Tsit5(),LogLikeLoss(t,distributions),
                                      maxiters=10000,verbose=false)
 ```
 
-First let's use the objective function to plot the likelihood landscape:
+First, let's use the objective function to plot the likelihood landscape:
 
 ```julia
 using Plots; plotly()
@@ -84,7 +84,7 @@ heatmap(prange,prange,[obj([j,i]) for i in prange, j in prange],
 
 ![2 Parameter Likelihood](../assets/2paramlike.png)
 
-Recall that this is the negative loglikelihood and thus the minimum is the
+Recall that this is the negative log-likelihood, and thus the minimum is the
 maximum of the likelihood. There is a clear valley where the first parameter
 is 1.5, while the second parameter's likelihood is more muddled. By taking a
 one-dimensional slice:
@@ -97,7 +97,7 @@ plot(prange,[obj([1.5,i]) for i in prange],lw=3,
 
 ![1 Parameter Likelihood](../assets/1paramlike.png)
 
-we can see that there's still a clear minimum at the true value. Thus we will
+we can see that there's still a clear minimum at the true value. Thus, we will
 use the global optimizers from BlackBoxOptim.jl to find the values. We set our
 search range to be from `0.5` to `5.0` for both of the parameters and let it
 optimize:

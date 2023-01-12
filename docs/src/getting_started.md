@@ -1,17 +1,17 @@
 # Getting Started with Optimization-Based ODE Parameter Estimation
 
-In this tutorial we will showcase how to estimate the parameters of an ordinary
-differential equation using DiffEqParamEstim.jl. DiffEqParamEstim.jl is a high
-level tool that makes common parameter estimation tasks simple. Here we will show
+In this tutorial, we will showcase how to estimate the parameters of an ordinary
+differential equation using DiffEqParamEstim.jl. DiffEqParamEstim.jl is a high-level
+tool that makes common parameter estimation tasks simple. Here, we will show
 how to use its cost function generation to estimate the parameters of the Lotka-Volterra
 equation against simulated data.
 
 ## Installation
 
-First we will make sure DiffEqParamEstim.jl is installed correctly. To do this, we use the
+First, we will make sure DiffEqParamEstim.jl is installed correctly. To do this, we use the
 Julia package REPL, opened by typing `]` in the REPL and seeing `pkg>` appear in blue.
 Then we type: `add DiffEqParamEstim` and hit enter. This will run the package management
-sequence and we will be good to go.
+sequence, and we will be good to go.
 
 ## Required Dependencies
 
@@ -57,7 +57,7 @@ randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
 data = convert(Array,randomized)
 ```
 
-Here we used `VectorOfArray` from [RecursiveArrayTools.jl](https://docs.sciml.ai/RecursiveArrayTools/stable/)
+Here, we used `VectorOfArray` from [RecursiveArrayTools.jl](https://docs.sciml.ai/RecursiveArrayTools/stable/)
 to turn the result of an ODE into a matrix.
 
 If we plot the solution with the parameter at `a=1.42`, we get the following:
@@ -69,7 +69,7 @@ plot(sol)
 plot!(newsol)
 ```
 
-Notice that after one period this solution begins to drift very far off: this
+Notice that after one period, this solution begins to drift very far off: this
 problem is sensitive to the choice of `a`.
 
 To build the objective function for Optim.jl, we simply call the `build_loss_objective`
@@ -88,7 +88,7 @@ error more quickly when in bad regions of the parameter space, speeding up the
 process. If the integrator stops early (due to divergence), then those parameters
 are given an infinite loss, and thus this is a quick way to avoid bad parameters.
 We set `verbose=false` because this divergence can get noisy. The `Optimization.AutoForwardDiff()`
-is a choice of automatic differentiation, i.e. how the gradients are calculated.
+is a choice of automatic differentiation, i.e., how the gradients are calculated.
 For more information on this choice, see
 [the automatic differentiation choice API](https://docs.sciml.ai/Optimization/stable/API/optimization_function/#Automatic-Differentiation-Construction-Choice-Recommendations).
 
@@ -127,13 +127,13 @@ plot(sol)
 plot!(newsol)
 ```
 
-Note that some of the algorithms may be sensitive to the initial condition. For more
+Note that some algorithms may be sensitive to the initial condition. For more
 details on using Optim.jl, see the [documentation for Optim.jl](https://julianlsolvers.github.io/Optim.jl/stable/).
 
 ### Adding Bounds Constraints
 
 We can improve our solution by noting that the Lotka-Volterra equation requires that
-the parameters are positive. Thus
+the parameters are positive. Thus,
 [following the Optimization.jl documentation](https://docs.sciml.ai/Optimization/stable/API/optimization_problem/)
 we can add box constraints to ensure the optimizer only checks between `0.0` and `3.0`
 which improves the efficiency of our algorithm. We pass the `lb` and `ub` keyword
@@ -176,7 +176,7 @@ result_bfgs = solve(optprob, BFGS())
 ### Alternative Cost Functions for Increased Robustness
 
 The `build_loss_objective` with `L2Loss` is the most naive approach for parameter estimation.
-There are many other
+There are many others.
 
 We can also use First-Differences in L2Loss by passing the kwarg `differ_weight` which decides the contribution of the
 differencing loss to the total loss.
@@ -211,8 +211,8 @@ ms_obj = multiple_shooting_objective(ms_prob, Tsit5(), L2Loss(t, data), Optimiza
                                      discontinuity_weight = 1.0, abstol = 1e-12, reltol = 1e-12)
 ```
 
-This creates the objective function that can be passed to an optimizer from which we can then get the parameter values
-and the initial values of the short time periods keeping in mind the indexing. Now we mix this with
+This creates the objective function that can be passed to an optimizer, from which we can then get the parameter values
+and the initial values of the short time periods, keeping in mind the indexing. Now we mix this with
 a global optimization method to improve robustness even more:
 
 ```@example ode
@@ -226,14 +226,14 @@ optsol_ms.u[end-1:end]
 
 Here as our model had 2 parameters, we look at the last 2 indexes of `result` to get our parameter values and
 the rest of the values are the initial values of the shorter timespans as described in the reference section.
-We can also use a gradient based optimizer with the multiple shooting objective.
+We can also use a gradient-based optimizer with the multiple shooting objective.
 
 ```@example ode
 optsol_ms = solve(optprob, BFGS())
 optsol_ms.u[end-1:end]
 ```
 
-The objective function for Two Stage method can be created and passed to an optimizer as
+The objective function for the Two Stage method can be created and passed to an optimizer as
 
 ```@example ode
 two_stage_obj = two_stage_objective(ms_prob, t, data, Optimization.AutoForwardDiff())
@@ -241,7 +241,7 @@ optprob = Optimization.OptimizationProblem(two_stage_obj, [1.3,0.8,2.8,1.2])
 result = solve(optprob, Optim.BFGS())
 ```
 
-The default kernel used in the method is `Epanechnikov` others that are available are `Uniform`,  `Triangular`,
+The default kernel used in the method is `Epanechnikov`, available others are `Uniform`,  `Triangular`,
 `Quartic`, `Triweight`, `Tricube`, `Gaussian`, `Cosine`, `Logistic` and `Sigmoid`, this can be passed by the
 `kernel` keyword argument. `loss_func` keyword argument can be used to pass the loss function (cost function) you want
  to use and passing a valid
@@ -250,5 +250,6 @@ The default kernel used in the method is `Epanechnikov` others that are availabl
 ## Conclusion
 
 There are many more choices for how to improve the robustness of a parameter estimation. With all of these tools,
-one likely should never do the simple "solve it with `p` and check the L2 loss", but instead use these tricks to
-improve the loss landscape and increase the ability for optimizers to find the globally best parameters.
+one likely should never do the simple “solve it with `p` and check the L2 loss”.
+Instead, we should use these tricks to improve the loss landscape
+and increase the ability for optimizers to find globally the best parameters.

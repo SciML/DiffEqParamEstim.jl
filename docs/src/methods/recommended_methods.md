@@ -5,9 +5,9 @@ of your choice. This method can thus be paired with global optimizers
 from packages like BlackBoxOptim.jl or NLopt.jl which can be much less prone to
 finding local minima than local optimization methods. Also, it allows the user
 to define the cost function in the way they choose as a function
-`loss(sol)`, and thus can fit using any cost function on the solution,
+`loss(sol)`. This package can thus fit using any cost function on the solution,
 making it applicable to fitting non-temporal data and other types of
-problems. Also, `build_loss_objective` works for all of the `DEProblem`
+problems. Also, `build_loss_objective` works for all the `DEProblem`
 types, allowing it to optimize parameters on ODEs, SDEs, DDEs, DAEs,
 etc.
 

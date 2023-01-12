@@ -25,7 +25,7 @@ prob = SDEProblem(pf_func,pg_func,u0,tspan,p)
 sol = solve(prob,SRIW1())
 ```
 
-Now lets generate a dataset from 10,000 solutions of the SDE
+Now let's generate a dataset from 10,000 solutions of the SDE
 
 ```@example sde
 using RecursiveArrayTools # for VectorOfArray
@@ -62,7 +62,7 @@ Parameter Estimation in case of SDE's with a regular `L2Loss` can have poor accu
 result.original
 ```
 
-Instead when we use `L2Loss` with first differencing enabled we get much more accurate estimates.
+Instead, when we use `L2Loss` with first differencing enabled, we get much more accurate estimates.
 
 ```@example sde
 obj = build_loss_objective(monte_prob,SRIW1(),L2Loss(t,aggregate_data,differ_weight=1.0,data_weight=0.5), Optimization.AutoForwardDiff(),
