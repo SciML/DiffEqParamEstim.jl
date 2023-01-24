@@ -78,3 +78,7 @@ result.original
 
 Here, we see that we successfully recovered the drift parameter, and got close to
 the original noise parameter after searching a two-orders-of-magnitude range.
+
+```@example sde
+println(result.u)
+```
