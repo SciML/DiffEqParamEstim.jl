@@ -15,15 +15,15 @@ sequence, and we will be good to go.
 
 ## Required Dependencies
 
-| Module      | Description |
-| ----------- | ----------- |
-| [DifferentialEquations.jl](https://docs.sciml.ai/DiffEqDocs/stable/) | The numerical differential equation solver package |
-| [RecursiveArrayTools.jl](https://docs.sciml.ai/RecursiveArrayTools/stable/) | Tooling for recursive arrays like vector of arrays |
-| [Plots.jl](https://docs.juliaplots.org/latest/) | Tooling for plotting and visualization |
-| [Zygote.jl](https://docs.sciml.ai/Zygote/stable/) | Tooling for reverse-mode automatic differentiation (gradient calculations) |
-| [Optimization.jl](https://docs.sciml.ai/Optimization/stable/) | The numerical optimization package |
-| [OptimizationOptimJL.jl](https://docs.sciml.ai/Optimization/stable/optimization_packages/optim/) | The Optim optimizers we will use for local optimization |
-| [OptimizationBBO.jl](https://docs.sciml.ai/Optimization/stable/optimization_packages/blackboxoptim/) | The BlackBoxOptim optimizers we will use for global optimization |
+| Module                                                                                               | Description                                                                |
+|:---------------------------------------------------------------------------------------------------- |:-------------------------------------------------------------------------- |
+| [DifferentialEquations.jl](https://docs.sciml.ai/DiffEqDocs/stable/)                                 | The numerical differential equation solver package                         |
+| [RecursiveArrayTools.jl](https://docs.sciml.ai/RecursiveArrayTools/stable/)                          | Tooling for recursive arrays like vector of arrays                         |
+| [Plots.jl](https://docs.juliaplots.org/latest/)                                                      | Tooling for plotting and visualization                                     |
+| [Zygote.jl](https://docs.sciml.ai/Zygote/stable/)                                                    | Tooling for reverse-mode automatic differentiation (gradient calculations) |
+| [Optimization.jl](https://docs.sciml.ai/Optimization/stable/)                                        | The numerical optimization package                                         |
+| [OptimizationOptimJL.jl](https://docs.sciml.ai/Optimization/stable/optimization_packages/optim/)     | The Optim optimizers we will use for local optimization                    |
+| [OptimizationBBO.jl](https://docs.sciml.ai/Optimization/stable/optimization_packages/blackboxoptim/) | The BlackBoxOptim optimizers we will use for global optimization           |
 
 ## Parameter Estimation in the Lotka-Volterra Equation: 1 Parameter Case
 
@@ -34,15 +34,15 @@ by defining the equation as a function with parameters:
 using DifferentialEquations, RecursiveArrayTools, Plots, DiffEqParamEstim
 using Optimization, ForwardDiff, OptimizationOptimJL, OptimizationBBO
 
-function f(du,u,p,t)
-  du[1] = dx = p[1]*u[1] - u[1]*u[2]
-  du[2] = dy = -3*u[2] + u[1]*u[2]
+function f(du, u, p, t)
+    du[1] = dx = p[1] * u[1] - u[1] * u[2]
+    du[2] = dy = -3 * u[2] + u[1] * u[2]
 end
 
-u0 = [1.0;1.0]
-tspan = (0.0,10.0)
+u0 = [1.0; 1.0]
+tspan = (0.0, 10.0)
 p = [1.5]
-prob = ODEProblem(f,u0,tspan,p)
+prob = ODEProblem(f, u0, tspan, p)
 ```
 
 ### Generating Synthetic Data
@@ -50,11 +50,11 @@ prob = ODEProblem(f,u0,tspan,p)
 We create data using the numerical result with `a=1.5`:
 
 ```@example ode
-sol = solve(prob,Tsit5())
-t = collect(range(0,stop=10,length=200))
+sol = solve(prob, Tsit5())
+t = collect(range(0, stop = 10, length = 200))
 using RecursiveArrayTools # for VectorOfArray
-randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
-data = convert(Array,randomized)
+randomized = VectorOfArray([(sol(t[i]) + 0.01randn(2)) for i in 1:length(t)])
+data = convert(Array, randomized)
 ```
 
 Here, we used `VectorOfArray` from [RecursiveArrayTools.jl](https://docs.sciml.ai/RecursiveArrayTools/stable/)
@@ -64,7 +64,7 @@ If we plot the solution with the parameter at `a=1.42`, we get the following:
 
 ```@example ode
 newprob = remake(prob, p = [1.42])
-newsol = solve(newprob,Tsit5())
+newsol = solve(newprob, Tsit5())
 plot(sol)
 plot!(newsol)
 ```
@@ -76,9 +76,9 @@ To build the objective function for Optim.jl, we simply call the `build_loss_obj
 function:
 
 ```@example ode
-cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t,data),
+cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t, data),
                                      Optimization.AutoForwardDiff(),
-                                     maxiters=10000,verbose=false)
+                                     maxiters = 10000, verbose = false)
 ```
 
 This objective function internally is calling the ODE solver to get solutions
@@ -93,6 +93,7 @@ For more information on this choice, see
 [the automatic differentiation choice API](https://docs.sciml.ai/Optimization/stable/API/optimization_function/#Automatic-Differentiation-Construction-Choice-Recommendations).
 
 !!! note
+    
     A good rule of thumb is to use `Optimization.AutoForwardDiff()` for less than 100
     parameters + states, and `Optimization.AutoZygote()` for more.
 
@@ -101,7 +102,7 @@ of parameter values:
 
 ```@example ode
 vals = 0.0:0.1:10.0
-plot(vals,[cost_function(i) for i in vals],yscale=:log10,
+plot(vals, [cost_function(i) for i in vals], yscale = :log10,
      xaxis = "Parameter", yaxis = "Cost", title = "1-Parameter Cost Function",
      lw = 3)
 ```
@@ -122,7 +123,7 @@ Now let's see how well the fit performed:
 
 ```@example ode
 newprob = remake(prob, p = optsol.u)
-newsol = solve(newprob,Tsit5())
+newsol = solve(newprob, Tsit5())
 plot(sol)
 plot!(newsol)
 ```
@@ -152,24 +153,24 @@ Lastly, we can use the same tools to estimate multiple parameters simultaneously
 Let's use the Lotka-Volterra equation with all parameters free:
 
 ```@example ode
-function f2(du,u,p,t)
-  du[1] = dx = p[1]*u[1] - p[2]*u[1]*u[2]
-  du[2] = dy = -p[3]*u[2] + p[4]*u[1]*u[2]
+function f2(du, u, p, t)
+    du[1] = dx = p[1] * u[1] - p[2] * u[1] * u[2]
+    du[2] = dy = -p[3] * u[2] + p[4] * u[1] * u[2]
 end
 
-u0 = [1.0;1.0]
-tspan = (0.0,10.0)
-p = [1.5,1.0,3.0,1.0]
-prob = ODEProblem(f2,u0,tspan,p)
+u0 = [1.0; 1.0]
+tspan = (0.0, 10.0)
+p = [1.5, 1.0, 3.0, 1.0]
+prob = ODEProblem(f2, u0, tspan, p)
 ```
 
 We can build an objective function and solve the multiple parameter version just as before:
 
 ```@example ode
-cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t,data),
+cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t, data),
                                      Optimization.AutoForwardDiff(),
-                                     maxiters=10000,verbose=false)
-optprob = Optimization.OptimizationProblem(cost_function, [1.3,0.8,2.8,1.2])
+                                     maxiters = 10000, verbose = false)
+optprob = Optimization.OptimizationProblem(cost_function, [1.3, 0.8, 2.8, 1.2])
 result_bfgs = solve(optprob, BFGS())
 ```
 
@@ -182,21 +183,23 @@ We can also use First-Differences in L2Loss by passing the kwarg `differ_weight`
 differencing loss to the total loss.
 
 ```@example ode
-cost_function = build_loss_objective(prob,Tsit5(),L2Loss(t,data,differ_weight=0.3,data_weight=0.7),
-                                      Optimization.AutoForwardDiff(),
-                                      maxiters=10000,verbose=false)
-optprob = Optimization.OptimizationProblem(cost_function, [1.3,0.8,2.8,1.2])
+cost_function = build_loss_objective(prob, Tsit5(),
+                                     L2Loss(t, data, differ_weight = 0.3,
+                                            data_weight = 0.7),
+                                     Optimization.AutoForwardDiff(),
+                                     maxiters = 10000, verbose = false)
+optprob = Optimization.OptimizationProblem(cost_function, [1.3, 0.8, 2.8, 1.2])
 result_bfgs = solve(optprob, BFGS())
 ```
 
 We can also use Multiple Shooting method by creating a `multiple_shooting_objective`
 
 ```@example ode
-function ms_f1(du,u,p,t)
-  du[1] = p[1] * u[1] - p[2] * u[1] * u[2]
-  du[2] = -3.0 * u[2] + u[1] * u[2]
+function ms_f1(du, u, p, t)
+    du[1] = p[1] * u[1] - p[2] * u[1] * u[2]
+    du[2] = -3.0 * u[2] + u[1] * u[2]
 end
-ms_u0 = [1.0;1.0]
+ms_u0 = [1.0; 1.0]
 tspan = (0.0, 10.0)
 ms_p = [1.5, 1.0]
 ms_prob = ODEProblem(ms_f1, ms_u0, tspan, ms_p)
@@ -207,8 +210,10 @@ bound = Tuple{Float64, Float64}[(0, 10), (0, 10), (0, 10), (0, 10),
                                 (0, 10), (0, 10), (0, 10), (0, 10),
                                 (0, 10), (0, 10), (0, 10), (0, 10), (0, 10), (0, 10)]
 
-ms_obj = multiple_shooting_objective(ms_prob, Tsit5(), L2Loss(t, data), Optimization.AutoForwardDiff();
-                                     discontinuity_weight = 1.0, abstol = 1e-12, reltol = 1e-12)
+ms_obj = multiple_shooting_objective(ms_prob, Tsit5(), L2Loss(t, data),
+                                     Optimization.AutoForwardDiff();
+                                     discontinuity_weight = 1.0, abstol = 1e-12,
+                                     reltol = 1e-12)
 ```
 
 This creates the objective function that can be passed to an optimizer, from which we can then get the parameter values
@@ -216,12 +221,13 @@ and the initial values of the short time periods, keeping in mind the indexing. 
 a global optimization method to improve robustness even more:
 
 ```@example ode
-optprob = Optimization.OptimizationProblem(ms_obj, zeros(18), lb = first.(bound), ub = last.(bound))
+optprob = Optimization.OptimizationProblem(ms_obj, zeros(18), lb = first.(bound),
+                                           ub = last.(bound))
 optsol_ms = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10_000)
 ```
 
 ```@example ode
-optsol_ms.u[end-1:end]
+optsol_ms.u[(end - 1):end]
 ```
 
 Here as our model had 2 parameters, we look at the last 2 indexes of `result` to get our parameter values and
@@ -230,22 +236,22 @@ We can also use a gradient-based optimizer with the multiple shooting objective.
 
 ```@example ode
 optsol_ms = solve(optprob, BFGS())
-optsol_ms.u[end-1:end]
+optsol_ms.u[(end - 1):end]
 ```
 
 The objective function for the Two Stage method can be created and passed to an optimizer as
 
 ```@example ode
 two_stage_obj = two_stage_objective(ms_prob, t, data, Optimization.AutoForwardDiff())
-optprob = Optimization.OptimizationProblem(two_stage_obj, [1.3,0.8,2.8,1.2])
+optprob = Optimization.OptimizationProblem(two_stage_obj, [1.3, 0.8, 2.8, 1.2])
 result = solve(optprob, Optim.BFGS())
 ```
 
 The default kernel used in the method is `Epanechnikov`, available others are `Uniform`,  `Triangular`,
 `Quartic`, `Triweight`, `Tricube`, `Gaussian`, `Cosine`, `Logistic` and `Sigmoid`, this can be passed by the
 `kernel` keyword argument. `loss_func` keyword argument can be used to pass the loss function (cost function) you want
- to use and passing a valid
- [`adtype` argument](https://docs.sciml.ai/Optimization/stable/tutorials/intro/#Controlling-Gradient-Calculations-(Automatic-Differentiation)) enables Auto Differentiation.
+to use and passing a valid
+[`adtype` argument](https://docs.sciml.ai/Optimization/stable/tutorials/intro/#Controlling-Gradient-Calculations-(Automatic-Differentiation)) enables Auto Differentiation.
 
 ## Conclusion
 
