@@ -13,17 +13,18 @@ So, let's get an `EnsembleProblem` setup that solves with 10 different initial c
 This looks as follows:
 
 ```@example ensemble
-using DifferentialEquations, DiffEqParamEstim, Plots, Optimization, ForwardDiff, OptimizationOptimJL
+using DifferentialEquations, DiffEqParamEstim, Plots, Optimization, ForwardDiff,
+      OptimizationOptimJL
 
 # Monte Carlo Problem Set Up for solving set of ODEs with different initial conditions
 
 # Set up Lotka-Volterra system
-function pf_func(du,u,p,t)
-  du[1] = p[1] * u[1] - p[2] * u[1]*u[2]
-  du[2] = -3 * u[2] + u[1]*u[2]
+function pf_func(du, u, p, t)
+    du[1] = p[1] * u[1] - p[2] * u[1] * u[2]
+    du[2] = -3 * u[2] + u[1] * u[2]
 end
-p = [1.5,1.0]
-prob = ODEProblem(pf_func,[1.0,1.0],(0.0,10.0),p)
+p = [1.5, 1.0]
+prob = ODEProblem(pf_func, [1.0, 1.0], (0.0, 10.0), p)
 ```
 
 Now for an EnsembleProblem we have to take this problem and tell it what to do N times via
@@ -33,18 +34,29 @@ the same problem but with these 10 different initial conditions each time:
 ```@example ensemble
 # Setting up to solve the problem N times (for the N different initial conditions)
 N = 10;
-initial_conditions = [[1.0,1.0], [1.0,1.5], [1.5,1.0], [1.5,1.5], [0.5,1.0], [1.0,0.5], [0.5,0.5], [2.0,1.0], [1.0,2.0], [2.0,2.0]]
-function prob_func(prob,i,repeat)
-  ODEProblem(prob.f,initial_conditions[i],prob.tspan,prob.p)
+initial_conditions = [
+    [1.0, 1.0],
+    [1.0, 1.5],
+    [1.5, 1.0],
+    [1.5, 1.5],
+    [0.5, 1.0],
+    [1.0, 0.5],
+    [0.5, 0.5],
+    [2.0, 1.0],
+    [1.0, 2.0],
+    [2.0, 2.0],
+]
+function prob_func(prob, i, repeat)
+    ODEProblem(prob.f, initial_conditions[i], prob.tspan, prob.p)
 end
-enprob = EnsembleProblem(prob,prob_func=prob_func)
+enprob = EnsembleProblem(prob, prob_func = prob_func)
 ```
 
 We can check this does what we want by solving it:
 
 ```@example ensemble
 # Check above does what we want
-sim = solve(enprob,Tsit5(),trajectories=N)
+sim = solve(enprob, Tsit5(), trajectories = N)
 plot(sim)
 ```
 
@@ -56,7 +68,7 @@ and then convert the solution into an array.
 ```@example ensemble
 # Generate a dataset from these runs
 data_times = 0.0:0.1:10.0
-sim = solve(enprob,Tsit5(),trajectories=N,saveat=data_times)
+sim = solve(enprob, Tsit5(), trajectories = N, saveat = data_times)
 data = Array(sim)
 ```
 
@@ -71,7 +83,7 @@ functions, each one with the correct piece of data.
 
 ```@example ensemble
 # Building a loss function
-losses = [L2Loss(data_times,data[:,:,i]) for i in 1:N]
+losses = [L2Loss(data_times, data[:, :, i]) for i in 1:N]
 ```
 
 So `losses[i]` is a function which computes the loss of a solution against the data of the ith trajectory. So to build our true loss function, we sum the losses:
@@ -83,12 +95,12 @@ loss(sim) = sum(losses[i](sim[i]) for i in 1:N)
 As a double check, make sure that `loss(sim)` outputs zero (since we generated the data from sim). Now we generate data with other parameters:
 
 ```@example ensemble
-prob = ODEProblem(pf_func,[1.0,1.0],(0.0,10.0),[1.2,0.8])
-function prob_func(prob,i,repeat)
-  ODEProblem(prob.f,initial_conditions[i],prob.tspan,prob.p)
+prob = ODEProblem(pf_func, [1.0, 1.0], (0.0, 10.0), [1.2, 0.8])
+function prob_func(prob, i, repeat)
+    ODEProblem(prob.f, initial_conditions[i], prob.tspan, prob.p)
 end
-enprob = EnsembleProblem(prob,prob_func=prob_func)
-sim = solve(enprob,Tsit5(),trajectories=N,saveat=data_times)
+enprob = EnsembleProblem(prob, prob_func = prob_func)
+sim = solve(enprob, Tsit5(), trajectories = N, saveat = data_times)
 loss(sim)
 ```
 
@@ -98,8 +110,9 @@ we have what we need.
 Put this into build_loss_objective.
 
 ```@example ensemble
-obj = build_loss_objective(enprob,Tsit5(),loss,Optimization.AutoForwardDiff(),trajectories=N,
-                           saveat=data_times)
+obj = build_loss_objective(enprob, Tsit5(), loss, Optimization.AutoForwardDiff(),
+                           trajectories = N,
+                           saveat = data_times)
 ```
 
 Notice that we added the kwargs for `solve` of the `EnsembleProblem` into this. They get passed to the internal `solve`
@@ -111,8 +124,8 @@ Let's start the optimization with [1.3,0.9], Optim spits out that the true param
 
 ```@example ensemble
 lower = zeros(2)
-upper = fill(2.0,2)
-optprob = OptimizationProblem(obj,[1.3,0.9],lb = lower,ub = upper)
+upper = fill(2.0, 2)
+optprob = OptimizationProblem(obj, [1.3, 0.9], lb = lower, ub = upper)
 result = solve(optprob, Fminbox(BFGS()))
 ```
 
@@ -127,10 +140,11 @@ play around with different optimization packages, or add regularization. You may
 to decrease the tolerance of the ODE solvers via
 
 ```@example ensemble
-obj = build_loss_objective(enprob,Tsit5(),loss, Optimization.AutoForwardDiff(), trajectories=N,
-                           abstol=1e-8,reltol=1e-8,
-                           saveat=data_times)
-optprob = OptimizationProblem(obj, [1.3,0.9], lb = lower, ub = upper)
+obj = build_loss_objective(enprob, Tsit5(), loss, Optimization.AutoForwardDiff(),
+                           trajectories = N,
+                           abstol = 1e-8, reltol = 1e-8,
+                           saveat = data_times)
+optprob = OptimizationProblem(obj, [1.3, 0.9], lb = lower, ub = upper)
 result = solve(optprob, BFGS()) #OptimizationOptimJL detects that it's a box constrained problem and use Fminbox wrapper over BFGS
 ```
 

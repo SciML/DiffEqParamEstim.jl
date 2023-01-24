@@ -14,6 +14,7 @@ function build_loss_objective(prob::DEProblem, alg, loss,
                               priors = nothing,
                               prob_generator = STANDARD_PROB_GENERATOR,
                               kwargs...)
+end
 ```
 
 The first argument is the `DEProblem` to solve, and next is the `alg` to use.
@@ -27,22 +28,23 @@ Multiple Shooting is often used in Boundary Value Problems (BVP) and is
 more robust than the regular objective function used in these problems. It
 proceeds as follows:
 
-- Divide up the time span into short time periods and solve the equation
-  with the current parameters which here consist of both, the parameters of the
-  differential equations and also the initial values for the short time periods.
-- This objective additionally involves a discontinuity error term that imposes
-  higher cost if the end of the solution of one time period doesn't match the
-  beginning of the next one.
-- Merge the solutions from the shorter intervals and then calculate the loss.
+  - Divide up the time span into short time periods and solve the equation
+    with the current parameters which here consist of both, the parameters of the
+    differential equations and also the initial values for the short time periods.
+  - This objective additionally involves a discontinuity error term that imposes
+    higher cost if the end of the solution of one time period doesn't match the
+    beginning of the next one.
+  - Merge the solutions from the shorter intervals and then calculate the loss.
 
 ```julia
 function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
-                              adtype = SciMLBase.NoAD(),
-                              regularization = nothing;
-                              priors = nothing,
-                              discontinuity_weight = 1.0,
-                              prob_generator = STANDARD_PROB_GENERATOR,
-                              kwargs...)
+                                     adtype = SciMLBase.NoAD(),
+                                     regularization = nothing;
+                                     priors = nothing,
+                                     discontinuity_weight = 1.0,
+                                     prob_generator = STANDARD_PROB_GENERATOR,
+                                     kwargs...)
+end
 ```
 
 For consistency `multiple_shooting_objective` takes exactly the same arguments
@@ -64,8 +66,8 @@ flexible, two convenience routines are included for fitting to data with standar
 cost functions:
 
 ```julia
-L2Loss(t, data; differ_weight=nothing, data_weight=nothing,
-              colloc_grad=nothing, dudt=nothing)
+L2Loss(t, data; differ_weight = nothing, data_weight = nothing,
+       colloc_grad = nothing, dudt = nothing)
 ```
 
 where `t` is the set of timepoints which the data are found at, and
@@ -89,7 +91,7 @@ to a 4DVAR.
 Additionally, we include a more flexible log-likelihood approach:
 
 ```julia
-LogLikeLoss(t, distributions, diff_distributions=nothing)
+LogLikeLoss(t, distributions, diff_distributions = nothing)
 ```
 
 In this case, there are two forms. The simple case is where `distributions[i,j]`
@@ -119,20 +121,20 @@ this can be done via:
 
 ```julia
 function my_loss_function(sol)
-   tot_loss = 0.0
-   if any((s.retcode != :Success for s in sol))
-     tot_loss = Inf
-   else
-     # calculation for the loss here
-   end
-   tot_loss
+    tot_loss = 0.0
+    if any((s.retcode != :Success for s in sol))
+        tot_loss = Inf
+    else
+        # calculation for the loss here
+    end
+    tot_loss
 end
 ```
 
 ### Note on First Differencing
 
 ```julia
-L2Loss(t, data, differ_weight=0.3, data_weight=0.7)
+L2Loss(t, data, differ_weight = 0.3, data_weight = 0.7)
 ```
 
 First differencing incorporates the differences of data points at consecutive
@@ -157,7 +159,7 @@ penalty function `penalty` from
 [PenaltyFunctions.jl](https://github.com/JuliaML/PenaltyFunctions.jl):
 
 ```julia
-reg = Regularization(λ, penalty=L2Penalty())
+reg = Regularization(λ, penalty = L2Penalty())
 build_loss_objective(prob, alg, loss, SciMLBase.NoAD(), reg)
 
 using Optimization, Zygote
@@ -187,7 +189,7 @@ problem which fixes the element types in a way that's autodifferentiation
 compatible and adds the new parameter vector `p`. For example, the code for this is:
 
 ```julia
-prob_generator = (prob,p) -> remake(prob, u0=convert.(eltype(p), prob.u0), p=p)
+prob_generator = (prob, p) -> remake(prob, u0 = convert.(eltype(p), prob.u0), p = p)
 ```
 
 Then the new problem with these new values is returned.
@@ -197,7 +199,7 @@ example, if one instead wanted to optimize the initial conditions for a function
 without parameters, you could change this to:
 
 ```julia
-prob_generator = (prob,p) -> remake(prob.f, u0=p)
+prob_generator = (prob, p) -> remake(prob.f, u0 = p)
 ```
 
 which simply uses `p` as the initial condition in the initial value problem.
@@ -210,5 +212,7 @@ as the keyword argument `priors`, it can take in either an array of univariate d
 the parameters or a multivariate distribution.
 
 ```julia
-ms_obj = multiple_shooting_objective(ms_prob, Tsit5(), L2Loss(t,data); priors = priors, discontinuity_weight = 1.0, abstol = 1e-12, reltol = 1e-12)
+ms_obj = multiple_shooting_objective(ms_prob, Tsit5(), L2Loss(t, data); priors = priors,
+                                     discontinuity_weight = 1.0, abstol = 1e-12,
+                                     reltol = 1e-12)
 ```
