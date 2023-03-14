@@ -29,36 +29,36 @@ t: 565-element Vector{Float64}:
   0.03571484690132414
   0.04105769139296714
   ⋮
-  9.844771309039537
-  9.865419980781283
-  9.88640812041989
-  9.907751921768666
-  9.92946810176549
-  9.951573804602639
-  9.974086407591827
-  9.997023320720063
+  9.844791230006088
+  9.86544032626625
+  9.886428913856241
+  9.907773179641302
+  9.929489844289186
+  9.951596053023605
+  9.974109180452066
+  9.997046631641846
  10.0
 u: 565-element Vector{Vector{Float64}}:
  [1.0, 1.0]
- [1.006011680981521, 0.9768817482427615]
- [1.007250609862139, 0.9723306133958738]
- [1.008659156418838, 0.9672392419229519]
- [1.0102621139451773, 0.9615476180757243]
- [1.0120889602713043, 0.9551900147707645]
- [1.0141736370566325, 0.9480950509075771]
- [1.0165562634881762, 0.9401850443011235]
- [1.0192840128259126, 0.9313764935613604]
- [1.022412275915503, 0.9215799678589047]
+ [1.006011592218148, 0.9768817560950699]
+ [1.0072505484007757, 0.9723306383409726]
+ [1.008659075239595, 0.9672392857908046]
+ [1.0102621526644093, 0.9615477090708525]
+ [1.0120889418785857, 0.955190187456826]
+ [1.014173733964454, 0.9480952015423797]
+ [1.016556369487066, 0.9401850691579829]
+ [1.0192840644897168, 0.9313764787698007]
+ [1.022412373681528, 0.9215798007627624]
  ⋮
- [0.9579023484143004, 1.245642811272616]
- [0.9634682665362724, 1.194288230913183]
- [0.9701886847315325, 1.1444066534718826]
- [0.9780962041109752, 1.0959875622865167]
- [0.9872299436804126, 1.0490203528774773]
- [0.9976339816099989, 1.0034941969873998]
- [1.0093597866555453, 0.959399484492971]
- [1.0224649844756302, 0.9167272217921096]
- [1.024249840656461, 0.9113492251465602]</code></pre><p>Now let&#39;s generate a dataset from 10,000 solutions of the SDE</p><pre><code class="language-julia hljs">using RecursiveArrayTools # for VectorOfArray
+ [0.9579167448591007, 1.2455896715652488]
+ [0.9634840043651545, 1.1942365910817685]
+ [0.9702058745348281, 1.144356691003355]
+ [0.9781146416742941, 1.0959390294962785]
+ [0.987249371908242, 1.048973424261366]
+ [0.9976547755409063, 1.0034491752965302]
+ [1.0093820487102043, 0.9593557999522055]
+ [1.022489067767028, 0.9166848680368735]
+ [1.0242601614750046, 0.91134912811117]</code></pre><p>Now let&#39;s generate a dataset from 10,000 solutions of the SDE</p><pre><code class="language-julia hljs">using RecursiveArrayTools # for VectorOfArray
 t = collect(range(0, stop = 10, length = 200))
 function generate_data(t)
     sol = solve(prob, SRIW1())
@@ -67,52 +67,52 @@ function generate_data(t)
 end
 aggregate_data = convert(Array, VectorOfArray([generate_data(t) for i in 1:10000]))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2×200×10000 Array{Float64, 3}:
 [:, :, 1] =
- 0.982858  1.03434   1.06936  1.10396   …  0.982675  0.991412  1.01915
- 1.01663   0.910796  0.79954  0.748557     1.1048    1.01631   0.912089
+ 1.00411  1.02664   1.04648   1.09893  …  0.973075  0.978321  1.01725
+ 1.00259  0.916328  0.827377  0.73777     1.1022    1.0148    0.908619
 
 [:, :, 2] =
- 1.00588   1.03679   1.06128   1.109     …  0.966363  0.98975  1.02576
- 0.997543  0.912207  0.832605  0.741993     1.11057   1.01415  0.917656
+ 0.991353  1.02131   1.05155   1.10994   …  0.98468  1.00755  1.02962
+ 0.998722  0.894781  0.831662  0.741427     1.12088  1.00914  0.917488
 
 [:, :, 3] =
- 0.993303  1.03599   1.06576   1.11667   …  0.986119  0.99042  1.01234
- 0.993697  0.907871  0.817256  0.753676     1.09513   1.01163  0.916907
+ 1.00419   1.0269    1.06456   1.0837    …  0.95487  0.979599  1.03411
+ 0.985714  0.896624  0.804219  0.743564     1.10261  1.00459   0.918963
 
 ;;; … 
 
 [:, :, 9998] =
- 1.00274   1.02808   1.05972   1.09357   …  0.962362  1.00158  1.01172
- 0.990405  0.903967  0.833486  0.742805     1.10567   1.01489  0.9121
+ 0.991842  1.01963   1.06215   1.10449   …  0.968614  0.980318  1.01167
+ 0.994845  0.881293  0.833166  0.745165     1.10826   0.999043  0.907998
 
 [:, :, 9999] =
- 1.01085  1.02554   1.04796   1.11132   …  0.988709  1.0142   1.0219
- 1.00409  0.910047  0.820385  0.736684     1.11185   1.01262  0.914576
+ 1.0099   1.02958   1.05989   1.09293   …  0.955777  0.997181  1.03057
+ 1.01545  0.918861  0.821956  0.737918     1.1195    1.01031   0.913478
 
 [:, :, 10000] =
- 0.985273  1.02631   1.04093   1.09365   …  0.954256  0.986188  1.02433
- 1.00065   0.889839  0.830144  0.739252     1.12441   1.00882   0.912535</code></pre><p>Now let&#39;s estimate the parameters. Instead of using single runs from the SDE, we will use a <code>EnsembleProblem</code>. This means that it will solve the SDE <code>N</code> times to come up with an approximate probability distribution at each time point and use that in the likelihood estimate.</p><pre><code class="language-julia hljs">monte_prob = EnsembleProblem(prob)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">EnsembleProblem with problem SDEProblem</code></pre><p>We use Optim.jl for optimization below</p><pre><code class="language-julia hljs">obj = build_loss_objective(monte_prob, SOSRI(), L2Loss(t, aggregate_data),
+ 0.988891  1.02333   1.0675    1.11031  …  0.974277  0.980063  1.03151
+ 0.995738  0.907991  0.810842  0.74566     1.11719   0.988185  0.908101</code></pre><p>Now let&#39;s estimate the parameters. Instead of using single runs from the SDE, we will use a <code>EnsembleProblem</code>. This means that it will solve the SDE <code>N</code> times to come up with an approximate probability distribution at each time point and use that in the likelihood estimate.</p><pre><code class="language-julia hljs">monte_prob = EnsembleProblem(prob)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">EnsembleProblem with problem SDEProblem</code></pre><p>We use Optim.jl for optimization below</p><pre><code class="language-julia hljs">obj = build_loss_objective(monte_prob, SOSRI(), L2Loss(t, aggregate_data),
                            Optimization.AutoForwardDiff(),
                            maxiters = 10000, verbose = false, trajectories = 1000)
 optprob = Optimization.OptimizationProblem(obj, [1.0, 0.5])
 result = solve(optprob, Optim.BFGS())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">u: 2-element Vector{Float64}:
- 3.694177310108162
- 5.894594608629855</code></pre><p>Parameter Estimation in case of SDE&#39;s with a regular <code>L2Loss</code> can have poor accuracy due to only fitting against the mean properties as mentioned in <a href="http://docs.juliadiffeq.org/dev/analysis/parameter_estimation/#First-differencing-1">First Differencing</a>.</p><pre><code class="language-julia hljs">result.original</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"> * Status: success
+ 3.702876222880372
+ 5.895286984688142</code></pre><p>Parameter Estimation in case of SDE&#39;s with a regular <code>L2Loss</code> can have poor accuracy due to only fitting against the mean properties as mentioned in <a href="http://docs.juliadiffeq.org/dev/analysis/parameter_estimation/#First-differencing-1">First Differencing</a>.</p><pre><code class="language-julia hljs">result.original</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"> * Status: success
 
  * Candidate solution
-    Final objective value:     2.526761e+03
+    Final objective value:     2.520693e+03
 
  * Found with
     Algorithm:     BFGS
 
  * Convergence measures
-    |x - x&#39;|               = 5.39e+00 ≰ 0.0e+00
+    |x - x&#39;|               = 5.40e+00 ≰ 0.0e+00
     |x - x&#39;|/|x&#39;|          = 9.15e-01 ≰ 0.0e+00
-    |f(x) - f(x&#39;)|         = 9.73e+02 ≰ 0.0e+00
-    |f(x) - f(x&#39;)|/|f(x&#39;)| = 3.85e-01 ≰ 0.0e+00
+    |f(x) - f(x&#39;)|         = 9.81e+02 ≰ 0.0e+00
+    |f(x) - f(x&#39;)|/|f(x&#39;)| = 3.89e-01 ≰ 0.0e+00
     |g(x)|                 = 0.00e+00 ≤ 1.0e-08
 
  * Work counters
-    Seconds run:   161  (vs limit Inf)
+    Seconds run:   201  (vs limit Inf)
     Iterations:    1
     f(x) calls:    5
     ∇f(x) calls:   5
@@ -122,24 +122,24 @@ result = solve(optprob, Optim.BFGS())</code></pre><pre class="documenter-example
                            verbose = false, trajectories = 1000, maxiters = 1000)
 optprob = Optimization.OptimizationProblem(obj, [1.0, 0.5])
 result = solve(optprob, Optim.BFGS())
-result.original</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"> * Status: failure (line search failed)
+result.original</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"> * Status: success
 
  * Candidate solution
-    Final objective value:     9.223369e+02
+    Final objective value:     1.254372e+03
 
  * Found with
     Algorithm:     BFGS
 
  * Convergence measures
-    |x - x&#39;|               = 0.00e+00 ≤ 0.0e+00
-    |x - x&#39;|/|x&#39;|          = 0.00e+00 ≤ 0.0e+00
-    |f(x) - f(x&#39;)|         = 1.84e-05 ≰ 0.0e+00
-    |f(x) - f(x&#39;)|/|f(x&#39;)| = 2.00e-08 ≰ 0.0e+00
-    |g(x)|                 = 4.13e-04 ≰ 1.0e-08
+    |x - x&#39;|               = 8.31e+00 ≰ 0.0e+00
+    |x - x&#39;|/|x&#39;|          = 9.43e-01 ≰ 0.0e+00
+    |f(x) - f(x&#39;)|         = 5.41e+02 ≰ 0.0e+00
+    |f(x) - f(x&#39;)|/|f(x&#39;)| = 4.32e-01 ≰ 0.0e+00
+    |g(x)|                 = 0.00e+00 ≤ 1.0e-08
 
  * Work counters
-    Seconds run:   2311  (vs limit Inf)
-    Iterations:    241
-    f(x) calls:    903
-    ∇f(x) calls:   903
-</code></pre><p>Here, we see that we successfully recovered the drift parameter, and got close to the original noise parameter after searching a two-orders-of-magnitude range.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../generalized_likelihood/">« Generalized Likelihood Inference</a><a class="docs-footer-nextpage" href="../ensemble/">Fitting Ensembles of ODE Models to Data »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Tuesday 24 January 2023 12:44">Tuesday 24 January 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+    Seconds run:   22  (vs limit Inf)
+    Iterations:    1
+    f(x) calls:    7
+    ∇f(x) calls:   7
+</code></pre><p>Here, we see that we successfully recovered the drift parameter, and got close to the original noise parameter after searching a two-orders-of-magnitude range.</p><pre><code class="language-julia hljs">println(result.u)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">[5.015261343929329, 8.808146605852212]</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../generalized_likelihood/">« Generalized Likelihood Inference</a><a class="docs-footer-nextpage" href="../ensemble/">Fitting Ensembles of ODE Models to Data »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Tuesday 14 March 2023 04:00">Tuesday 14 March 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
