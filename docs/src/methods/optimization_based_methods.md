@@ -122,7 +122,7 @@ this can be done via:
 ```julia
 function my_loss_function(sol)
     tot_loss = 0.0
-    if any((s.retcode != :Success for s in sol))
+    if any((!SciMLBase.successful_retcode(s.retcode) for s in sol))
         tot_loss = Inf
     else
         # calculation for the loss here
