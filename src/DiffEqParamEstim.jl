@@ -23,6 +23,7 @@ end
 
 include("cost_functions.jl")
 include("build_loss_objective.jl")
+include("build_lsoptim_objective.jl")
 include("kernels.jl")
 include("two_stage_method.jl")
 include("multiple_shooting_objective.jl")
