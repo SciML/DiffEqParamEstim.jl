@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Parameter Estimation for Stochastic Differential Equations and Ensembles · DiffEqParamEstim.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://docs.sciml.ai/DiffEqParamEstim/stable/tutorials/stochastic_evaluations/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="DiffEqParamEstim.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">DiffEqParamEstim.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">DiffEqParamEstim.jl: Parameter Estimation for Differential Equations</a></li><li><a class="tocitem" href="../../getting_started/">Getting Started with Optimization-Based ODE Parameter Estimation</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../global_optimization/">Global Optimization via NLopt</a></li><li><a class="tocitem" href="../generalized_likelihood/">Generalized Likelihood Inference</a></li><li class="is-active"><a class="tocitem" href>Parameter Estimation for Stochastic Differential Equations and Ensembles</a></li><li><a class="tocitem" href="../ensemble/">Fitting Ensembles of ODE Models to Data</a></li></ul></li><li><span class="tocitem">Methods</span><ul><li><a class="tocitem" href="../../methods/recommended_methods/">Recommended Methods</a></li><li><a class="tocitem" href="../../methods/optimization_based_methods/">Optimization-Based Methods</a></li><li><a class="tocitem" href="../../methods/collocation_loss/">Two Stage method (Non-Parametric Collocation)</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Parameter Estimation for Stochastic Differential Equations and Ensembles</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Parameter Estimation for Stochastic Differential Equations and Ensembles</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/SciML/DiffEqParamEstim.jl/blob/master/docs/src/tutorials/stochastic_evaluations.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Parameter-Estimation-for-Stochastic-Differential-Equations-and-Ensembles"><a class="docs-heading-anchor" href="#Parameter-Estimation-for-Stochastic-Differential-Equations-and-Ensembles">Parameter Estimation for Stochastic Differential Equations and Ensembles</a><a id="Parameter-Estimation-for-Stochastic-Differential-Equations-and-Ensembles-1"></a><a class="docs-heading-anchor-permalink" href="#Parameter-Estimation-for-Stochastic-Differential-Equations-and-Ensembles" title="Permalink"></a></h1><p>We can use any <code>DEProblem</code>, which not only includes <code>DAEProblem</code> and <code>DDEProblem</code>s, but also stochastic problems. In this case, let&#39;s use the generalized maximum likelihood to fit the parameters of an SDE&#39;s ensemble evaluation.</p><p>Let&#39;s use the same Lotka-Volterra equation as before, but this time add noise:</p><pre><code class="language-julia hljs">using DifferentialEquations, DiffEqParamEstim, Plots, Optimization, ForwardDiff,
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Parameter Estimation for Stochastic Differential Equations and Ensembles · DiffEqParamEstim.jl</title><meta name="title" content="Parameter Estimation for Stochastic Differential Equations and Ensembles · DiffEqParamEstim.jl"/><meta property="og:title" content="Parameter Estimation for Stochastic Differential Equations and Ensembles · DiffEqParamEstim.jl"/><meta property="twitter:title" content="Parameter Estimation for Stochastic Differential Equations and Ensembles · DiffEqParamEstim.jl"/><meta name="description" content="Documentation for DiffEqParamEstim.jl."/><meta property="og:description" content="Documentation for DiffEqParamEstim.jl."/><meta property="twitter:description" content="Documentation for DiffEqParamEstim.jl."/><meta property="og:url" content="https://docs.sciml.ai/DiffEqParamEstim/stable/tutorials/stochastic_evaluations/"/><meta property="twitter:url" content="https://docs.sciml.ai/DiffEqParamEstim/stable/tutorials/stochastic_evaluations/"/><link rel="canonical" href="https://docs.sciml.ai/DiffEqParamEstim/stable/tutorials/stochastic_evaluations/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="DiffEqParamEstim.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">DiffEqParamEstim.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">DiffEqParamEstim.jl: Parameter Estimation for Differential Equations</a></li><li><a class="tocitem" href="../../getting_started/">Getting Started with Optimization-Based ODE Parameter Estimation</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../global_optimization/">Global Optimization via NLopt</a></li><li><a class="tocitem" href="../generalized_likelihood/">Generalized Likelihood Inference</a></li><li class="is-active"><a class="tocitem" href>Parameter Estimation for Stochastic Differential Equations and Ensembles</a></li><li><a class="tocitem" href="../ensemble/">Fitting Ensembles of ODE Models to Data</a></li></ul></li><li><span class="tocitem">Methods</span><ul><li><a class="tocitem" href="../../methods/recommended_methods/">Recommended Methods</a></li><li><a class="tocitem" href="../../methods/optimization_based_methods/">Optimization-Based Methods</a></li><li><a class="tocitem" href="../../methods/collocation_loss/">Two Stage method (Non-Parametric Collocation)</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Parameter Estimation for Stochastic Differential Equations and Ensembles</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Parameter Estimation for Stochastic Differential Equations and Ensembles</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/SciML/DiffEqParamEstim.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/SciML/DiffEqParamEstim.jl/blob/master/docs/src/tutorials/stochastic_evaluations.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Parameter-Estimation-for-Stochastic-Differential-Equations-and-Ensembles"><a class="docs-heading-anchor" href="#Parameter-Estimation-for-Stochastic-Differential-Equations-and-Ensembles">Parameter Estimation for Stochastic Differential Equations and Ensembles</a><a id="Parameter-Estimation-for-Stochastic-Differential-Equations-and-Ensembles-1"></a><a class="docs-heading-anchor-permalink" href="#Parameter-Estimation-for-Stochastic-Differential-Equations-and-Ensembles" title="Permalink"></a></h1><p>We can use any <code>DEProblem</code>, which not only includes <code>DAEProblem</code> and <code>DDEProblem</code>s, but also stochastic problems. In this case, let&#39;s use the generalized maximum likelihood to fit the parameters of an SDE&#39;s ensemble evaluation.</p><p>Let&#39;s use the same Lotka-Volterra equation as before, but this time add noise:</p><pre><code class="language-julia hljs">using DifferentialEquations, DiffEqParamEstim, Plots, Optimization, ForwardDiff,
       OptimizationOptimJL
 
 pf_func = function (du, u, p, t)
@@ -29,36 +29,36 @@ t: 565-element Vector{Float64}:
   0.03571484690132414
   0.04105769139296714
   ⋮
-  9.844759830088758
-  9.865408316246315
-  9.886396262980956
-  9.907739853866055
-  9.929455819859001
-  9.951561296823883
-  9.974073664960503
-  9.997010330452662
+  9.844807463422828
+  9.865456913811846
+  9.886445860315357
+  9.907790497523965
+  9.929507556952828
+  9.951614167827746
+  9.974127714985588
+  9.997065611928921
  10.0
 u: 565-element Vector{Vector{Float64}}:
  [1.0, 1.0]
- [1.0060117198529082, 0.9768817691265423]
- [1.0072507290396475, 0.972330636811088]
- [1.0086592375114902, 0.9672392943338088]
- [1.0102623289235533, 0.961547716829657]
- [1.0120890864702528, 0.9551901802608629]
- [1.0141738162585647, 0.9480951832267759]
- [1.0165565155556737, 0.9401851431750705]
- [1.019284196283745, 0.9313765293499322]
- [1.0224124136276636, 0.9215798333881215]
+ [1.006011546477323, 0.9768815302097277]
+ [1.007250629675008, 0.9723304362151346]
+ [1.0086591497670585, 0.9672391254714281]
+ [1.0102622597742363, 0.9615475393050317]
+ [1.0120890150351112, 0.9551899542231956]
+ [1.0141737350345184, 0.9480950008931173]
+ [1.0165563459769345, 0.9401849226130274]
+ [1.0192840539549821, 0.9313764152671244]
+ [1.0224123842221624, 0.9215796763879649]
  ⋮
- [0.9578990940874686, 1.2456718958859012]
- [0.9634643200747015, 1.1943166538208068]
- [0.9701840397563883, 1.144434223937898]
- [0.9780909494290696, 1.0960142728141342]
- [0.9872239057308398, 1.049046092341224]
- [0.9976271322459969, 1.0035192551295613]
- [1.0093522287586683, 0.9594236914670651]
- [1.022456701835733, 0.9167503819466039]
- [1.0242494310618668, 0.9113488212149135]</code></pre><p>Now let&#39;s generate a dataset from 10,000 solutions of the SDE</p><pre><code class="language-julia hljs">using RecursiveArrayTools # for VectorOfArray
+ [0.957924004830765, 1.2455396516260886]
+ [0.963492124655624, 1.194188206359364]
+ [0.9702151216223013, 1.144309422472783]
+ [0.9781251216173811, 1.0958933113772438]
+ [0.9872610779183418, 1.0489288332735642]
+ [0.9976680207427877, 1.0034055504066466]
+ [1.0093968839088232, 0.9593138009010753]
+ [1.0225049055361055, 0.9166444087970789]
+ [1.0242646893941958, 0.9113431647099088]</code></pre><p>Now let&#39;s generate a dataset from 10,000 solutions of the SDE</p><pre><code class="language-julia hljs">using RecursiveArrayTools # for VectorOfArray
 t = collect(range(0, stop = 10, length = 200))
 function generate_data(t)
     sol = solve(prob, SRIW1())
@@ -67,52 +67,52 @@ function generate_data(t)
 end
 aggregate_data = convert(Array, VectorOfArray([generate_data(t) for i in 1:10000]))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2×200×10000 Array{Float64, 3}:
 [:, :, 1] =
- 0.996603  1.0258    1.0709    1.10136   …  0.97898  0.982434  1.02595
- 1.01176   0.913848  0.815608  0.750153     1.13374  1.01773   0.898751
+ 1.00315   1.03974   1.04492   1.09024   …  0.96637  0.983801  1.00472
+ 0.981637  0.905556  0.810823  0.749247     1.11853  1.00761   0.908105
 
 [:, :, 2] =
- 1.00292  1.03268   1.07351   1.08972   …  0.959995  0.988571  1.02161
- 1.01619  0.896406  0.826194  0.746635     1.09731   0.994152  0.916311
+ 1.00534  1.03491   1.06543   1.09908  …  0.977963  0.998321  1.04159
+ 1.00266  0.898888  0.815467  0.74545     1.10042   1.01227   0.916327
 
 [:, :, 3] =
- 0.993979  1.02619   1.05417   1.08964   …  0.967685  0.99652  1.01511
- 1.0055    0.900853  0.812022  0.742284     1.1262    1.00282  0.902363
+ 1.00843   1.04798   1.04634   …  0.96799  0.97286  1.01591  1.03725
+ 0.998117  0.887847  0.819508     1.23437  1.1234   1.00951  0.926105
 
 ;;; … 
 
 [:, :, 9998] =
- 1.01319  1.02545   1.06086   1.08113   …  0.976432  0.983555  1.02637
- 1.00492  0.912708  0.817963  0.750682     1.11989   1.01957   0.913728
+ 0.991722  1.04017   1.05203  1.12316   …  0.98398  1.01087  1.02258
+ 0.993957  0.907206  0.8088   0.739215     1.10332  1.01133  0.910331
 
 [:, :, 9999] =
- 1.01779   1.02431   1.05044   1.09435   …  0.973462  0.998832  1.01929
- 0.993377  0.893294  0.803605  0.743093     1.10212   0.9994    0.912659
+ 1.00322  1.03285   1.04907   1.09246   …  0.972464  1.00756   1.02216
+ 0.99393  0.909049  0.814792  0.745283     1.10318   0.995285  0.918255
 
 [:, :, 10000] =
- 0.974507  1.03077   1.06658   1.10702   …  0.96175  0.995383  1.03673
- 1.02208   0.897242  0.826025  0.724747     1.10893  1.0272    0.910614</code></pre><p>Now let&#39;s estimate the parameters. Instead of using single runs from the SDE, we will use a <code>EnsembleProblem</code>. This means that it will solve the SDE <code>N</code> times to come up with an approximate probability distribution at each time point and use that in the likelihood estimate.</p><pre><code class="language-julia hljs">monte_prob = EnsembleProblem(prob)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">EnsembleProblem with problem SDEProblem</code></pre><p>We use Optim.jl for optimization below</p><pre><code class="language-julia hljs">obj = build_loss_objective(monte_prob, SOSRI(), L2Loss(t, aggregate_data),
+ 1.01296  1.02961   1.06991   1.09095   …  0.964687  0.990652  1.04414
+ 1.00697  0.927345  0.817962  0.754661     1.14044   1.00682   0.904468</code></pre><p>Now let&#39;s estimate the parameters. Instead of using single runs from the SDE, we will use a <code>EnsembleProblem</code>. This means that it will solve the SDE <code>N</code> times to come up with an approximate probability distribution at each time point and use that in the likelihood estimate.</p><pre><code class="language-julia hljs">monte_prob = EnsembleProblem(prob)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">EnsembleProblem with problem SDEProblem</code></pre><p>We use Optim.jl for optimization below</p><pre><code class="language-julia hljs">obj = build_loss_objective(monte_prob, SOSRI(), L2Loss(t, aggregate_data),
                            Optimization.AutoForwardDiff(),
                            maxiters = 10000, verbose = false, trajectories = 1000)
 optprob = Optimization.OptimizationProblem(obj, [1.0, 0.5])
 result = solve(optprob, Optim.BFGS())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">u: 2-element Vector{Float64}:
- 3.7082733240410164
- 5.8930808362079565</code></pre><p>Parameter Estimation in case of SDE&#39;s with a regular <code>L2Loss</code> can have poor accuracy due to only fitting against the mean properties as mentioned in <a href="http://docs.juliadiffeq.org/dev/analysis/parameter_estimation/#First-differencing-1">First Differencing</a>.</p><pre><code class="language-julia hljs">result.original</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"> * Status: success
+ 3.695492569405632
+ 5.895267251071543</code></pre><p>Parameter Estimation in case of SDE&#39;s with a regular <code>L2Loss</code> can have poor accuracy due to only fitting against the mean properties as mentioned in <a href="../../methods/optimization_based_methods/#fd">First Differencing</a>.</p><pre><code class="language-julia hljs">result.original</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"> * Status: success
 
  * Candidate solution
-    Final objective value:     2.518130e+03
+    Final objective value:     2.526373e+03
 
  * Found with
     Algorithm:     BFGS
 
  * Convergence measures
-    |x - x&#39;|               = 5.39e+00 ≰ 0.0e+00
+    |x - x&#39;|               = 5.40e+00 ≰ 0.0e+00
     |x - x&#39;|/|x&#39;|          = 9.15e-01 ≰ 0.0e+00
-    |f(x) - f(x&#39;)|         = 9.83e+02 ≰ 0.0e+00
-    |f(x) - f(x&#39;)|/|f(x&#39;)| = 3.90e-01 ≰ 0.0e+00
+    |f(x) - f(x&#39;)|         = 9.74e+02 ≰ 0.0e+00
+    |f(x) - f(x&#39;)|/|f(x&#39;)| = 3.86e-01 ≰ 0.0e+00
     |g(x)|                 = 0.00e+00 ≤ 1.0e-08
 
  * Work counters
-    Seconds run:   239  (vs limit Inf)
+    Seconds run:   169  (vs limit Inf)
     Iterations:    1
     f(x) calls:    5
     ∇f(x) calls:   5
@@ -125,21 +125,21 @@ result = solve(optprob, Optim.BFGS())
 result.original</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"> * Status: success
 
  * Candidate solution
-    Final objective value:     1.263776e+03
+    Final objective value:     9.224080e+02
 
  * Found with
     Algorithm:     BFGS
 
  * Convergence measures
-    |x - x&#39;|               = 8.30e+00 ≰ 0.0e+00
-    |x - x&#39;|/|x&#39;|          = 9.43e-01 ≰ 0.0e+00
-    |f(x) - f(x&#39;)|         = 5.31e+02 ≰ 0.0e+00
-    |f(x) - f(x&#39;)|/|f(x&#39;)| = 4.21e-01 ≰ 0.0e+00
-    |g(x)|                 = 0.00e+00 ≤ 1.0e-08
+    |x - x&#39;|               = 0.00e+00 ≤ 0.0e+00
+    |x - x&#39;|/|x&#39;|          = 0.00e+00 ≤ 0.0e+00
+    |f(x) - f(x&#39;)|         = 8.86e-05 ≰ 0.0e+00
+    |f(x) - f(x&#39;)|/|f(x&#39;)| = 9.61e-08 ≰ 0.0e+00
+    |g(x)|                 = 2.85e-05 ≰ 1.0e-08
 
  * Work counters
-    Seconds run:   26  (vs limit Inf)
-    Iterations:    1
-    f(x) calls:    7
-    ∇f(x) calls:   7
-</code></pre><p>Here, we see that we successfully recovered the drift parameter, and got close to the original noise parameter after searching a two-orders-of-magnitude range.</p><pre><code class="language-julia hljs">println(result.u)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">[5.025750017352945, 8.804778927191554]</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../generalized_likelihood/">« Generalized Likelihood Inference</a><a class="docs-footer-nextpage" href="../ensemble/">Fitting Ensembles of ODE Models to Data »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Saturday 24 June 2023 00:31">Saturday 24 June 2023</span>. Using Julia version 1.9.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+    Seconds run:   2941  (vs limit Inf)
+    Iterations:    254
+    f(x) calls:    1036
+    ∇f(x) calls:   1036
+</code></pre><p>Here, we see that we successfully recovered the drift parameter, and got close to the original noise parameter after searching a two-orders-of-magnitude range.</p><pre><code class="language-julia hljs">println(result.u)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">[2.7746016271719194, 3.275031143738534]</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../generalized_likelihood/">« Generalized Likelihood Inference</a><a class="docs-footer-nextpage" href="../ensemble/">Fitting Ensembles of ODE Models to Data »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.0.1 on <span class="colophon-date" title="Sunday 24 September 2023 17:05">Sunday 24 September 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
