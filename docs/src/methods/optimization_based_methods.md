@@ -131,7 +131,7 @@ function my_loss_function(sol)
 end
 ```
 
-### Note on First Differencing
+### [Note on First Differencing](@id fd)
 
 ```julia
 L2Loss(t, data, differ_weight = 0.3, data_weight = 0.7)
@@ -172,7 +172,7 @@ The regularization defaults to L2 if no penalty function is specified.
 ### Using automatic differentiation
 
 To use derivatives with optimization solvers, Optimization.jl's
-`adtype` argument as described [here](https://docs.sciml.ai/Optimization/stable/tutorials/intro/#Controlling-Gradient-Calculations-(Automatic-Differentiation))
+`adtype` argument as described [here](https://docs.sciml.ai/Optimization/stable/getting_started/#Controlling-Gradient-Calculations-(Automatic-Differentiation))
 should be used with the wrapper subpackage OptimizationOptimJL, OptimizationNLopt etc.
 
 ```julia
