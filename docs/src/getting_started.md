@@ -251,7 +251,7 @@ The default kernel used in the method is `Epanechnikov`, available others are `U
 `Quartic`, `Triweight`, `Tricube`, `Gaussian`, `Cosine`, `Logistic` and `Sigmoid`, this can be passed by the
 `kernel` keyword argument. `loss_func` keyword argument can be used to pass the loss function (cost function) you want
 to use and passing a valid
-[`adtype` argument](https://docs.sciml.ai/Optimization/stable/tutorials/intro/#Controlling-Gradient-Calculations-(Automatic-Differentiation)) enables Auto Differentiation.
+[`adtype` argument](https://docs.sciml.ai/Optimization/stable/getting_started/#Controlling-Gradient-Calculations-(Automatic-Differentiation)) enables Auto Differentiation.
 
 ## Conclusion
 
