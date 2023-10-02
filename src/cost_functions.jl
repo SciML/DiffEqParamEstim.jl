@@ -50,14 +50,14 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
 
     if weight == nothing
         @inbounds for i in 1:length(sol)
-            sumsq += (data[i] - sol[i])^2
+            sumsq += (coalesce(data[i] - sol[i], 0))^2
         end
     else
         @inbounds for i in 1:length(sol)
             if typeof(weight) <: Real
-                sumsq = sumsq + ((data[i] - sol[i])^2) * weight
+                sumsq = sumsq + ((coalesce(data[i] - sol[i], 0))^2) * weight
             else
-                sumsq = sumsq + ((data[i] - sol[i])^2) * weight[i]
+                sumsq = sumsq + ((coalesce(data[i] - sol[i], 0))^2) * weight[i]
             end
         end
     end
@@ -83,16 +83,16 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
     if weight == nothing
         @inbounds for i in 1:length(sol)
             for j in 1:length(sol[i])
-                sumsq += (data[j, i] - sol[j, i])^2
+                sumsq += (coalesce(data[j, i] - sol[j, i], 0))^2
             end
             if diff_weight != nothing && i != 1
                 for j in 1:length(sol[i])
                     if typeof(diff_weight) <: Real
                         sumsq += diff_weight *
-                                 ((data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1])^2)
+                                 ((coalesce(data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1], 0))^2)
                     else
                         sumsq += diff_weight[j, i] *
-                                 ((data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1])^2)
+                                 ((coalesce(data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1], 0))^2)
                     end
                 end
             end
@@ -101,21 +101,21 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
         @inbounds for i in 1:length(sol)
             if typeof(weight) <: Real
                 for j in 1:length(sol[i])
-                    sumsq = sumsq + ((data[j, i] - sol[j, i])^2) * weight
+                    sumsq = sumsq + ((coalesce(data[j, i] - sol[j, i], 0))^2) * weight
                 end
             else
                 for j in 1:length(sol[i])
-                    sumsq = sumsq + ((data[j, i] - sol[j, i])^2) * weight[j, i]
+                    sumsq = sumsq + ((coalesce(data[j, i] - sol[j, i], 0))^2) * weight[j, i]
                 end
             end
             if diff_weight != nothing && i != 1
                 for j in 1:length(sol[i])
                     if typeof(diff_weight) <: Real
                         sumsq += diff_weight *
-                                 ((data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1])^2)
+                                 ((coalesce(data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1], 0))^2)
                     else
                         sumsq += diff_weight[j, i] *
-                                 ((data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1])^2)
+                                 ((coalesce(data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1], 0))^2)
                     end
                 end
             end
@@ -267,7 +267,7 @@ end
 function l2lossgradient!(grad, sol, data, sensitivities, num_p)
     fill!(grad, 0.0)
     data_x_size = size(data, 1)
-    my_grad = @. 2 * (data - sol)
+    my_grad = @. 2 * coalesce.(data - sol, 0)
     u0len = length(data[1])
     K = size(my_grad, 2)
     for k in 1:K, i in 1:num_p, j in 1:data_x_size
