@@ -54,7 +54,7 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
         end
     else
         @inbounds for i in 1:length(sol)
-            if typeof(weight) <: Real
+            if weight isa Real
                 sumsq = sumsq + ((data[i] - sol[i])^2) * weight
             else
                 sumsq = sumsq + ((data[i] - sol[i])^2) * weight[i]
@@ -87,7 +87,7 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
             end
             if diff_weight != nothing && i != 1
                 for j in 1:length(sol[i])
-                    if typeof(diff_weight) <: Real
+                    if diff_weight isa Real
                         sumsq += diff_weight *
                                  ((data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1])^2)
                     else
@@ -99,7 +99,7 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
         end
     else
         @inbounds for i in 1:length(sol)
-            if typeof(weight) <: Real
+            if weight isa Real
                 for j in 1:length(sol[i])
                     sumsq = sumsq + ((data[j, i] - sol[j, i])^2) * weight
                 end
@@ -110,7 +110,7 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
             end
             if diff_weight != nothing && i != 1
                 for j in 1:length(sol[i])
-                    if typeof(diff_weight) <: Real
+                    if diff_weight isa Real
                         sumsq += diff_weight *
                                  ((data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1])^2)
                     else
@@ -132,7 +132,7 @@ end
 
 # Cost functions are written assuming a data matrix
 # Turn vectors into a 1xN matrix
-matrixize(x) = typeof(x) <: Vector ? reshape(x, 1, length(x)) : x
+matrixize(x) = x isa Vector ? reshape(x, 1, length(x)) : x
 
 function L2Loss(t, data; differ_weight = nothing, data_weight = nothing,
                 colloc_grad = nothing,
