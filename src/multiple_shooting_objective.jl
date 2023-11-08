@@ -2,9 +2,9 @@ export multiple_shooting_objective
 
 function generate_loss_func(loss, t, i)
     new_loss = nothing
-    if typeof(loss) <: L2Loss && i == 1
+    if loss isa L2Loss && i == 1
         new_loss = L2Loss(t, loss.data[:, i:(i + length(t))])
-    elseif typeof(loss) <: L2Loss
+    elseif loss isa L2Loss
         i = (i - 1) * length(t)
         if i + length(t) < size(loss.data)[2]
             new_loss = L2Loss(t, loss.data[:, i:(i + length(t))])
@@ -36,7 +36,7 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
         loss_val = 0
         for k in 1:K
             tmp_prob = prob_generator(prob, p, k)
-            if typeof(loss) <: Union{L2Loss, LogLikeLoss}
+            if loss isa Union{L2Loss, LogLikeLoss}
                 time_save = loss.t[findall(t -> τ[k] <= t <= τ[k + 1], loss.t)]
                 push!(sol,
                       solve(tmp_prob, alg; saveat = time_save,
@@ -62,7 +62,7 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
         end
 
         for k in 2:K
-            if typeof(discontinuity_weight) <: Real
+            if discontinuity_weight isa Real
                 loss_val += discontinuity_weight *
                             sum((sol[k][1] - sol[k - 1][end]) .^ 2)
             else

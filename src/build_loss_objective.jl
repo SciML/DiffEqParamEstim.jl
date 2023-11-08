@@ -8,7 +8,7 @@ function build_loss_objective(prob::SciMLBase.AbstractSciMLProblem, alg, loss,
                               kwargs...)
     cost_function = function (p, _ = nothing)
         tmp_prob = prob_generator(prob, p)
-        if typeof(loss) <: Union{L2Loss, LogLikeLoss}
+        if loss isa Union{L2Loss, LogLikeLoss}
             sol = solve(tmp_prob, alg, args...; saveat = loss.t, save_everystep = false,
                         dense = false, kwargs...)
         else
