@@ -33,25 +33,25 @@ t: 34-element Vector{Float64}:
  10.0
 u: 34-element Vector{Vector{Float64}}:
  [1.0, 1.0]
- [1.0454942346944578, 0.8576684823217127]
- [1.1758715885138267, 0.639459570317544]
- [1.4196809607170826, 0.4569962601282084]
- [1.876719395008001, 0.32473342927911314]
- [2.5882500645533466, 0.26336255535952163]
- [3.8607089092207665, 0.2794458098285253]
- [5.750812667710396, 0.5220072537934558]
- [6.814978999130169, 1.9177826328390666]
- [4.3929992925714245, 4.194670792850584]
+ [1.0454942346944578, 0.8576684823217128]
+ [1.1758715885138271, 0.6394595703175443]
+ [1.419680960717083, 0.4569962601282089]
+ [1.8767193950080012, 0.3247334292791134]
+ [2.588250064553348, 0.26336255535952197]
+ [3.860708909220769, 0.2794458098285261]
+ [5.750812667710401, 0.522007253793458]
+ [6.8149789991301635, 1.9177826328390826]
+ [4.392999292571394, 4.1946707928506015]
  ⋮
- [2.614253967788294, 0.26416945387525886]
- [4.241076127191749, 0.3051236762921916]
- [6.791123785297795, 1.1345287797146113]
- [6.265370675764892, 2.74169350754023]
- [3.7807651118880545, 4.431165685863461]
- [1.816420140681761, 4.064056625315978]
- [1.1465021407690728, 2.7911706616216976]
- [0.9557986135403302, 1.6235622951850799]
- [1.0337581256020607, 0.9063703842886133]</code></pre><p>This is a function with two parameters, <code>[1.5,1.0]</code> which generates the same ODE solution as before. This time, let&#39;s generate 100 datasets where at each point adds a little bit of randomness:</p><pre><code class="language-julia hljs">using RecursiveArrayTools # for VectorOfArray
+ [2.6142539677883248, 0.26416945387526314]
+ [4.24107612719179, 0.3051236762922018]
+ [6.791123785297775, 1.1345287797146668]
+ [6.26537067576476, 2.741693507540315]
+ [3.780765111887945, 4.431165685863443]
+ [1.816420140681737, 4.064056625315896]
+ [1.1465021407690763, 2.791170661621642]
+ [0.9557986135403417, 1.623562295185047]
+ [1.0337581256020802, 0.9063703842885995]</code></pre><p>This is a function with two parameters, <code>[1.5,1.0]</code> which generates the same ODE solution as before. This time, let&#39;s generate 100 datasets where at each point adds a little bit of randomness:</p><pre><code class="language-julia hljs">using RecursiveArrayTools # for VectorOfArray
 t = collect(range(0, stop = 10, length = 200))
 function generate_data(sol, t)
     randomized = VectorOfArray([(sol(t[i]) + 0.01randn(2)) for i in 1:length(t)])
@@ -59,34 +59,34 @@ function generate_data(sol, t)
 end
 aggregate_data = convert(Array, VectorOfArray([generate_data(sol, t) for i in 1:100]))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2×200×100 Array{Float64, 3}:
 [:, :, 1] =
- 0.993502  1.01786   1.02668   1.09399   …  0.99278  1.00668  1.03504
- 0.999936  0.894503  0.820349  0.739576     1.10995  0.99662  0.902015
+ 1.00829   1.03125   1.05806   1.09619   …  0.984766  0.999554  1.03205
+ 0.990214  0.891735  0.813147  0.724082     1.08864   1.0023    0.902971
 
 [:, :, 2] =
- 0.99611  1.02621  1.06569   1.10889  …  0.973254  1.00386   1.02355
- 1.00675  0.90971  0.815566  0.74953     1.10907   0.995057  0.910968
+ 1.01838   1.02688   1.05953   1.11022   …  0.990689  1.00461  1.02389
+ 0.994082  0.895484  0.829351  0.732999     1.11421   1.005    0.906202
 
 [:, :, 3] =
- 1.00492   1.01299   1.05425   1.09685   …  0.987938  1.00442   1.03067
- 0.992358  0.907431  0.819971  0.752014     1.08829   0.983711  0.900598
+ 0.99277   1.02964   1.04408   1.1033    …  0.987293  1.01559   1.03687
+ 0.992778  0.892064  0.835525  0.742897     1.10448   0.999499  0.919612
 
 ;;; … 
 
 [:, :, 98] =
- 0.985293  1.0237   1.04737   1.10478   …  0.983761  1.00723  1.02181
- 1.00116   0.89905  0.824037  0.754019     1.10442   1.01318  0.918711
+ 0.986431  1.03294   1.07515   1.10765   …  0.977279  1.00722   1.02761
+ 0.997454  0.915948  0.828643  0.755947     1.1257    0.996772  0.895213
 
 [:, :, 99] =
- 1.01173   1.02988   1.0572    1.09056   …  0.982176  0.989657  1.02954
- 0.988428  0.905839  0.818775  0.743312     1.10993   0.999064  0.89775
+ 0.991054  1.01927   1.06992   1.09877   …  0.982645  1.00624  1.04914
+ 1.00521   0.890643  0.843129  0.747481     1.12094   1.01455  0.896358
 
 [:, :, 100] =
- 1.01298  1.02947   1.06358   1.09563   …  0.980684  1.00081   1.00924
- 1.00406  0.910606  0.811905  0.747214     1.10805   0.985477  0.897775</code></pre><p>here, with <code>t</code> we measure the solution at 200 evenly spaced points. Thus, <code>aggregate_data</code> is a 2x200x100 matrix where <code>aggregate_data[i,j,k]</code> is the <code>i</code>th component at time <code>j</code> of the <code>k</code>th dataset. What we first want to do is get a matrix of distributions where <code>distributions[i,j]</code> is the likelihood of component <code>i</code> at take <code>j</code>. We can do this via <code>fit_mle</code> on a chosen distributional form. For simplicity, we choose the <code>Normal</code> distribution. <code>aggregate_data[i,j,:]</code> is the array of points at the given component and time, and thus we find the distribution parameters which fits best at each time point via:</p><pre><code class="language-julia hljs">using Distributions
+ 1.00376  1.01517   1.06214   1.10501   …  0.989013  1.00908  1.02392
+ 1.00332  0.897073  0.803129  0.738217     1.10477   1.02402  0.917008</code></pre><p>here, with <code>t</code> we measure the solution at 200 evenly spaced points. Thus, <code>aggregate_data</code> is a 2x200x100 matrix where <code>aggregate_data[i,j,k]</code> is the <code>i</code>th component at time <code>j</code> of the <code>k</code>th dataset. What we first want to do is get a matrix of distributions where <code>distributions[i,j]</code> is the likelihood of component <code>i</code> at take <code>j</code>. We can do this via <code>fit_mle</code> on a chosen distributional form. For simplicity, we choose the <code>Normal</code> distribution. <code>aggregate_data[i,j,:]</code> is the array of points at the given component and time, and thus we find the distribution parameters which fits best at each time point via:</p><pre><code class="language-julia hljs">using Distributions
 distributions = [fit_mle(Normal, aggregate_data[i, j, :]) for i in 1:2, j in 1:200]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2×200 Matrix{Distributions.Normal{Float64}}:
- Distributions.Normal{Float64}(μ=0.999644, σ=0.00890263)  …  Distributions.Normal{Float64}(μ=1.03236, σ=0.00835246)
- Distributions.Normal{Float64}(μ=1.00003, σ=0.00946764)      Distributions.Normal{Float64}(μ=0.906822, σ=0.0103471)</code></pre><p>Notice for example that we have:</p><pre><code class="language-julia hljs">distributions[1, 1]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Distributions.Normal{Float64}(μ=0.9996437119523902, σ=0.008902626560810183)</code></pre><p>that is, it fits the distribution to have its mean just about where our original solution was, and the variance is about how much noise we added to the dataset. This is a good check to see that the distributions we are trying to fit our parameters to makes sense.</p><p>Note that in this case the <code>Normal</code> distribution was a good choice, and often it&#39;s a nice go-to choice, but one should experiment with other choices of distributions as well. For example, a <code>TDist</code> can be an interesting way to incorporate robustness to outliers since low degrees of free T-distributions act like Normal distributions but with longer tails (though <code>fit_mle</code> does not work with a T-distribution, you can get the means/variances and build appropriate distribution objects yourself).</p><p>Once we have the matrix of distributions, we can build the objective function corresponding to that distribution fit:</p><pre><code class="language-julia hljs">obj = build_loss_objective(prob1, Tsit5(), LogLikeLoss(t, distributions),
-                           maxiters = 10000, verbose = false)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(::SciMLBase.OptimizationFunction{true, SciMLBase.NoAD, DiffEqParamEstim.var&quot;#29#30&quot;{Nothing, typeof(DiffEqParamEstim.STANDARD_PROB_GENERATOR), Base.Pairs{Symbol, Integer, Tuple{Symbol, Symbol}, NamedTuple{(:maxiters, :verbose), Tuple{Int64, Bool}}}, SciMLBase.ODEProblem{Vector{Float64}, Tuple{Float64, Float64}, true, Vector{Float64}, SciMLBase.ODEFunction{true, SciMLBase.AutoSpecialize, Main.var&quot;#1#2&quot;, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, typeof(SciMLBase.DEFAULT_OBSERVED), Nothing, Nothing}, Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}}, SciMLBase.StandardODEProblem}, OrdinaryDiffEq.Tsit5{typeof(OrdinaryDiffEq.trivial_limiter!), typeof(OrdinaryDiffEq.trivial_limiter!), Static.False}, LogLikeLoss{Vector{Float64}, Matrix{Distributions.Normal{Float64}}}, Nothing, Tuple{}}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, typeof(SciMLBase.DEFAULT_OBSERVED_NO_TIME), Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing}) (generic function with 1 method)</code></pre><p>First, let&#39;s use the objective function to plot the likelihood landscape:</p><pre><code class="language-julia hljs">using Plots;
+ Distributions.Normal{Float64}(μ=1.00019, σ=0.00942419)  …  Distributions.Normal{Float64}(μ=1.03436, σ=0.00859308)
+ Distributions.Normal{Float64}(μ=1.00024, σ=0.0101673)      Distributions.Normal{Float64}(μ=0.904801, σ=0.0101743)</code></pre><p>Notice for example that we have:</p><pre><code class="language-julia hljs">distributions[1, 1]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Distributions.Normal{Float64}(μ=1.0001903239563055, σ=0.009424189156149839)</code></pre><p>that is, it fits the distribution to have its mean just about where our original solution was, and the variance is about how much noise we added to the dataset. This is a good check to see that the distributions we are trying to fit our parameters to makes sense.</p><p>Note that in this case the <code>Normal</code> distribution was a good choice, and often it&#39;s a nice go-to choice, but one should experiment with other choices of distributions as well. For example, a <code>TDist</code> can be an interesting way to incorporate robustness to outliers since low degrees of free T-distributions act like Normal distributions but with longer tails (though <code>fit_mle</code> does not work with a T-distribution, you can get the means/variances and build appropriate distribution objects yourself).</p><p>Once we have the matrix of distributions, we can build the objective function corresponding to that distribution fit:</p><pre><code class="language-julia hljs">obj = build_loss_objective(prob1, Tsit5(), LogLikeLoss(t, distributions),
+                           maxiters = 10000, verbose = false)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(::SciMLBase.OptimizationFunction{true, SciMLBase.NoAD, DiffEqParamEstim.var&quot;#29#30&quot;{Nothing, typeof(DiffEqParamEstim.STANDARD_PROB_GENERATOR), Base.Pairs{Symbol, Integer, Tuple{Symbol, Symbol}, @NamedTuple{maxiters::Int64, verbose::Bool}}, SciMLBase.ODEProblem{Vector{Float64}, Tuple{Float64, Float64}, true, Vector{Float64}, SciMLBase.ODEFunction{true, SciMLBase.AutoSpecialize, Main.var&quot;#1#2&quot;, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, typeof(SciMLBase.DEFAULT_OBSERVED), Nothing, SymbolicIndexingInterface.SymbolCache{Nothing, Nothing, Nothing}}, Base.Pairs{Symbol, Union{}, Tuple{}, @NamedTuple{}}, SciMLBase.StandardODEProblem}, OrdinaryDiffEq.Tsit5{typeof(OrdinaryDiffEq.trivial_limiter!), typeof(OrdinaryDiffEq.trivial_limiter!), Static.False}, LogLikeLoss{Vector{Float64}, Matrix{Distributions.Normal{Float64}}}, Nothing, Tuple{}}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, typeof(SciMLBase.DEFAULT_OBSERVED_NO_TIME), Nothing, Nothing, SymbolicIndexingInterface.SymbolCache{Nothing, Nothing, Nothing}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing}) (generic function with 1 method)</code></pre><p>First, let&#39;s use the objective function to plot the likelihood landscape:</p><pre><code class="language-julia hljs">using Plots;
 plotly();
 prange = 0.5:0.1:5.0
 heatmap(prange, prange, [obj([j, i]) for i in prange, j in prange],
@@ -97,4 +97,4 @@ heatmap(prange, prange, [obj([j, i]) for i in prange, j in prange],
 optprob = OptimizationProblem(obj, [2.0, 2.0], lb = first.(bound1), ub = last.(bound1))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"><span class="sgr38_2" style="color:#56b6c2">OptimizationProblem</span>. In-place: <span class="sgr38_2" style="color:#56b6c2">true</span>
 u0: 2-element Vector{Float64}:
  2.0
- 2.0</code></pre><p>This shows that it found the true parameters as the best fit to the likelihood.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../global_optimization/">« Global Optimization via NLopt</a><a class="docs-footer-nextpage" href="../stochastic_evaluations/">Parameter Estimation for Stochastic Differential Equations and Ensembles »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Wednesday 20 December 2023 04:55">Wednesday 20 December 2023</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ 2.0</code></pre><p>This shows that it found the true parameters as the best fit to the likelihood.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../global_optimization/">« Global Optimization via NLopt</a><a class="docs-footer-nextpage" href="../stochastic_evaluations/">Parameter Estimation for Stochastic Differential Equations and Ensembles »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Thursday 18 January 2024 11:25">Thursday 18 January 2024</span>. Using Julia version 1.10.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
