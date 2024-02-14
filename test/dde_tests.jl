@@ -10,7 +10,7 @@ tspan = (0.0, 10.0)
 p = [0.5, 1.0]
 
 prob = DDEProblem(f_lotka, u0, h, tspan, p,
-                  constant_lags = [0.5])
+    constant_lags = [0.5])
 sol = solve(prob, MethodOfSteps(Tsit5()))
 
 t = collect(range(0, stop = 10, length = 30))
@@ -29,9 +29,9 @@ p = [0.5]
 
 prob_opt = DDEProblem(f_lotka2, u0, h, tspan, p, constant_lags = [0.5])
 cost_function = build_loss_objective(prob_opt, MethodOfSteps(Tsit5()),
-                                     L2Loss(t, data), Optimization.AutoZygote(),
-                                     abstol = 1e-8,
-                                     reltol = 1e-8)
+    L2Loss(t, data), Optimization.AutoZygote(),
+    abstol = 1e-8,
+    reltol = 1e-8)
 
 optprob = Optimization.OptimizationProblem(cost_function, [1.0], lb = [0.0], ub = [1.0])
 opt = Opt(:GN_ESCH, 1)

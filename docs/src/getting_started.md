@@ -77,8 +77,8 @@ function:
 
 ```@example ode
 cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t, data),
-                                     Optimization.AutoForwardDiff(),
-                                     maxiters = 10000, verbose = false)
+    Optimization.AutoForwardDiff(),
+    maxiters = 10000, verbose = false)
 ```
 
 This objective function internally is calling the ODE solver to get solutions
@@ -103,8 +103,8 @@ of parameter values:
 ```@example ode
 vals = 0.0:0.1:10.0
 plot(vals, [cost_function(i) for i in vals], yscale = :log10,
-     xaxis = "Parameter", yaxis = "Cost", title = "1-Parameter Cost Function",
-     lw = 3)
+    xaxis = "Parameter", yaxis = "Cost", title = "1-Parameter Cost Function",
+    lw = 3)
 ```
 
 Here we see that there is a very well-defined minimum in our cost function at
@@ -168,8 +168,8 @@ We can build an objective function and solve the multiple parameter version just
 
 ```@example ode
 cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t, data),
-                                     Optimization.AutoForwardDiff(),
-                                     maxiters = 10000, verbose = false)
+    Optimization.AutoForwardDiff(),
+    maxiters = 10000, verbose = false)
 optprob = Optimization.OptimizationProblem(cost_function, [1.3, 0.8, 2.8, 1.2])
 result_bfgs = solve(optprob, BFGS())
 ```
@@ -184,10 +184,10 @@ differencing loss to the total loss.
 
 ```@example ode
 cost_function = build_loss_objective(prob, Tsit5(),
-                                     L2Loss(t, data, differ_weight = 0.3,
-                                            data_weight = 0.7),
-                                     Optimization.AutoForwardDiff(),
-                                     maxiters = 10000, verbose = false)
+    L2Loss(t, data, differ_weight = 0.3,
+        data_weight = 0.7),
+    Optimization.AutoForwardDiff(),
+    maxiters = 10000, verbose = false)
 optprob = Optimization.OptimizationProblem(cost_function, [1.3, 0.8, 2.8, 1.2])
 result_bfgs = solve(optprob, BFGS())
 ```
@@ -206,14 +206,14 @@ ms_prob = ODEProblem(ms_f1, ms_u0, tspan, ms_p)
 t = collect(range(0, stop = 10, length = 200))
 data = Array(solve(ms_prob, Tsit5(), saveat = t, abstol = 1e-12, reltol = 1e-12))
 bound = Tuple{Float64, Float64}[(0, 10), (0, 10), (0, 10), (0, 10),
-                                (0, 10), (0, 10), (0, 10), (0, 10),
-                                (0, 10), (0, 10), (0, 10), (0, 10),
-                                (0, 10), (0, 10), (0, 10), (0, 10), (0, 10), (0, 10)]
+    (0, 10), (0, 10), (0, 10), (0, 10),
+    (0, 10), (0, 10), (0, 10), (0, 10),
+    (0, 10), (0, 10), (0, 10), (0, 10), (0, 10), (0, 10)]
 
 ms_obj = multiple_shooting_objective(ms_prob, Tsit5(), L2Loss(t, data),
-                                     Optimization.AutoForwardDiff();
-                                     discontinuity_weight = 1.0, abstol = 1e-12,
-                                     reltol = 1e-12)
+    Optimization.AutoForwardDiff();
+    discontinuity_weight = 1.0, abstol = 1e-12,
+    reltol = 1e-12)
 ```
 
 This creates the objective function that can be passed to an optimizer, from which we can then get the parameter values
@@ -222,7 +222,7 @@ a global optimization method to improve robustness even more:
 
 ```@example ode
 optprob = Optimization.OptimizationProblem(ms_obj, zeros(18), lb = first.(bound),
-                                           ub = last.(bound))
+    ub = last.(bound))
 optsol_ms = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10_000)
 ```
 

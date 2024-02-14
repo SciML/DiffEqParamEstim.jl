@@ -89,10 +89,12 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
                 for j in 1:length(sol[i])
                     if diff_weight isa Real
                         sumsq += diff_weight *
-                                 ((data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1])^2)
+                                 ((data[j, i] - data[j, i - 1] - sol[j, i] +
+                                   sol[j, i - 1])^2)
                     else
                         sumsq += diff_weight[j, i] *
-                                 ((data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1])^2)
+                                 ((data[j, i] - data[j, i - 1] - sol[j, i] +
+                                   sol[j, i - 1])^2)
                     end
                 end
             end
@@ -112,10 +114,12 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
                 for j in 1:length(sol[i])
                     if diff_weight isa Real
                         sumsq += diff_weight *
-                                 ((data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1])^2)
+                                 ((data[j, i] - data[j, i - 1] - sol[j, i] +
+                                   sol[j, i - 1])^2)
                     else
                         sumsq += diff_weight[j, i] *
-                                 ((data[j, i] - data[j, i - 1] - sol[j, i] + sol[j, i - 1])^2)
+                                 ((data[j, i] - data[j, i - 1] - sol[j, i] +
+                                   sol[j, i - 1])^2)
                     end
                 end
             end
@@ -135,11 +139,11 @@ end
 matrixize(x) = x isa Vector ? reshape(x, 1, length(x)) : x
 
 function L2Loss(t, data; differ_weight = nothing, data_weight = nothing,
-                colloc_grad = nothing,
-                dudt = nothing)
+        colloc_grad = nothing,
+        dudt = nothing)
     L2Loss(t, matrixize(data), matrixize(differ_weight),
-           matrixize(data_weight), matrixize(colloc_grad),
-           colloc_grad == nothing ? nothing : zeros(size(colloc_grad)))
+        matrixize(data_weight), matrixize(colloc_grad),
+        colloc_grad == nothing ? nothing : zeros(size(colloc_grad)))
 end
 
 function (f::L2Loss)(sol::DiffEqBase.AbstractEnsembleSolution)

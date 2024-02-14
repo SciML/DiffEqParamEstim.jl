@@ -98,13 +98,14 @@ function construct_oop_cost_function(f, du, preview_est_sol, preview_est_deriv, 
 end
 
 function two_stage_objective(prob::DiffEqBase.DEProblem, tpoints, data,
-                             adtype = SciMLBase.NoAD();
-                             kernel = EpanechnikovKernel())
+        adtype = SciMLBase.NoAD();
+        kernel = EpanechnikovKernel())
     f = prob.f
     kernel_function = decide_kernel(kernel)
-    estimated_derivative, estimated_solution = construct_estimated_solution_and_derivative!(data,
-                                                                                            kernel_function,
-                                                                                            tpoints)
+    estimated_derivative, estimated_solution = construct_estimated_solution_and_derivative!(
+        data,
+        kernel_function,
+        tpoints)
 
     # Step - 2
     preview_est_sol = [@view estimated_solution[:, i]
@@ -118,6 +119,7 @@ function two_stage_objective(prob::DiffEqBase.DEProblem, tpoints, data,
         construct_oop_cost_function(f, prob.u0, preview_est_sol, preview_est_deriv, tpoints)
     end
 
-    return OptimizationFunction(TwoStageCost(cost_function, estimated_solution,
-                                             estimated_derivative), adtype)
+    return OptimizationFunction(
+        TwoStageCost(cost_function, estimated_solution,
+            estimated_derivative), adtype)
 end

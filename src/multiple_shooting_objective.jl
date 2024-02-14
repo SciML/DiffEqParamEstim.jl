@@ -22,11 +22,11 @@ struct Merged_Solution{T1, T2, T3}
 end
 
 function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
-                                     adtype = SciMLBase.NoAD(),
-                                     regularization = nothing; priors = nothing,
-                                     discontinuity_weight = 1.0,
-                                     prob_generator = STANDARD_MS_PROB_GENERATOR,
-                                     kwargs...)
+        adtype = SciMLBase.NoAD(),
+        regularization = nothing; priors = nothing,
+        discontinuity_weight = 1.0,
+        prob_generator = STANDARD_MS_PROB_GENERATOR,
+        kwargs...)
     cost_function = function (p, _ = nothing)
         t0, tf = prob.tspan
         P, N = length(prob.p), length(prob.u0)
@@ -39,8 +39,8 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
             if loss isa Union{L2Loss, LogLikeLoss}
                 time_save = loss.t[findall(t -> τ[k] <= t <= τ[k + 1], loss.t)]
                 push!(sol,
-                      solve(tmp_prob, alg; saveat = time_save,
-                            save_everystep = false, dense = false, kwargs...))
+                    solve(tmp_prob, alg; saveat = time_save,
+                        save_everystep = false, dense = false, kwargs...))
             else
                 push!(sol, solve(tmp_prob, alg; kwargs...))
             end
@@ -52,7 +52,7 @@ function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
         t = [tc for k in 1:K for tc in (k == K ? sol[k].t : sol[k].t[1:(end - 1)])]
         sol_loss = Merged_Solution(u, t, sol)
         sol_new = DiffEqBase.build_solution(prob, alg, sol_loss.t, sol_loss.u,
-                                            retcode = ReturnCode.Success)
+            retcode = ReturnCode.Success)
         loss_val = loss(sol_new)
         if priors !== nothing
             loss_val += prior_loss(priors, p[(end - length(priors)):end])

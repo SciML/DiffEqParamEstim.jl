@@ -19,9 +19,9 @@ data = convert(Array, randomized)
 
 monte_prob = EnsembleProblem(prob)
 obj = build_loss_objective(monte_prob, Tsit5(), L2Loss(t, data),
-                           Optimization.AutoForwardDiff(), maxiters = 10000,
-                           abstol = 1e-8, reltol = 1e-8,
-                           verbose = false, trajectories = 25)
+    Optimization.AutoForwardDiff(), maxiters = 10000,
+    abstol = 1e-8, reltol = 1e-8,
+    verbose = false, trajectories = 25)
 optprob = Optimization.OptimizationProblem(obj, [1.3, 0.8])
 result = solve(optprob, Optim.BFGS())
 @test result.u≈[1.5, 1.0] atol=3e-1

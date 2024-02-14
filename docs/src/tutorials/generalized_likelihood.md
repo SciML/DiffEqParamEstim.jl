@@ -69,7 +69,7 @@ corresponding to that distribution fit:
 
 ```@example likelihood
 obj = build_loss_objective(prob1, Tsit5(), LogLikeLoss(t, distributions),
-                           maxiters = 10000, verbose = false)
+    maxiters = 10000, verbose = false)
 ```
 
 First, let's use the objective function to plot the likelihood landscape:
@@ -79,8 +79,8 @@ using Plots;
 plotly();
 prange = 0.5:0.1:5.0
 heatmap(prange, prange, [obj([j, i]) for i in prange, j in prange],
-        yscale = :log10, xlabel = "Parameter 1", ylabel = "Parameter 2",
-        title = "Likelihood Landscape")
+    yscale = :log10, xlabel = "Parameter 1", ylabel = "Parameter 2",
+    title = "Likelihood Landscape")
 ```
 
 ![2 Parameter Likelihood](../assets/2paramlike.png)
@@ -92,8 +92,8 @@ one-dimensional slice:
 
 ```julia
 plot(prange, [obj([1.5, i]) for i in prange], lw = 3,
-     title = "Parameter 2 Likelihood (Parameter 1 = 1.5)",
-     xlabel = "Parameter 2", ylabel = "Objective Function Value")
+    title = "Parameter 2 Likelihood (Parameter 1 = 1.5)",
+    xlabel = "Parameter 2", ylabel = "Objective Function Value")
 ```
 
 ![1 Parameter Likelihood](../assets/1paramlike.png)

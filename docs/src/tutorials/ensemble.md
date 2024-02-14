@@ -44,7 +44,7 @@ initial_conditions = [
     [0.5, 0.5],
     [2.0, 1.0],
     [1.0, 2.0],
-    [2.0, 2.0],
+    [2.0, 2.0]
 ]
 function prob_func(prob, i, repeat)
     ODEProblem(prob.f, initial_conditions[i], prob.tspan, prob.p)
@@ -111,8 +111,8 @@ Put this into build_loss_objective.
 
 ```@example ensemble
 obj = build_loss_objective(enprob, Tsit5(), loss, Optimization.AutoForwardDiff(),
-                           trajectories = N,
-                           saveat = data_times)
+    trajectories = N,
+    saveat = data_times)
 ```
 
 Notice that we added the kwargs for `solve` of the `EnsembleProblem` into this. They get passed to the internal `solve`
@@ -141,9 +141,9 @@ to decrease the tolerance of the ODE solvers via
 
 ```@example ensemble
 obj = build_loss_objective(enprob, Tsit5(), loss, Optimization.AutoForwardDiff(),
-                           trajectories = N,
-                           abstol = 1e-8, reltol = 1e-8,
-                           saveat = data_times)
+    trajectories = N,
+    abstol = 1e-8, reltol = 1e-8,
+    saveat = data_times)
 optprob = OptimizationProblem(obj, [1.3, 0.9], lb = lower, ub = upper)
 result = solve(optprob, BFGS()) #OptimizationOptimJL detects that it's a box constrained problem and use Fminbox wrapper over BFGS
 ```
