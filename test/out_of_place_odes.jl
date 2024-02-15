@@ -24,8 +24,8 @@ data = convert(Array, randomized)
 soll = solve(prob, Tsit5())
 
 cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t, data),
-                                     Optimization.AutoZygote(),
-                                     maxiters = 10000, verbose = false)
+    Optimization.AutoZygote(),
+    maxiters = 10000, verbose = false)
 optprob = Optimization.OptimizationProblem(cost_function, [1.0], lb = [0.0], ub = [10.0])
 sol = solve(optprob, BFGS())
 

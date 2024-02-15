@@ -11,7 +11,7 @@ but is much faster, and is a good method to try first to get in the general
 
 ```julia
 function two_stage_objective(prob::DEProblem, tpoints, data, adtype = SciMLBase.NoAD(), ;
-                             kernel = :Epanechnikov,
-                             loss_func = L2DistLoss)
+        kernel = :Epanechnikov,
+        loss_func = L2DistLoss)
 end
 ```

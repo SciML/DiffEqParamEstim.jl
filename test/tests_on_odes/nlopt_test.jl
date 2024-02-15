@@ -3,7 +3,7 @@ using OptimizationNLopt, Zygote
 println("Use NLOpt to fit the parameter")
 
 obj = build_loss_objective(prob1, Tsit5(), L2Loss(t, data), Optimization.AutoZygote(),
-                           maxiters = 10000, verbose = false)
+    maxiters = 10000, verbose = false)
 
 opt = Opt(:LN_COBYLA, 1)
 optprob = OptimizationNLopt.OptimizationProblem(obj, [1.4])
@@ -29,7 +29,7 @@ res = solve(optprob, opt)
 # test differentiation
 
 obj = build_loss_objective(prob1, Tsit5(), L2Loss(t, data), Optimization.AutoForwardDiff();
-                           maxiters = 10000) #zygote behaves weirdly here
+    maxiters = 10000) #zygote behaves weirdly here
 opt = Opt(:LD_MMA, 1)
 xtol_rel!(opt, 1e-3)
 maxeval!(opt, 10000)

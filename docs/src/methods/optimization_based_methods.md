@@ -9,11 +9,11 @@ and MathProgBase-associated solvers like NLopt.
 
 ```julia
 function build_loss_objective(prob::DEProblem, alg, loss,
-                              adtype = SciMLBase.NoAD(),
-                              regularization = nothing;
-                              priors = nothing,
-                              prob_generator = STANDARD_PROB_GENERATOR,
-                              kwargs...)
+        adtype = SciMLBase.NoAD(),
+        regularization = nothing;
+        priors = nothing,
+        prob_generator = STANDARD_PROB_GENERATOR,
+        kwargs...)
 end
 ```
 
@@ -38,12 +38,12 @@ proceeds as follows:
 
 ```julia
 function multiple_shooting_objective(prob::DiffEqBase.DEProblem, alg, loss,
-                                     adtype = SciMLBase.NoAD(),
-                                     regularization = nothing;
-                                     priors = nothing,
-                                     discontinuity_weight = 1.0,
-                                     prob_generator = STANDARD_PROB_GENERATOR,
-                                     kwargs...)
+        adtype = SciMLBase.NoAD(),
+        regularization = nothing;
+        priors = nothing,
+        discontinuity_weight = 1.0,
+        prob_generator = STANDARD_PROB_GENERATOR,
+        kwargs...)
 end
 ```
 
@@ -67,7 +67,7 @@ cost functions:
 
 ```julia
 L2Loss(t, data; differ_weight = nothing, data_weight = nothing,
-       colloc_grad = nothing, dudt = nothing)
+    colloc_grad = nothing, dudt = nothing)
 ```
 
 where `t` is the set of timepoints which the data are found at, and
@@ -213,6 +213,6 @@ the parameters or a multivariate distribution.
 
 ```julia
 ms_obj = multiple_shooting_objective(ms_prob, Tsit5(), L2Loss(t, data); priors = priors,
-                                     discontinuity_weight = 1.0, abstol = 1e-12,
-                                     reltol = 1e-12)
+    discontinuity_weight = 1.0, abstol = 1e-12,
+    reltol = 1e-12)
 ```

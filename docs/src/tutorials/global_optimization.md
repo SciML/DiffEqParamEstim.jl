@@ -56,10 +56,10 @@ We can even use things like the Improved Stochastic Ranking Evolution Strategy
 ```@example global_optimization
 optprob = Optimization.OptimizationProblem(obj, [0.2], lb = [-1.0], ub = [5.0])
 res = solve(optprob,
-            OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
-                                                        "algorithm" => :GN_ISRES,
-                                                        "xtol_rel" => 1e-3,
-                                                        "maxeval" => 10000))
+    OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
+        "algorithm" => :GN_ISRES,
+        "xtol_rel" => 1e-3,
+        "maxeval" => 10000))
 ```
 
 which is very robust to the initial condition. We can also directly use the NLopt interface as below. The fastest result comes from the

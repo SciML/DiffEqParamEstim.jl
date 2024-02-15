@@ -43,7 +43,7 @@ t_short = collect(tinterval_short)
 
 # Generate Data
 data_sol_short = solve(prob_short, Vern7(), saveat = t_short, reltol = 1e-12,
-                       abstol = 1e-12)
+    abstol = 1e-12)
 data_short = convert(Array, data_sol_short)
 data_sol = solve(prob, Vern7(), saveat = t, reltol = 1e-12, abstol = 1e-12)
 data = convert(Array, data_sol)
@@ -60,29 +60,29 @@ data = convert(Array, data_sol)
 
 # Note: Euler uses tstops to hit the estimation timepoints exactly since it's not adaptive
 obj_short = build_loss_objective(prob_short, Euler(), L2Loss(t_short, data_short),
-                                 tstops = t_short)
+    tstops = t_short)
 res1 = bboptimize((x) -> obj_short(x, nothing); SearchRange = Xiang2015Bounds,
-                  MaxSteps = 11e3)
+    MaxSteps = 11e3)
 # Euler could not recover the correct results since its error is too high!
 
 obj_short = build_loss_objective(prob_short, Tsit5(), L2Loss(t_short, data_short),
-                                 Optimization.AutoForwardDiff())
+    Optimization.AutoForwardDiff())
 optprob = Optimization.OptimizationProblem(obj_short, [9.0, 20.0, 2.0], lb = xlow_bounds,
-                                           ub = xhigh_bounds)
+    ub = xhigh_bounds)
 res = solve(optprob, BBO_de_rand_1_bin_radiuslimited())
 # Tolernace is still too high to get close enough
 
 obj_short = build_loss_objective(prob_short, Tsit5(), L2Loss(t_short, data_short),
-                                 Optimization.AutoZygote(),
-                                 reltol = 1e-9)
+    Optimization.AutoZygote(),
+    reltol = 1e-9)
 optprob = Optimization.OptimizationProblem(obj_short, [9.0, 20.0, 2.0], lb = xlow_bounds,
-                                           ub = xhigh_bounds)
+    ub = xhigh_bounds)
 res = solve(optprob, BFGS())
 # With the tolerance lower, it achieves the correct solution in 4.5 seconds.
 
 obj_short = build_loss_objective(prob_short, Vern7(), L2Loss(t_short, data_short),
-                                 Optimization.AutoForwardDiff(),
-                                 reltol = 1e-12, abstol = 1e-12)
+    Optimization.AutoForwardDiff(),
+    reltol = 1e-12, abstol = 1e-12)
 optprob = Optimization.OptimizationProblem(obj_short, [9.0, 20.0, 2.0])
 res = solve(optprob, Newton())
 # But too much accuracy in the numerical solution of the ODE actually leads to
@@ -94,10 +94,10 @@ res = solve(optprob, Newton())
 
 # using NLopt
 obj_short = build_loss_objective(prob_short, Tsit5(), L2Loss(t_short, data_short),
-                                 Optimization.AutoForwardDiff(),
-                                 reltol = 1e-14)
+    Optimization.AutoForwardDiff(),
+    reltol = 1e-14)
 optprob = Optimization.OptimizationProblem(obj_short, [9.0, 20.0, 2.0], lb = xlow_bounds,
-                                           ub = xhigh_bounds)
+    ub = xhigh_bounds)
 opt = Opt(:GN_ORIG_DIRECT_L, 3)
 res = solve(optprob, opt)
 
@@ -131,7 +131,7 @@ res1 = bboptimize(x -> obj(x, nothing); SearchRange = Xiang2015Bounds, MaxSteps 
 
 opt = Opt(:GN_ORIG_DIRECT_L, 3)
 optprob = Optimization.OptimizationProblem(obj_short, GloIniPar, lb = first.(LooserBounds),
-                                           ub = last.(LooserBounds))
+    ub = last.(LooserBounds))
 res = solve(optprob, opt)
 
 # opt = Opt(:GN_CRS2_LM, 3)

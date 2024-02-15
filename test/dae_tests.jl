@@ -20,14 +20,14 @@ data = convert(Array, randomized)
 using DiffEqParamEstim, OptimizationNLopt, OptimizationOptimJL, ForwardDiff, Zygote,
       Optimization, SciMLSensitivity
 cost_function = build_loss_objective(prob, DFBDF(), L2Loss(t, data),
-                                     Optimization.AutoZygote(), abstol = 1e-8,
-                                     reltol = 1e-8, verbose = false)
+    Optimization.AutoZygote(), abstol = 1e-8,
+    reltol = 1e-8, verbose = false)
 optprob = Optimization.OptimizationProblem(cost_function, [0.01]; lb = [0.0], ub = [1.0])
 res = solve(optprob, OptimizationOptimJL.BFGS())
 
 cost_function = build_loss_objective(prob, DFBDF(), L2Loss(t, data),
-                                     Optimization.AutoForwardDiff(), abstol = 1e-8,
-                                     reltol = 1e-8, verbose = false)
+    Optimization.AutoForwardDiff(), abstol = 1e-8,
+    reltol = 1e-8, verbose = false)
 optprob = Optimization.OptimizationProblem(cost_function, [0.01]; lb = [0.0], ub = [1.0])
 res = solve(optprob, OptimizationOptimJL.BFGS())
 @test res.u[1]≈0.04 atol=5e-3
