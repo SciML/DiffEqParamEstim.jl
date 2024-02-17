@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Fitting Ensembles of ODE Models to Data · DiffEqParamEstim.jl</title><meta name="title" content="Fitting Ensembles of ODE Models to Data · DiffEqParamEstim.jl"/><meta property="og:title" content="Fitting Ensembles of ODE Models to Data · DiffEqParamEstim.jl"/><meta property="twitter:title" content="Fitting Ensembles of ODE Models to Data · DiffEqParamEstim.jl"/><meta name="description" content="Documentation for DiffEqParamEstim.jl."/><meta property="og:description" content="Documentation for DiffEqParamEstim.jl."/><meta property="twitter:description" content="Documentation for DiffEqParamEstim.jl."/><meta property="og:url" content="https://docs.sciml.ai/DiffEqParamEstim/stable/tutorials/ensemble/"/><meta property="twitter:url" content="https://docs.sciml.ai/DiffEqParamEstim/stable/tutorials/ensemble/"/><link rel="canonical" href="https://docs.sciml.ai/DiffEqParamEstim/stable/tutorials/ensemble/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="DiffEqParamEstim.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">DiffEqParamEstim.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">DiffEqParamEstim.jl: Parameter Estimation for Differential Equations</a></li><li><a class="tocitem" href="../../getting_started/">Getting Started with Optimization-Based ODE Parameter Estimation</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../global_optimization/">Global Optimization via NLopt</a></li><li><a class="tocitem" href="../generalized_likelihood/">Generalized Likelihood Inference</a></li><li><a class="tocitem" href="../stochastic_evaluations/">Parameter Estimation for Stochastic Differential Equations and Ensembles</a></li><li class="is-active"><a class="tocitem" href>Fitting Ensembles of ODE Models to Data</a><ul class="internal"><li><a class="tocitem" href="#Formulating-the-Ensemble-Model"><span>Formulating the Ensemble Model</span></a></li></ul></li></ul></li><li><span class="tocitem">Methods</span><ul><li><a class="tocitem" href="../../methods/recommended_methods/">Recommended Methods</a></li><li><a class="tocitem" href="../../methods/optimization_based_methods/">Optimization-Based Methods</a></li><li><a class="tocitem" href="../../methods/collocation_loss/">Two Stage method (Non-Parametric Collocation)</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Fitting Ensembles of ODE Models to Data</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Fitting Ensembles of ODE Models to Data</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/SciML/DiffEqParamEstim.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/SciML/DiffEqParamEstim.jl/blob/master/docs/src/tutorials/ensemble.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Fitting-Ensembles-of-ODE-Models-to-Data"><a class="docs-heading-anchor" href="#Fitting-Ensembles-of-ODE-Models-to-Data">Fitting Ensembles of ODE Models to Data</a><a id="Fitting-Ensembles-of-ODE-Models-to-Data-1"></a><a class="docs-heading-anchor-permalink" href="#Fitting-Ensembles-of-ODE-Models-to-Data" title="Permalink"></a></h1><p>In this tutorial, we will showcase how to fit multiple models simultaneously to respective data sources. Let&#39;s dive right in!</p><h2 id="Formulating-the-Ensemble-Model"><a class="docs-heading-anchor" href="#Formulating-the-Ensemble-Model">Formulating the Ensemble Model</a><a id="Formulating-the-Ensemble-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Formulating-the-Ensemble-Model" title="Permalink"></a></h2><p>First, you want to create a problem which solves multiple problems at the same time. This is the <code>EnsembleProblem</code>. When the parameter estimation tools say it will take any DEProblem, it really means ANY DEProblem, which includes <code>EnsembleProblem</code>.</p><p>So, let&#39;s get an <code>EnsembleProblem</code> setup that solves with 10 different initial conditions. This looks as follows:</p><pre><code class="language-julia hljs">using DifferentialEquations, DiffEqParamEstim, Plots, Optimization, ForwardDiff,
+      OptimizationOptimJL
+
+# Monte Carlo Problem Set Up for solving set of ODEs with different initial conditions
+
+# Set up Lotka-Volterra system
+function pf_func(du, u, p, t)
+    du[1] = p[1] * u[1] - p[2] * u[1] * u[2]
+    du[2] = -3 * u[2] + u[1] * u[2]
+end
+p = [1.5, 1.0]
+prob = ODEProblem(pf_func, [1.0, 1.0], (0.0, 10.0), p)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"><span class="sgr38_2" style="color:#56b6c2">ODEProblem</span> with uType <span class="sgr38_2" style="color:#56b6c2">Vector{Float64}</span> and tType <span class="sgr38_2" style="color:#56b6c2">Float64</span>. In-place: <span class="sgr38_2" style="color:#56b6c2">true</span>
+timespan: (0.0, 10.0)
+u0: 2-element Vector{Float64}:
+ 1.0
+ 1.0</code></pre><p>Now for an EnsembleProblem we have to take this problem and tell it what to do N times via the <code>prob_func</code>. So let&#39;s generate N=10 different initial conditions, and tell it to run the same problem but with these 10 different initial conditions each time:</p><pre><code class="language-julia hljs"># Setting up to solve the problem N times (for the N different initial conditions)
+N = 10;
+initial_conditions = [
+    [1.0, 1.0],
+    [1.0, 1.5],
+    [1.5, 1.0],
+    [1.5, 1.5],
+    [0.5, 1.0],
+    [1.0, 0.5],
+    [0.5, 0.5],
+    [2.0, 1.0],
+    [1.0, 2.0],
+    [2.0, 2.0]
+]
+function prob_func(prob, i, repeat)
+    ODEProblem(prob.f, initial_conditions[i], prob.tspan, prob.p)
+end
+enprob = EnsembleProblem(prob, prob_func = prob_func)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">EnsembleProblem with problem ODEProblem</code></pre><p>We can check this does what we want by solving it:</p><pre><code class="language-julia hljs"># Check above does what we want
+sim = solve(enprob, Tsit5(), trajectories = N)
+plot(sim)</code></pre><img src="09c1948b.svg" alt="Example block output"/><p><code>trajectories=N</code> means “run N times”, and each time it runs the problem returned by the <code>prob_func</code>, which is always the same problem but with the <code>i</code>th initial condition.</p><p>Now let&#39;s generate a dataset from that. Let&#39;s get data points at every t=0.1 using <code>saveat</code>, and then convert the solution into an array.</p><pre><code class="language-julia hljs"># Generate a dataset from these runs
+data_times = 0.0:0.1:10.0
+sim = solve(enprob, Tsit5(), trajectories = N, saveat = data_times)
+data = Array(sim)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2×101×10 Array{Float64, 3}:
+[:, :, 1] =
+ 1.0  1.06108   1.14403   1.24917   1.37764   …  0.956979  0.983561  1.03376
+ 1.0  0.821084  0.679053  0.566893  0.478813     1.35559   1.10629   0.90637
+
+[:, :, 2] =
+ 1.0  1.01413  1.05394  1.11711   …  1.05324  1.01309  1.00811  1.03162
+ 1.5  1.22868  1.00919  0.833191     2.08023  1.70818  1.39972  1.14802
+
+[:, :, 3] =
+ 1.5  1.58801   1.70188   1.84193   2.00901   …  2.0153    2.21084   2.43589
+ 1.0  0.864317  0.754624  0.667265  0.599149     0.600943  0.549793  0.51368
+
+[:, :, 4] =
+ 1.5  1.51612  1.5621   1.63555   1.73531   …  1.83822   1.98545   2.15958
+ 1.5  1.29176  1.11592  0.969809  0.850159     0.771088  0.691421  0.630025
+
+[:, :, 5] =
+ 0.5  0.531705  0.576474  0.634384  0.706139  …  9.05366   9.4006   8.8391
+ 1.0  0.77995   0.610654  0.480565  0.380645     0.809383  1.51708  2.82619
+
+[:, :, 6] =
+ 1.0  1.11027   1.24238   1.39866   1.58195   …  0.753107  0.748814  0.768284
+ 0.5  0.411557  0.342883  0.289812  0.249142     1.73879   1.38829   1.10932
+
+[:, :, 7] =
+ 0.5  0.555757  0.623692  0.705084  0.80158   …  8.11213   9.10669   9.92169
+ 0.5  0.390449  0.30679   0.24286   0.193966     0.261294  0.455928  0.878792
+
+[:, :, 8] =
+ 2.0  2.11239   2.24921   2.41003   2.59433   …  3.22293   3.47356   3.73011
+ 1.0  0.909749  0.838025  0.783532  0.745339     0.739406  0.765525  0.813005
+
+[:, :, 9] =
+ 1.0  0.969326  0.971358  1.00017  …  1.25065  1.1012   1.01733  0.979304
+ 2.0  1.63445   1.33389   1.09031     3.02672  2.52063  2.07503  1.69808
+
+[:, :, 10] =
+ 2.0  1.92148  1.88215  1.87711  1.90264  …  2.15079  2.27937   2.43105
+ 2.0  1.80195  1.61405  1.4426   1.2907      0.95722  0.884825  0.829478</code></pre><p>Here, <code>data[i,j,k]</code> is the same as <code>sim[i,j,k]</code> which is the same as <code>sim[k][i,j]</code> (where <code>sim[k]</code> is the <code>k</code>th solution). So <code>data[i,j,k]</code> is the <code>j</code>th timepoint of the <code>i</code>th variable in the <code>k</code>th trajectory.</p><p>Now let&#39;s build a loss function. A loss function is some <code>loss(sol)</code> that spits out a scalar for how far from optimal we are. In the documentation, I show that we normally do <code>loss = L2Loss(t,data)</code>, but we can bootstrap off of this. Instead, let&#39;s build an array of <code>N</code> loss functions, each one with the correct piece of data.</p><pre><code class="language-julia hljs"># Building a loss function
+losses = [L2Loss(data_times, data[:, :, i]) for i in 1:N]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10-element Vector{L2Loss{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}, Matrix{Float64}, Nothing, Nothing, Nothing}}:
+ L2Loss{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}, Matrix{Float64}, Nothing, Nothing, Nothing}(0.0:0.1:10.0, [1.0 1.0610780673356452 … 0.9835609063200819 1.0337581256020802; 1.0 0.8210842775886171 … 1.1062868199419744 0.9063703842885995], nothing, nothing, nothing, nothing)
+ L2Loss{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}, Matrix{Float64}, Nothing, Nothing, Nothing}(0.0:0.1:10.0, [1.0 1.0141312263417834 … 1.008106024273487 1.0316172494491975; 1.5 1.2286831520665753 … 1.3997241937770144 1.148024473932838], nothing, nothing, nothing, nothing)
+ L2Loss{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}, Matrix{Float64}, Nothing, Nothing, Nothing}(0.0:0.1:10.0, [1.5 1.5880106683980333 … 2.2108390798809867 2.4358900077551477; 1.0 0.8643172923598124 … 0.549793448237966 0.5136795156288518], nothing, nothing, nothing, nothing)
+ L2Loss{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}, Matrix{Float64}, Nothing, Nothing, Nothing}(0.0:0.1:10.0, [1.5 1.516120535341813 … 1.9854481733983935 2.1595824002587736; 1.5 1.2917636828588928 … 0.69142104528754 0.6300249117929883], nothing, nothing, nothing, nothing)
+ L2Loss{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}, Matrix{Float64}, Nothing, Nothing, Nothing}(0.0:0.1:10.0, [0.5 0.5317050732862075 … 9.400596786582572 8.839104021426882; 1.0 0.7799498910330318 … 1.5170828943237389 2.8261901751675946], nothing, nothing, nothing, nothing)
+ L2Loss{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}, Matrix{Float64}, Nothing, Nothing, Nothing}(0.0:0.1:10.0, [1.0 1.1102743524476706 … 0.7488136202548061 0.7682836073860905; 0.5 0.4115572142804906 … 1.388294474469438 1.109323824809898], nothing, nothing, nothing, nothing)
+ L2Loss{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}, Matrix{Float64}, Nothing, Nothing, Nothing}(0.0:0.1:10.0, [0.5 0.5557572700553828 … 9.1066899353092 9.921688111088129; 0.5 0.390449424650402 … 0.45592804826244704 0.878791838771602], nothing, nothing, nothing, nothing)
+ L2Loss{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}, Matrix{Float64}, Nothing, Nothing, Nothing}(0.0:0.1:10.0, [2.0 2.112390154025954 … 3.4735620076799343 3.730105807744159; 1.0 0.9097494017873065 … 0.7655248264107148 0.8130047563338593], nothing, nothing, nothing, nothing)
+ L2Loss{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}, Matrix{Float64}, Nothing, Nothing, Nothing}(0.0:0.1:10.0, [1.0 0.9693256296130461 … 1.0173287625901066 0.9793042282176283; 2.0 1.634450182452438 … 2.0750297435191234 1.6980752778375598], nothing, nothing, nothing, nothing)
+ L2Loss{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}, Matrix{Float64}, Nothing, Nothing, Nothing}(0.0:0.1:10.0, [2.0 1.9214830168796073 … 2.2793712619034037 2.431047146519131; 2.0 1.8019540594630477 … 0.8848252572380416 0.8294783193137137], nothing, nothing, nothing, nothing)</code></pre><p>So <code>losses[i]</code> is a function which computes the loss of a solution against the data of the ith trajectory. So to build our true loss function, we sum the losses:</p><pre><code class="language-julia hljs">loss(sim) = sum(losses[i](sim[i]) for i in 1:N)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">loss (generic function with 1 method)</code></pre><p>As a double check, make sure that <code>loss(sim)</code> outputs zero (since we generated the data from sim). Now we generate data with other parameters:</p><pre><code class="language-julia hljs">prob = ODEProblem(pf_func, [1.0, 1.0], (0.0, 10.0), [1.2, 0.8])
+function prob_func(prob, i, repeat)
+    ODEProblem(prob.f, initial_conditions[i], prob.tspan, prob.p)
+end
+enprob = EnsembleProblem(prob, prob_func = prob_func)
+sim = solve(enprob, Tsit5(), trajectories = N, saveat = data_times)
+loss(sim)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10108.69414420129</code></pre><p>and get a non-zero loss. So, we now have our problem, our data, and our loss function… we have what we need.</p><p>Put this into build<em>loss</em>objective.</p><pre><code class="language-julia hljs">obj = build_loss_objective(enprob, Tsit5(), loss, Optimization.AutoForwardDiff(),
+    trajectories = N,
+    saveat = data_times)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(::SciMLBase.OptimizationFunction{true, ADTypes.AutoForwardDiff{nothing, Nothing}, DiffEqParamEstim.var&quot;#29#30&quot;{Nothing, typeof(DiffEqParamEstim.STANDARD_PROB_GENERATOR), Base.Pairs{Symbol, Any, Tuple{Symbol, Symbol}, @NamedTuple{trajectories::Int64, saveat::StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}}}, SciMLBase.EnsembleProblem{SciMLBase.ODEProblem{Vector{Float64}, Tuple{Float64, Float64}, true, Vector{Float64}, SciMLBase.ODEFunction{true, SciMLBase.AutoSpecialize, typeof(Main.pf_func), LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, typeof(SciMLBase.DEFAULT_OBSERVED), Nothing, Nothing}, Base.Pairs{Symbol, Union{}, Tuple{}, @NamedTuple{}}, SciMLBase.StandardODEProblem}, typeof(Main.prob_func), typeof(SciMLBase.DEFAULT_OUTPUT_FUNC), typeof(SciMLBase.DEFAULT_REDUCTION), Nothing}, OrdinaryDiffEq.Tsit5{typeof(OrdinaryDiffEq.trivial_limiter!), typeof(OrdinaryDiffEq.trivial_limiter!), Static.False}, typeof(Main.loss), Nothing, Tuple{}}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, typeof(SciMLBase.DEFAULT_OBSERVED_NO_TIME), Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing}) (generic function with 1 method)</code></pre><p>Notice that we added the kwargs for <code>solve</code> of the <code>EnsembleProblem</code> into this. They get passed to the internal <code>solve</code> command, so then the loss is computed on <code>N</code> trajectories at <code>data_times</code>.</p><p>Thus, we take this objective function over to any optimization package. Here, since the Lotka-Volterra equation requires positive parameters, we use Fminbox to make sure the parameters stay within the passed bounds. Let&#39;s start the optimization with [1.3,0.9], Optim spits out that the true parameters are:</p><pre><code class="language-julia hljs">lower = zeros(2)
+upper = fill(2.0, 2)
+optprob = OptimizationProblem(obj, [1.3, 0.9], lb = lower, ub = upper)
+result = solve(optprob, Fminbox(BFGS()))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">retcode: Success
+u: 2-element Vector{Float64}:
+ 1.500464620644685
+ 1.0010017675395355</code></pre><pre><code class="language-julia hljs">result</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">retcode: Success
+u: 2-element Vector{Float64}:
+ 1.500464620644685
+ 1.0010017675395355</code></pre><p>Optim finds one but not the other parameter.</p><p>It is advised to run a test on synthetic data for your problem before using it on real data. Maybe play around with different optimization packages, or add regularization. You may also want to decrease the tolerance of the ODE solvers via</p><pre><code class="language-julia hljs">obj = build_loss_objective(enprob, Tsit5(), loss, Optimization.AutoForwardDiff(),
+    trajectories = N,
+    abstol = 1e-8, reltol = 1e-8,
+    saveat = data_times)
+optprob = OptimizationProblem(obj, [1.3, 0.9], lb = lower, ub = upper)
+result = solve(optprob, BFGS()) #OptimizationOptimJL detects that it&#39;s a box constrained problem and use Fminbox wrapper over BFGS</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">retcode: Success
+u: 2-element Vector{Float64}:
+ 1.5007432843504753
+ 1.0012380201889803</code></pre><pre><code class="language-julia hljs">result</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">retcode: Success
+u: 2-element Vector{Float64}:
+ 1.5007432843504753
+ 1.0012380201889803</code></pre><p>if you suspect error is the problem. However, if you&#39;re having problems it&#39;s most likely not the ODE solver tolerance and mostly because parameter inference is a very hard optimization problem.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../stochastic_evaluations/">« Parameter Estimation for Stochastic Differential Equations and Ensembles</a><a class="docs-footer-nextpage" href="../../methods/recommended_methods/">Recommended Methods »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Saturday 17 February 2024 14:24">Saturday 17 February 2024</span>. Using Julia version 1.10.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
