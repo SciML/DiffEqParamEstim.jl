@@ -1,6 +1,6 @@
 using Optim, Random
 obj = build_loss_objective(prob1, Tsit5(), L2Loss(t, data),
-    maxiters = 10000, verbose = false)
+    maxiters = 1000, verbose = false)
 
 ### Optim Method
 
