@@ -1,4 +1,4 @@
-using DiffEqParamEstim, Test
+using DiffEqParamEstim, Test, Optimization, BlackBoxOptim, Optim
 
 const GROUP = get(ENV, "GROUP", "All")
 
