@@ -16,6 +16,7 @@ jobs:
     strategy:
       matrix:
         group:
+          - ODEs
           - All
         version:
           - '1'
