@@ -50,14 +50,14 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
 
     if weight == nothing
         @inbounds for i in 1:length(sol)
-            sumsq += (data[i] - sol[i])^2
+            sumsq += (data[i] - sol.u[i])^2
         end
     else
         @inbounds for i in 1:length(sol)
             if weight isa Real
-                sumsq = sumsq + ((data[i] - sol[i])^2) * weight
+                sumsq = sumsq + ((data[i] - sol.u[i])^2) * weight
             else
-                sumsq = sumsq + ((data[i] - sol[i])^2) * weight[i]
+                sumsq = sumsq + ((data[i] - sol.u[i])^2) * weight[i]
             end
         end
     end
@@ -82,11 +82,11 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
 
     if weight == nothing
         @inbounds for i in 1:length(sol)
-            for j in 1:length(sol[i])
+            for j in 1:length(sol.u[i])
                 sumsq += (data[j, i] - sol[j, i])^2
             end
             if diff_weight != nothing && i != 1
-                for j in 1:length(sol[i])
+                for j in 1:length(sol.u[i])
                     if diff_weight isa Real
                         sumsq += diff_weight *
                                  ((data[j, i] - data[j, i - 1] - sol[j, i] +
@@ -102,16 +102,16 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
     else
         @inbounds for i in 1:length(sol)
             if weight isa Real
-                for j in 1:length(sol[i])
+                for j in 1:length(sol.u[i])
                     sumsq = sumsq + ((data[j, i] - sol[j, i])^2) * weight
                 end
             else
-                for j in 1:length(sol[i])
+                for j in 1:length(sol.u[i])
                     sumsq = sumsq + ((data[j, i] - sol[j, i])^2) * weight[j, i]
                 end
             end
             if diff_weight != nothing && i != 1
-                for j in 1:length(sol[i])
+                for j in 1:length(sol.u[i])
                     if diff_weight isa Real
                         sumsq += diff_weight *
                                  ((data[j, i] - data[j, i - 1] - sol[j, i] +
@@ -194,7 +194,7 @@ function (f::LogLikeLoss)(sol::SciMLBase.AbstractSciMLSolution)
             # i is the number of time points
             # j is the size of the system
             # corresponds to distributions[i,j]
-            ll -= logpdf(distributions[i], sol[i])
+            ll -= logpdf(distributions[i], sol.u[i])
         end
     end
 
