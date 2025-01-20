@@ -16,16 +16,16 @@ SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
 
 [compat]
 Calculus = "0.5"
-Dierckx = "0.4, 0.5"
+Dierckx = "0.5"
 DiffEqBase = "6"
 Distributions = "0.25"
 ForwardDiff = "0.10"
-PenaltyFunctions = "0.1, 0.2, 0.3"
-PreallocationTools = "0.2, 0.3, 0.4"
-RecursiveArrayTools = "1.0, 2.0, 3"
+PenaltyFunctions = "0.3"
+PreallocationTools = "0.4"
+RecursiveArrayTools = "3"
 SciMLBase = "1.69, 2"
 SciMLSensitivity = "7"
-julia = "1.6"
+julia = "1.10"
 
 [extras]
 BlackBoxOptim = "a134a8b2-14d6-55f6-9291-3336d3ab0209"
