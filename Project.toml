@@ -38,7 +38,6 @@ OptimizationBBO = "3e6eede4-6085-4f62-9a71-46d9bc1eb92b"
 OptimizationNLopt = "4e6fcdb7-1186-4e1f-a706-475e75c168bb"
 OptimizationOptimJL = "36348300-93cb-4f02-beb5-3c3902f8871e"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
-ParameterizedFunctions = "65888b18-ceab-5e60-b2b9-181511a3b968"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SciMLSensitivity = "1ed8b502-d754-442c-8d5d-10ac956f44a1"
 SteadyStateDiffEq = "9672c7b4-1e72-59bd-8a11-6ac3964bc41f"
@@ -48,4 +47,4 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [targets]
-test = ["Test", "BlackBoxOptim", "DelayDiffEq", "ForwardDiff", "NLopt", "Optim", "Optimization", "OptimizationBBO", "OptimizationNLopt", "OptimizationOptimJL", "OrdinaryDiffEq", "ParameterizedFunctions", "Random", "SciMLSensitivity", "StochasticDiffEq", "SteadyStateDiffEq", "Sundials", "Zygote"]
+test = ["Test", "BlackBoxOptim", "DelayDiffEq", "ForwardDiff", "NLopt", "Optim", "Optimization", "OptimizationBBO", "OptimizationNLopt", "OptimizationOptimJL", "OrdinaryDiffEq", "Random", "SciMLSensitivity", "StochasticDiffEq", "SteadyStateDiffEq", "Sundials", "Zygote"]

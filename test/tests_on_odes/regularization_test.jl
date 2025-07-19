@@ -2,22 +2,22 @@ using PenaltyFunctions, OptimizationOptimJL, LinearAlgebra, SciMLSensitivity
 
 cost_function_1 = build_loss_objective(prob1, Tsit5(), L2Loss(t, data),
     Optimization.AutoZygote(),
-    Regularization(0.6, L2Penalty()), maxiters = 10000,
-    verbose = false, abstol = 1e-10, reltol = 1e-10)
+    Regularization(0.6, L2Penalty()), maxiters = 1000,
+    verbose = false, abstol = 1e-8, reltol = 1e-8)
 cost_function_2 = build_loss_objective(prob2, Tsit5(), L2Loss(t, data),
     Optimization.AutoZygote(),
     Regularization(0.1,
         MahalanobisPenalty(Matrix(1.0I, 2, 2))),
     verbose = false,
-    abstol = 1e-10, reltol = 1e-10,
-    maxiters = 10000)
+    abstol = 1e-8, reltol = 1e-8,
+    maxiters = 1000)
 cost_function_3 = build_loss_objective(prob3, Tsit5(), L2Loss(t, data),
     Optimization.AutoZygote(),
     Regularization(0.1,
         MahalanobisPenalty(Matrix(1.0I, 4, 4))),
     verbose = false,
-    abstol = 1e-10, reltol = 1e-10,
-    maxiters = 10000)
+    abstol = 1e-8, reltol = 1e-8,
+    maxiters = 1000)
 
 println("Use Optim BFGS to fit the parameter")
 optprob = Optimization.OptimizationProblem(cost_function_1, [1.0])
