@@ -28,4 +28,4 @@ lower_bounds!(opt, [0.5])
 upper_bounds!(opt, [2.5])
 min_objective!(opt, weighted_cost_function)
 (minf, minx, ret) = NLopt.optimize(opt, [1.3])
-@test minx[1]≈1.5 atol=5e-1
+@test minx[1]≈1.5 atol=1e-2
