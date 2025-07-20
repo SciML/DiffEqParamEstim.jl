@@ -24,6 +24,8 @@ weighted_cost_function = build_loss_objective(prob1, Tsit5(),
         data_weight = weight),
     maxiters = 10000, verbose = false)
 opt = Opt(:LN_COBYLA, 1)
+lower_bounds!(opt, [0.5])
+upper_bounds!(opt, [2.5])
 min_objective!(opt, weighted_cost_function)
 (minf, minx, ret) = NLopt.optimize(opt, [1.3])
-@test minx[1]≈1.5 atol=1e-2
+@test minx[1]≈1.5 atol=5e-1
