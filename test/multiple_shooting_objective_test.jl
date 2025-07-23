@@ -28,5 +28,5 @@ ms_obj1 = multiple_shooting_objective(ms_prob, Tsit5(), L2Loss(t, data),
     reltol = 1e-6)
 optprob = Optimization.OptimizationProblem(ms_obj1, zeros(18), lb = first.(bound),
     ub = last.(bound))
-result = solve(optprob, BFGS(), maxiters = 500)
+result = solve(optprob, BFGS(), maxiters = 10000)
 @test result.u[(end - 1):end]≈[1.5, 1.0] atol=2e-1
