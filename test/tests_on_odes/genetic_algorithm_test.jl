@@ -25,7 +25,7 @@ result, fitness, cnt = ga(cost_function, N;
     mutation = domainrange(fill(0.5, N)))
 @test result[1]≈1.5 atol=3e-1
 
-cost_function = build_loss_objective(prob2, Tsit5(), L2Loss(t, data),
+cost_function = build_loss_objective(prob2, Tsit5(), L2Loss(t, data2),
     maxiters = 10000)
 N = 2
 result, fitness, cnt = ga(cost_function, N;
@@ -37,7 +37,7 @@ result, fitness, cnt = ga(cost_function, N;
     mutation = domainrange(fill(0.5, N)))
 @test result≈[1.5; 3.0] atol=3e-1
 
-cost_function = build_loss_objective(prob3, Tsit5(), L2Loss(t, data),
+cost_function = build_loss_objective(prob3, Tsit5(), L2Loss(t, data3),
     maxiters = 10000)
 N = 4
 result, fitness, cnt = ga(cost_function, N;

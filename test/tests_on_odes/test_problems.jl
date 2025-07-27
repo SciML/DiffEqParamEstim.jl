@@ -1,4 +1,7 @@
-using OrdinaryDiffEq, RecursiveArrayTools
+using OrdinaryDiffEq, RecursiveArrayTools, Random
+
+# Set seed for reproducible test data
+Random.seed!(100)
 
 # Here are the problems to solve
 
@@ -35,7 +38,17 @@ p = [1.5, 1.0, 3.0, 1.0]
 prob3 = ODEProblem(f3!, u0, tspan, p)
 
 # Generate random data based off of the known solution
-sol = solve(prob1, Tsit5())
+sol1 = solve(prob1, Tsit5())
 t = collect(range(0, stop = 10, length = 200))
-randomized = VectorOfArray([(sol(t[i]) + 0.01randn(2)) for i in 1:length(t)])
-data = convert(Array, randomized)
+randomized1 = VectorOfArray([(sol1(t[i]) + 0.01randn(2)) for i in 1:length(t)])
+data = convert(Array, randomized1)
+
+# Generate data for prob2
+sol2 = solve(prob2, Tsit5())
+randomized2 = VectorOfArray([(sol2(t[i]) + 0.01randn(2)) for i in 1:length(t)])
+data2 = convert(Array, randomized2)
+
+# Generate data for prob3
+sol3 = solve(prob3, Tsit5())
+randomized3 = VectorOfArray([(sol3(t[i]) + 0.01randn(2)) for i in 1:length(t)])
+data3 = convert(Array, randomized3)
