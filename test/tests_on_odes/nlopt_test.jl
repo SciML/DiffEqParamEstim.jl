@@ -22,7 +22,7 @@ opt = Opt(:GN_ISRES, 1)
 lower_bounds!(opt, [1.0])
 upper_bounds!(opt, [3.0])
 xtol_rel!(opt, 1e-4)
-maxeval!(opt, 100 - 000)
+maxeval!(opt, 10000)
 res = solve(optprob, opt)
 @test res.u[1]≈1.5 atol=1e-1
 
