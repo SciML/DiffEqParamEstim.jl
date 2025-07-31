@@ -102,7 +102,8 @@ function two_stage_objective(prob::DiffEqBase.DEProblem, tpoints, data,
         kernel = EpanechnikovKernel())
     f = prob.f
     kernel_function = decide_kernel(kernel)
-    estimated_derivative, estimated_solution = construct_estimated_solution_and_derivative!(
+    estimated_derivative,
+    estimated_solution = construct_estimated_solution_and_derivative!(
         data,
         kernel_function,
         tpoints)

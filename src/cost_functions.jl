@@ -208,6 +208,7 @@ function (f::LogLikeLoss)(sol::SciMLBase.AbstractSciMLSolution)
         fdll = 0
         if eltype(distributions) <: UnivariateDistribution
             for j in 1:(length(f.t) - 1), i in 1:length(diff_data[1])
+
                 fdll -= logpdf(distributions[j, i], diff_data[j][i])
             end
         else
@@ -253,6 +254,7 @@ function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
         fdll = 0
         if eltype(distributions) <: UnivariateDistribution
             for j in 2:length(f.t), i in 1:length(sol[1][1])
+
                 vals = [s[i, j] - s[i, j - 1] for s in sol]
                 fdll -= logpdf(distributions[j - 1, i], vals)[1]
             end
