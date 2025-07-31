@@ -205,10 +205,14 @@ ms_p = [1.5, 1.0]
 ms_prob = ODEProblem(ms_f1, ms_u0, tspan, ms_p)
 t = collect(range(0, stop = 10, length = 200))
 data = Array(solve(ms_prob, Tsit5(), saveat = t, abstol = 1e-12, reltol = 1e-12))
-bound = Tuple{Float64, Float64}[(0, 10), (0, 10), (0, 10), (0, 10),
-    (0, 10), (0, 10), (0, 10), (0, 10),
-    (0, 10), (0, 10), (0, 10), (0, 10),
-    (0, 10), (0, 10), (0, 10), (0, 10), (0, 10), (0, 10)]
+bound = Tuple{Float64, Float64}[(0, 10), (0, 10), (
+    0, 10), (0, 10),
+(0, 10), (0, 10), (0, 10), (
+    0, 10),
+(0, 10), (0, 10), (0, 10), (0, 10),
+(
+    0, 10), (0, 10), (0, 10), (0, 10), (0, 10), (
+    0, 10)]
 
 ms_obj = multiple_shooting_objective(ms_prob, Tsit5(), L2Loss(t, data),
     Optimization.AutoForwardDiff();

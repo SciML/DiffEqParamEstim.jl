@@ -1,6 +1,7 @@
 using RecursiveArrayTools, ParameterizedFunctions, Zygote
 using OptimizationNLopt, DiffEqParamEstim, OptimizationBBO, OptimizationBBO.BlackBoxOptim
-Xiang2015Bounds = Tuple{Float64, Float64}[(9, 11), (20, 30), (2, 3)]
+Xiang2015Bounds = Tuple{Float64, Float64}[(9, 11), (20, 30), (
+    2, 3)]
 
 g1 = @ode_def LorenzExample begin
     dx = σ * (y - x)

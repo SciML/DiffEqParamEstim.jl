@@ -9,10 +9,12 @@
 using RecursiveArrayTools, ParameterizedFunctions, SciMLSensitivity, ModelingToolkit
 using NLopt, DiffEqParamEstim, OptimizationBBO, OptimizationOptimJL
 
-Xiang2015Bounds = Tuple{Float64, Float64}[(9, 11), (20, 30), (2, 3)] # for local optimizations
+Xiang2015Bounds = Tuple{Float64, Float64}[(9, 11), (20, 30), (
+    2, 3)] # for local optimizations
 xlow_bounds = [9.0, 20.0, 2.0]
 xhigh_bounds = [11.0, 30.0, 3.0]
-LooserBounds = Tuple{Float64, Float64}[(0, 22), (0, 60), (0, 6)] # for global optimization
+LooserBounds = Tuple{Float64, Float64}[(0, 22), (0, 60), (
+    0, 6)] # for global optimization
 GloIniPar = [0.0, 0.5, 0.1] # for global optimizations
 LocIniPar = [9.0, 20.0, 2.0] # for local optimization
 
