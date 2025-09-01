@@ -28,14 +28,15 @@ sequence, and we will be good to go.
 ## Parameter Estimation in the Lotka-Volterra Equation: 1 Parameter Case
 
 We choose to optimize the parameters on the Lotka-Volterra equation. Let's start
-by defining the equation as a function with parameters:
+by defining the equation as a function with a single parameter `p=[a]`:
 
 ```@example ode
 using DifferentialEquations, RecursiveArrayTools, Plots, DiffEqParamEstim
 using Optimization, ForwardDiff, OptimizationOptimJL, OptimizationBBO
 
 function f(du, u, p, t)
-    du[1] = dx = p[1] * u[1] - u[1] * u[2]
+    a = p[]
+    du[1] = dx =  a * u[1] - u[1] * u[2]
     du[2] = dy = -3 * u[2] + u[1] * u[2]
 end
 
@@ -47,13 +48,13 @@ prob = ODEProblem(f, u0, tspan, p)
 
 ### Generating Synthetic Data
 
-We create data using the numerical result with `a=1.5`:
+We create synthetic data using the numerical result with `a=1.5` and additive white gaussian noise with a standard deviation of `0.05`:
 
 ```@example ode
 sol = solve(prob, Tsit5())
 t = collect(range(0, stop = 10, length = 200))
 using RecursiveArrayTools # for VectorOfArray
-randomized = VectorOfArray([(sol(t[i]) + 0.01randn(2)) for i in 1:length(t)])
+randomized = VectorOfArray([(sol(t[i]) + 0.05randn(2)) for i in 1:length(t)])
 data = convert(Array, randomized)
 ```
 
@@ -124,8 +125,9 @@ Now let's see how well the fit performed:
 ```@example ode
 newprob = remake(prob, p = optsol.u)
 newsol = solve(newprob, Tsit5())
-plot(sol)
-plot!(newsol)
+plot(newsol, label="solution")
+plot!(t, data', label="data")
+plot!(sol, label="data (no noise)", linestyle=:dot)
 ```
 
 Note that some algorithms may be sensitive to the initial condition. For more
