@@ -1,5 +1,5 @@
 export L2Loss, Regularization, LogLikeLoss, prior_loss, l2lossgradient!,
-       colloc_grad
+    colloc_grad
 
 struct Regularization{L, P} <: DiffEqBase.DECostFunction
     λ::L
@@ -8,7 +8,7 @@ end
 Regularization(λ) = Regularization{typeof(λ), typeof(L2Penalty())}(λ, L2Penalty())
 
 function (f::Regularization)(p)
-    f.λ * value(f.penalty, p)
+    return f.λ * value(f.penalty, p)
 end
 
 function prior_loss(prior, p)
@@ -20,7 +20,7 @@ function prior_loss(prior, p)
     else
         ll -= logpdf(prior, p)
     end
-    ll
+    return ll
 end
 
 struct L2Loss{T, D, U, W, G} <: DiffEqBase.DECostFunction
@@ -61,7 +61,7 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
             end
         end
     end
-    sumsq
+    return sumsq
 end
 
 function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
@@ -89,12 +89,20 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
                 for j in 1:length(sol[i])
                     if diff_weight isa Real
                         sumsq += diff_weight *
-                                 ((data[j, i] - data[j, i - 1] - sol[j, i] +
-                                   sol[j, i - 1])^2)
+                            (
+                            (
+                                data[j, i] - data[j, i - 1] - sol[j, i] +
+                                    sol[j, i - 1]
+                            )^2
+                        )
                     else
                         sumsq += diff_weight[j, i] *
-                                 ((data[j, i] - data[j, i - 1] - sol[j, i] +
-                                   sol[j, i - 1])^2)
+                            (
+                            (
+                                data[j, i] - data[j, i - 1] - sol[j, i] +
+                                    sol[j, i - 1]
+                            )^2
+                        )
                     end
                 end
             end
@@ -114,12 +122,20 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
                 for j in 1:length(sol[i])
                     if diff_weight isa Real
                         sumsq += diff_weight *
-                                 ((data[j, i] - data[j, i - 1] - sol[j, i] +
-                                   sol[j, i - 1])^2)
+                            (
+                            (
+                                data[j, i] - data[j, i - 1] - sol[j, i] +
+                                    sol[j, i - 1]
+                            )^2
+                        )
                     else
                         sumsq += diff_weight[j, i] *
-                                 ((data[j, i] - data[j, i - 1] - sol[j, i] +
-                                   sol[j, i - 1])^2)
+                            (
+                            (
+                                data[j, i] - data[j, i - 1] - sol[j, i] +
+                                    sol[j, i - 1]
+                            )^2
+                        )
                     end
                 end
             end
@@ -131,23 +147,27 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
         end
         sumsq += sum(abs2, x - y for (x, y) in zip(dudt, colloc_grad))
     end
-    sumsq
+    return sumsq
 end
 
 # Cost functions are written assuming a data matrix
 # Turn vectors into a 1xN matrix
 matrixize(x) = x isa Vector ? reshape(x, 1, length(x)) : x
 
-function L2Loss(t, data; differ_weight = nothing, data_weight = nothing,
+function L2Loss(
+        t, data; differ_weight = nothing, data_weight = nothing,
         colloc_grad = nothing,
-        dudt = nothing)
-    L2Loss(t, matrixize(data), matrixize(differ_weight),
+        dudt = nothing
+    )
+    return L2Loss(
+        t, matrixize(data), matrixize(differ_weight),
         matrixize(data_weight), matrixize(colloc_grad),
-        colloc_grad == nothing ? nothing : zeros(size(colloc_grad)))
+        colloc_grad == nothing ? nothing : zeros(size(colloc_grad))
+    )
 end
 
 function (f::L2Loss)(sol::DiffEqBase.AbstractEnsembleSolution)
-    mean(f.(sol.u))
+    return mean(f.(sol.u))
 end
 
 #t - 1xN array, data - mxN array, returns mxN array
@@ -166,10 +186,10 @@ struct LogLikeLoss{T, D} <: DiffEqBase.DECostFunction
     weight::Any
 end
 function LogLikeLoss(t, data_distributions)
-    LogLikeLoss(t, matrixize(data_distributions), nothing, nothing)
+    return LogLikeLoss(t, matrixize(data_distributions), nothing, nothing)
 end
 function LogLikeLoss(t, data_distributions, diff_distributions)
-    LogLikeLoss(t, matrixize(data_distributions), matrixize(diff_distributions), 1)
+    return LogLikeLoss(t, matrixize(data_distributions), matrixize(diff_distributions), 1)
 end
 
 function (f::LogLikeLoss)(sol::SciMLBase.AbstractSciMLSolution)
@@ -219,7 +239,7 @@ function (f::LogLikeLoss)(sol::SciMLBase.AbstractSciMLSolution)
         ll += f.weight * fdll
     end
 
-    ll
+    return ll
 end
 
 function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
@@ -267,7 +287,7 @@ function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
         ll += f.weight * fdll
     end
 
-    ll
+    return ll
 end
 
 function l2lossgradient!(grad, sol, data, sensitivities, num_p)
@@ -279,4 +299,5 @@ function l2lossgradient!(grad, sol, data, sensitivities, num_p)
     for k in 1:K, i in 1:num_p, j in 1:data_x_size
         grad[i] -= my_grad[j, k] * sensitivities[i][j, k]
     end
+    return
 end

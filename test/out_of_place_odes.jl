@@ -6,7 +6,7 @@ function LotkaVolterraTest_not_inplace(u, a, t)
     du = zeros(eltype(u), 2)
     du[1] = a[1] * x - b * x * y
     du[2] = -c * y + d * x * y
-    du
+    return du
 end
 
 # forward
@@ -23,19 +23,21 @@ data = convert(Array, randomized)
 # inverse
 soll = solve(prob, Tsit5())
 
-cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t, data),
+cost_function = build_loss_objective(
+    prob, Tsit5(), L2Loss(t, data),
     Optimization.AutoZygote(),
-    maxiters = 10000, verbose = false)
+    maxiters = 10000, verbose = false
+)
 optprob = Optimization.OptimizationProblem(cost_function, [1.0], lb = [0.0], ub = [10.0])
 sol = solve(optprob, BFGS())
 
 # two-stage OOP regression test
 
 function ff(du, u, p, t)
-    du .= p .* u
+    return du .= p .* u
 end
 function ff(u, p, t)
-    p .* u
+    return p .* u
 end
 rc = 62
 ps = repeat([-0.001], rc)
