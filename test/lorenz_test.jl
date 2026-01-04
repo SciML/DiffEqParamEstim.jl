@@ -1,7 +1,10 @@
 using RecursiveArrayTools, ParameterizedFunctions, Zygote
 using OptimizationNLopt, DiffEqParamEstim, OptimizationBBO, OptimizationBBO.BlackBoxOptim
-Xiang2015Bounds = Tuple{Float64, Float64}[(9, 11), (20, 30), (
-    2, 3)]
+Xiang2015Bounds = Tuple{Float64, Float64}[
+    (9, 11), (20, 30), (
+        2, 3,
+    ),
+]
 
 g1 = @ode_def LorenzExample begin
     dx = σ * (y - x)
@@ -33,23 +36,33 @@ data_short = convert(Array, solve(prob_short, Euler(), tstops = t_short))
 data = convert(Array, solve(prob, Euler(), tstops = t))
 
 # Use BlackBoxOptim
-obj_short = build_loss_objective(prob_short, Euler(), L2Loss(t_short, data_short),
-    tstops = t_short, dense = false)
-res1 = bboptimize((x) -> obj_short(x, nothing); SearchRange = Xiang2015Bounds,
-    MaxSteps = 11e3)
-optprob = Optimization.OptimizationProblem(obj_short, [9.0, 20.0, 2.0];
+obj_short = build_loss_objective(
+    prob_short, Euler(), L2Loss(t_short, data_short),
+    tstops = t_short, dense = false
+)
+res1 = bboptimize(
+    (x) -> obj_short(x, nothing); SearchRange = Xiang2015Bounds,
+    MaxSteps = 11.0e3
+)
+optprob = Optimization.OptimizationProblem(
+    obj_short, [9.0, 20.0, 2.0];
     lb = [9.0, 20.0, 2.0],
-    ub = [11.0, 30.0, 3.0])
+    ub = [11.0, 30.0, 3.0]
+)
 res2 = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited())
 
 # Use NLopt
-obj_short = build_loss_objective(prob_short, Euler(), L2Loss(t_short, data_short),
+obj_short = build_loss_objective(
+    prob_short, Euler(), L2Loss(t_short, data_short),
     Optimization.AutoForwardDiff(), tstops = t_short,
-    dense = false)
+    dense = false
+)
 opt = Opt(:GN_ORIG_DIRECT_L, 3)
-optprob = Optimization.OptimizationProblem(obj_short, [9.0, 20.0, 2.0];
+optprob = Optimization.OptimizationProblem(
+    obj_short, [9.0, 20.0, 2.0];
     lb = [9.0, 20.0, 2.0],
-    ub = [11.0, 30.0, 3.0])
+    ub = [11.0, 30.0, 3.0]
+)
 @time res = solve(optprob, opt)
 
 # opt = Opt(:GN_CRS2_LM, 3)
@@ -102,8 +115,10 @@ res = solve(optprob, opt)
 
 #### Now let's solve the longer version
 
-obj = build_loss_objective(prob, Euler(), L2Loss(t, data), Optimization.AutoZygote(),
-    tstops = t, dense = false)
+obj = build_loss_objective(
+    prob, Euler(), L2Loss(t, data), Optimization.AutoZygote(),
+    tstops = t, dense = false
+)
 # res1 = bboptimize(obj;SearchRange = Xiang2015Bounds, MaxSteps = 8e3)
 
 opt = Opt(:GN_ORIG_DIRECT_L, 3)

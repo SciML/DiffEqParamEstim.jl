@@ -7,13 +7,19 @@ ENV["GKSwstype"] = "100"
 
 include("pages.jl")
 
-makedocs(sitename = "DiffEqParamEstim.jl",
+makedocs(
+    sitename = "DiffEqParamEstim.jl",
     authors = "Chris Rackauckas et al.",
     modules = [DiffEqParamEstim],
     clean = true, doctest = false, linkcheck = true,
-    format = Documenter.HTML(assets = ["assets/favicon.ico"],
-        canonical = "https://docs.sciml.ai/DiffEqParamEstim/stable/"),
-    pages = pages)
+    format = Documenter.HTML(
+        assets = ["assets/favicon.ico"],
+        canonical = "https://docs.sciml.ai/DiffEqParamEstim/stable/"
+    ),
+    pages = pages
+)
 
-deploydocs(repo = "github.com/SciML/DiffEqParamEstim.jl";
-    push_preview = true)
+deploydocs(
+    repo = "github.com/SciML/DiffEqParamEstim.jl";
+    push_preview = true
+)
