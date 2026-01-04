@@ -62,7 +62,7 @@ function calckernel(::TricubeKernel, t)
 end
 
 function calckernel(::GaussianKernel, t)
-    exp(-0.5 * t^2) / (sqrt(2 * π))
+    return exp(-0.5 * t^2) / (sqrt(2 * π))
 end
 
 function calckernel(::CosineKernel, t)
@@ -74,13 +74,13 @@ function calckernel(::CosineKernel, t)
 end
 
 function calckernel(::LogisticKernel, t)
-    1 / (exp(t) + 2 + exp(-t))
+    return 1 / (exp(t) + 2 + exp(-t))
 end
 
 function calckernel(::SigmoidKernel, t)
-    2 / (π * (exp(t) + exp(-t)))
+    return 2 / (π * (exp(t) + exp(-t)))
 end
 
 function calckernel(::SilvermanKernel, t)
-    sin(abs(t) / 2 + π / 4) * 0.5 * exp(-abs(t) / sqrt(2))
+    return sin(abs(t) / 2 + π / 4) * 0.5 * exp(-abs(t) / sqrt(2))
 end
