@@ -1,7 +1,15 @@
 module DiffEqParamEstim
-using DiffEqBase, PenaltyFunctions,
-    RecursiveArrayTools, Distributions,
-    LinearAlgebra, Dierckx, SciMLBase
+import DiffEqBase
+import SciMLBase
+import Dierckx
+using PenaltyFunctions: L2Penalty, value
+using RecursiveArrayTools: VectorOfArray
+using Distributions: UnivariateDistribution, logpdf
+using LinearAlgebra: Diagonal, mul!, transpose
+using SciMLBase: EnsembleProblem, OptimizationFunction, ReturnCode, isinplace, remake
+using Statistics: mean
+using StatsAPI: loglikelihood
+using CommonSolve: solve
 
 import PreallocationTools
 STANDARD_PROB_GENERATOR(prob, p) = remake(prob; u0 = eltype(p).(prob.u0), p = p)
