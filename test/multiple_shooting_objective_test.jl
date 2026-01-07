@@ -30,7 +30,7 @@ ms_obj = multiple_shooting_objective(
     discontinuity_weight = 1.0, abstol = 1.0e-12,
     reltol = 1.0e-12
 )
-result = bboptimize(ms_obj; SearchRange = bound, MaxSteps = 21.0e3)
+result = bboptimize(ms_obj; search_range = bound, max_steps = 21.0e3)
 @test result.archive_output.best_candidate[(end - 1):end] ≈ [1.5, 1.0] atol = 2.0e-1
 
 priors = [Truncated(Normal(1.5, 0.5), 0, 2), Truncated(Normal(1.0, 0.5), 0, 1.5)]
