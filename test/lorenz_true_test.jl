@@ -74,8 +74,8 @@ obj_short = build_loss_objective(
     tstops = t_short
 )
 res1 = bboptimize(
-    (x) -> obj_short(x, nothing); SearchRange = Xiang2015Bounds,
-    MaxSteps = 11.0e3
+    (x) -> obj_short(x, nothing); search_range = Xiang2015Bounds,
+    max_steps = 11.0e3
 )
 # Euler could not recover the correct results since its error is too high!
 
@@ -150,11 +150,11 @@ res = solve(optprob, opt)
 # Longer version
 
 obj = build_loss_objective(prob, Euler(), L2Loss(t, data), tstops = t)
-res1 = bboptimize(x -> obj(x, nothing); SearchRange = Xiang2015Bounds, MaxSteps = 8.0e3)
+res1 = bboptimize(x -> obj(x, nothing); search_range = Xiang2015Bounds, max_steps = 8.0e3)
 # Once again, Euler fails to convergence its error is too high
 
 obj = build_loss_objective(prob, Vern7(), L2Loss(t, data), reltol = 1.0e-14)
-res1 = bboptimize(x -> obj(x, nothing); SearchRange = Xiang2015Bounds, MaxSteps = 8.0e3)
+res1 = bboptimize(x -> obj(x, nothing); search_range = Xiang2015Bounds, max_steps = 8.0e3)
 # BB with Tsit5 converges just fine in 14.5 seconds
 
 opt = Opt(:GN_ORIG_DIRECT_L, 3)

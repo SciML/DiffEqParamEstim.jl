@@ -41,8 +41,8 @@ obj_short = build_loss_objective(
     tstops = t_short, dense = false
 )
 res1 = bboptimize(
-    (x) -> obj_short(x, nothing); SearchRange = Xiang2015Bounds,
-    MaxSteps = 11.0e3
+    (x) -> obj_short(x, nothing); search_range = Xiang2015Bounds,
+    max_steps = 11.0e3
 )
 optprob = Optimization.OptimizationProblem(
     obj_short, [9.0, 20.0, 2.0];
@@ -119,7 +119,7 @@ obj = build_loss_objective(
     prob, Euler(), L2Loss(t, data), Optimization.AutoZygote(),
     tstops = t, dense = false
 )
-# res1 = bboptimize(obj;SearchRange = Xiang2015Bounds, MaxSteps = 8e3)
+# res1 = bboptimize(obj;search_range = Xiang2015Bounds, max_steps = 8e3)
 
 opt = Opt(:GN_ORIG_DIRECT_L, 3)
 res = solve(optprob, opt)

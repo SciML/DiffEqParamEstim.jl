@@ -73,7 +73,7 @@ optprob = Optimization.OptimizationProblem(
 result = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 11.0e3)
 @test result.u ≈ [1.5, 1.0] atol = 1.0e-1
 using OptimizationBBO.BlackBoxOptim
-result = bboptimize(obj, SearchRange = [(0.5, 5.0), (0.5, 5.0)], MaxSteps = 11.0e3)
+result = bboptimize(obj, search_range = [(0.5, 5.0), (0.5, 5.0)], max_steps = 11.0e3)
 @test result.archive_output.best_candidate ≈ [1.5, 1.0] atol = 1.0e-1
 
 distributions = [fit_mle(MvNormal, aggregate_data[:, j, :]) for j in 1:200]
