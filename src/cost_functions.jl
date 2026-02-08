@@ -48,7 +48,7 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
 
     sumsq = 0.0
 
-    if weight == nothing
+    if weight === nothing
         @inbounds for i in 1:length(sol)
             sumsq += (data[i] - sol[i])^2
         end
@@ -80,12 +80,12 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
 
     sumsq = 0.0
 
-    if weight == nothing
+    if weight === nothing
         @inbounds for i in 1:length(sol)
             for j in 1:length(sol[i])
                 sumsq += (data[j, i] - sol[j, i])^2
             end
-            if diff_weight != nothing && i != 1
+            if diff_weight !== nothing && i != 1
                 for j in 1:length(sol[i])
                     if diff_weight isa Real
                         sumsq += diff_weight *
@@ -118,7 +118,7 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
                     sumsq = sumsq + ((data[j, i] - sol[j, i])^2) * weight[j, i]
                 end
             end
-            if diff_weight != nothing && i != 1
+            if diff_weight !== nothing && i != 1
                 for j in 1:length(sol[i])
                     if diff_weight isa Real
                         sumsq += diff_weight *
@@ -141,7 +141,7 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
             end
         end
     end
-    if colloc_grad != nothing
+    if colloc_grad !== nothing
         for i in 1:size(colloc_grad)[2]
             sol.prob.f.f(@view(dudt[:, i]), sol.u[i], sol.prob.p, sol.t[i])
         end
@@ -162,7 +162,7 @@ function L2Loss(
     return L2Loss(
         t, matrixize(data), matrixize(differ_weight),
         matrixize(data_weight), matrixize(colloc_grad),
-        colloc_grad == nothing ? nothing : zeros(size(colloc_grad))
+        colloc_grad === nothing ? nothing : zeros(size(colloc_grad))
     )
 end
 
@@ -218,7 +218,7 @@ function (f::LogLikeLoss)(sol::SciMLBase.AbstractSciMLSolution)
         end
     end
 
-    if f.diff_distributions != nothing
+    if f.diff_distributions !== nothing
         distributions = f.diff_distributions
         diff_data = sol.u[2:end] - sol.u[1:(end - 1)]
         fill_length = length(f.t) - length(diff_data)
@@ -244,11 +244,7 @@ end
 
 function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
     distributions = f.data_distributions
-    if sol_tmp isa DiffEqBase.AbstractEnsembleSolution
-        failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol_tmp)
-    else
-        failure = !SciMLBase.successful_retcode(sol_tmp.retcode)
-    end
+    failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol)
     failure && return Inf
     ll = 0.0
     if eltype(distributions) <: UnivariateDistribution
@@ -269,7 +265,7 @@ function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
         end
     end
 
-    if f.diff_distributions != nothing
+    if f.diff_distributions !== nothing
         distributions = f.diff_distributions
         fdll = 0
         if eltype(distributions) <: UnivariateDistribution
