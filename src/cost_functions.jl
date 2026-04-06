@@ -203,14 +203,14 @@ function (f::LogLikeLoss)(sol::SciMLBase.AbstractSciMLSolution)
     ll = 0.0
 
     if eltype(distributions) <: UnivariateDistribution
-        for j in 1:length(f.t), i in 1:length(sol[1])
+        for j in 1:length(f.t), i in 1:length(sol.u[1])
             # i is the number of time points
             # j is the size of the system
             # corresponds to distributions[i,j]
             ll -= logpdf(distributions[i, j], sol[i, j])
         end
     else # MultivariateDistribution
-        for j in 1:length(f.t), i in 1:length(sol[1])
+        for j in 1:length(f.t), i in 1:length(sol.u[1])
             # i is the number of time points
             # j is the size of the system
             # corresponds to distributions[i,j]
@@ -223,7 +223,7 @@ function (f::LogLikeLoss)(sol::SciMLBase.AbstractSciMLSolution)
         diff_data = sol.u[2:end] - sol.u[1:(end - 1)]
         fill_length = length(f.t) - length(diff_data)
         for i in 1:fill_length
-            push!(diff_data, fill(Inf, size(sol[1])))
+            push!(diff_data, fill(Inf, size(sol.u[1])))
         end
         fdll = 0
         if eltype(distributions) <: UnivariateDistribution
@@ -248,7 +248,7 @@ function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
     failure && return Inf
     ll = 0.0
     if eltype(distributions) <: UnivariateDistribution
-        for j in 1:length(f.t), i in 1:length(sol[1])
+        for j in 1:length(f.t), i in 1:length(sol.u[1].u[1])
             # i is the number of time points
             # j is the size of the system
             # corresponds to distributions[i,j]
@@ -260,7 +260,7 @@ function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
             # i is the number of time points
             # j is the size of the system
             # corresponds to distributions[i,j]
-            vals = [s[i, j] for i in 1:length(sol[1]), s in sol]
+            vals = [s[i, j] for i in 1:length(sol.u[1].u[1]), s in sol]
             ll -= loglikelihood(distributions[j], vals)
         end
     end
@@ -269,14 +269,14 @@ function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
         distributions = f.diff_distributions
         fdll = 0
         if eltype(distributions) <: UnivariateDistribution
-            for j in 2:length(f.t), i in 1:length(sol[1][1])
+            for j in 2:length(f.t), i in 1:length(sol.u[1].u[1])
 
                 vals = [s[i, j] - s[i, j - 1] for s in sol]
                 fdll -= logpdf(distributions[j - 1, i], vals)[1]
             end
         else
             for j in 2:length(f.t)
-                vals = [s[i, j] - s[i, j - 1] for i in 1:length(sol[1]), s in sol]
+                vals = [s[i, j] - s[i, j - 1] for i in 1:length(sol.u[1].u[1]), s in sol]
                 fdll -= logpdf(distributions[j - 1], vals)[1]
             end
         end
