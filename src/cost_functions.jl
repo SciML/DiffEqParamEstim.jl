@@ -81,7 +81,7 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
     sumsq = 0.0
 
     if weight === nothing
-        @inbounds for i in 1:length(sol)
+        @inbounds for i in 1:length(sol.t)
             for j in 1:length(sol[i])
                 sumsq += (data[j, i] - sol[j, i])^2
             end
@@ -108,7 +108,7 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
             end
         end
     else
-        @inbounds for i in 1:length(sol)
+        @inbounds for i in 1:length(sol.t)
             if weight isa Real
                 for j in 1:length(sol[i])
                     sumsq = sumsq + ((data[j, i] - sol[j, i])^2) * weight
