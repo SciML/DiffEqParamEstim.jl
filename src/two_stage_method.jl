@@ -98,7 +98,7 @@ function construct_oop_cost_function(f, du, preview_est_sol, preview_est_deriv, 
 end
 
 function two_stage_objective(
-        prob::DiffEqBase.DEProblem, tpoints, data,
+        prob::SciMLBase.AbstractDEProblem, tpoints, data,
         adtype = SciMLBase.NoAD();
         kernel = EpanechnikovKernel()
     )

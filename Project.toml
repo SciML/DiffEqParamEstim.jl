@@ -1,6 +1,6 @@
 name = "DiffEqParamEstim"
 uuid = "1130ab10-4a5a-5621-a13d-e4788d82bd4c"
-version = "2.3.0"
+version = "2.4.0"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 
 [deps]
@@ -27,7 +27,7 @@ ForwardDiff = "0.10"
 PenaltyFunctions = "0.1, 0.2, 0.3"
 PreallocationTools = "0.2, 0.3, 0.4, 1.0"
 RecursiveArrayTools = "1.0, 2.0, 3, 4"
-SciMLBase = "1.69, 2"
+SciMLBase = "1.69, 2, 3.1"
 SciMLSensitivity = "7"
 Statistics = "1.10"
 StatsAPI = "1.8.0"

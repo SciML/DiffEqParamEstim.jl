@@ -46,8 +46,8 @@ initial_conditions = [
     [1.0, 2.0],
     [2.0, 2.0]
 ]
-function prob_func(prob, i, repeat)
-    ODEProblem(prob.f, initial_conditions[i], prob.tspan, prob.p)
+function prob_func(prob, ctx)
+    ODEProblem(prob.f, initial_conditions[ctx.sim_id], prob.tspan, prob.p)
 end
 enprob = EnsembleProblem(prob, prob_func = prob_func)
 ```
@@ -96,8 +96,8 @@ As a double check, make sure that `loss(sim)` outputs zero (since we generated t
 
 ```@example ensemble
 prob = ODEProblem(pf_func, [1.0, 1.0], (0.0, 10.0), [1.2, 0.8])
-function prob_func(prob, i, repeat)
-    ODEProblem(prob.f, initial_conditions[i], prob.tspan, prob.p)
+function prob_func(prob, ctx)
+    ODEProblem(prob.f, initial_conditions[ctx.sim_id], prob.tspan, prob.p)
 end
 enprob = EnsembleProblem(prob, prob_func = prob_func)
 sim = solve(enprob, Tsit5(), trajectories = N, saveat = data_times)

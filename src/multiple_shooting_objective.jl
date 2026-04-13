@@ -22,7 +22,7 @@ struct Merged_Solution{T1, T2, T3}
 end
 
 function multiple_shooting_objective(
-        prob::DiffEqBase.DEProblem, alg, loss,
+        prob::SciMLBase.AbstractDEProblem, alg, loss,
         adtype = SciMLBase.NoAD(),
         regularization = nothing; priors = nothing,
         discontinuity_weight = 1.0,
@@ -72,11 +72,11 @@ function multiple_shooting_objective(
         for k in 2:K
             if discontinuity_weight isa Real
                 loss_val += discontinuity_weight *
-                    sum((sol[k][1] - sol[k - 1][end]) .^ 2)
+                    sum((sol[k].u[1] - sol[k - 1].u[end]) .^ 2)
             else
                 loss_val += sum(
                     discontinuity_weight .*
-                        (sol[k][1] - sol[k - 1][end]) .^ 2
+                        (sol[k].u[1] - sol[k - 1].u[end]) .^ 2
                 )
             end
         end
