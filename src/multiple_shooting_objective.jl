@@ -22,7 +22,7 @@ struct Merged_Solution{T1, T2, T3}
 end
 
 function multiple_shooting_objective(
-        prob::DiffEqBase.DEProblem, alg, loss,
+        prob::SciMLBase.AbstractDEProblem, alg, loss,
         adtype = SciMLBase.NoAD(),
         regularization = nothing; priors = nothing,
         discontinuity_weight = 1.0,
