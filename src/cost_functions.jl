@@ -48,16 +48,20 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
 
     sumsq = 0.0
 
+    # `sol.u` is the final-state vector for a NoTimeSolution (steady-state /
+    # nonlinear). Iterating `sol.u` is the forward-compatible form under both
+    # RAT v3 and v4.
+    solu = sol.u
     if weight === nothing
-        @inbounds for i in 1:length(sol)
-            sumsq += (data[i] - sol[i])^2
+        @inbounds for i in 1:length(solu)
+            sumsq += (data[i] - solu[i])^2
         end
     else
-        @inbounds for i in 1:length(sol)
+        @inbounds for i in 1:length(solu)
             if weight isa Real
-                sumsq = sumsq + ((data[i] - sol[i])^2) * weight
+                sumsq = sumsq + ((data[i] - solu[i])^2) * weight
             else
-                sumsq = sumsq + ((data[i] - sol[i])^2) * weight[i]
+                sumsq = sumsq + ((data[i] - solu[i])^2) * weight[i]
             end
         end
     end
@@ -80,8 +84,13 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
 
     sumsq = 0.0
 
+    # Under RAT v4, `AbstractVectorOfArray <: AbstractArray`, so `length(sol)`
+    # is the total scalar element count, not the number of timesteps. Iterate
+    # `sol.u` explicitly for the forward-compatible form. 2-argument indexing
+    # `sol[j, i]` keeps the same (component, time) meaning under both v3 and v4.
+    nsteps = length(sol.u)
     if weight === nothing
-        @inbounds for i in 1:length(sol)
+        @inbounds for i in 1:nsteps
             for j in 1:length(sol.u[i])
                 sumsq += (data[j, i] - sol[j, i])^2
             end
@@ -108,7 +117,7 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
             end
         end
     else
-        @inbounds for i in 1:length(sol)
+        @inbounds for i in 1:nsteps
             if weight isa Real
                 for j in 1:length(sol.u[i])
                     sumsq = sumsq + ((data[j, i] - sol[j, i])^2) * weight
@@ -195,7 +204,8 @@ end
 function (f::LogLikeLoss)(sol::SciMLBase.AbstractSciMLSolution)
     distributions = f.data_distributions
     if sol isa DiffEqBase.AbstractEnsembleSolution
-        failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol)
+        # `sol.u` is the vector of trajectories under both RAT v3 and v4.
+        failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol.u)
     else
         failure = !SciMLBase.successful_retcode(sol.retcode)
     end
@@ -244,7 +254,10 @@ end
 
 function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
     distributions = f.data_distributions
-    failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol)
+    # Under RAT v4, `AbstractEnsembleSolution <: AbstractArray` and iterating
+    # `sol` yields scalar elements, not trajectories. Iterate `sol.u` for
+    # trajectory-wise access in a way that is forward-compatible with v3/v4.
+    failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol.u)
     failure && return Inf
     ll = 0.0
     if eltype(distributions) <: UnivariateDistribution
@@ -252,7 +265,7 @@ function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
             # i is the number of time points
             # j is the size of the system
             # corresponds to distributions[i,j]
-            vals = [s[i, j] for s in sol]
+            vals = [s[i, j] for s in sol.u]
             ll -= loglikelihood(distributions[i, j], vals)
         end
     else
@@ -260,7 +273,7 @@ function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
             # i is the number of time points
             # j is the size of the system
             # corresponds to distributions[i,j]
-            vals = [s[i, j] for i in 1:length(sol.u[1].u[1]), s in sol]
+            vals = [s[i, j] for i in 1:length(sol.u[1].u[1]), s in sol.u]
             ll -= loglikelihood(distributions[j], vals)
         end
     end
@@ -271,12 +284,12 @@ function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
         if eltype(distributions) <: UnivariateDistribution
             for j in 2:length(f.t), i in 1:length(sol.u[1].u[1])
 
-                vals = [s[i, j] - s[i, j - 1] for s in sol]
+                vals = [s[i, j] - s[i, j - 1] for s in sol.u]
                 fdll -= logpdf(distributions[j - 1, i], vals)[1]
             end
         else
             for j in 2:length(f.t)
-                vals = [s[i, j] - s[i, j - 1] for i in 1:length(sol.u[1].u[1]), s in sol]
+                vals = [s[i, j] - s[i, j - 1] for i in 1:length(sol.u[1].u[1]), s in sol.u]
                 fdll -= logpdf(distributions[j - 1], vals)[1]
             end
         end
