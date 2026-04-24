@@ -40,7 +40,6 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
     dudt = f.dudt
 
     if sol isa DiffEqBase.AbstractEnsembleSolution
-        # `sol.u` is the vector of trajectories under both RAT v3 and v4.
         failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol.u)
     else
         failure = !SciMLBase.successful_retcode(sol.retcode)
@@ -49,9 +48,6 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
 
     sumsq = 0.0
 
-    # `sol.u` is the final-state vector for a NoTimeSolution (steady-state /
-    # nonlinear). Iterating `sol.u` is the forward-compatible form under both
-    # RAT v3 and v4.
     solu = sol.u
     if weight === nothing
         @inbounds for i in 1:length(solu)
@@ -77,7 +73,6 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
     dudt = f.dudt
 
     if sol isa DiffEqBase.AbstractEnsembleSolution
-        # `sol.u` is the vector of trajectories under both RAT v3 and v4.
         failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol.u)
     else
         failure = !SciMLBase.successful_retcode(sol.retcode)
@@ -86,10 +81,6 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
 
     sumsq = 0.0
 
-    # Under RAT v4, `AbstractVectorOfArray <: AbstractArray`, so `length(sol)`
-    # is the total scalar element count, not the number of timesteps. Iterate
-    # `sol.u` explicitly for the forward-compatible form. 2-argument indexing
-    # `sol[j, i]` keeps the same (component, time) meaning under both v3 and v4.
     nsteps = length(sol.u)
     if weight === nothing
         @inbounds for i in 1:nsteps
@@ -206,7 +197,6 @@ end
 function (f::LogLikeLoss)(sol::SciMLBase.AbstractSciMLSolution)
     distributions = f.data_distributions
     if sol isa DiffEqBase.AbstractEnsembleSolution
-        # `sol.u` is the vector of trajectories under both RAT v3 and v4.
         failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol.u)
     else
         failure = !SciMLBase.successful_retcode(sol.retcode)
@@ -256,9 +246,6 @@ end
 
 function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
     distributions = f.data_distributions
-    # Under RAT v4, `AbstractEnsembleSolution <: AbstractArray` and iterating
-    # `sol` yields scalar elements, not trajectories. Iterate `sol.u` for
-    # trajectory-wise access in a way that is forward-compatible with v3/v4.
     failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol.u)
     failure && return Inf
     ll = 0.0
