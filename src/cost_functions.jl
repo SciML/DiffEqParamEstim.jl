@@ -40,7 +40,8 @@ function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
     dudt = f.dudt
 
     if sol isa DiffEqBase.AbstractEnsembleSolution
-        failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol)
+        # `sol.u` is the vector of trajectories under both RAT v3 and v4.
+        failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol.u)
     else
         failure = !SciMLBase.successful_retcode(sol.retcode)
     end
@@ -76,7 +77,8 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
     dudt = f.dudt
 
     if sol isa DiffEqBase.AbstractEnsembleSolution
-        failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol)
+        # `sol.u` is the vector of trajectories under both RAT v3 and v4.
+        failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol.u)
     else
         failure = !SciMLBase.successful_retcode(sol.retcode)
     end
