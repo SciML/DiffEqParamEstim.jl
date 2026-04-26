@@ -33,7 +33,7 @@ SciMLBase = "1.69, 2, 3"
 SciMLSensitivity = "7"
 Statistics = "1.10"
 StatsAPI = "1.8.0"
-StochasticDiffEq = "7"
+StochasticDiffEq = "6, 7"
 julia = "1.6"
 
 [extras]
