@@ -20,8 +20,7 @@ aggregate_data = convert(Array, VectorOfArray([generate_data(sol, t) for i in 1:
 
 distributions = [fit_mle(Normal, aggregate_data[i, j, :]) for i in 1:2, j in 1:200]
 obj = build_loss_objective(
-    prob1, Tsit5(), LogLikeLoss(t, distributions), maxiters = 10000,
-    verbose = false
+    prob1, Tsit5(), LogLikeLoss(t, distributions), maxiters = 10000
 )
 
 optprob = Optimization.OptimizationProblem(
@@ -42,8 +41,7 @@ diff_distributions = [
 obj = build_loss_objective(
     prob1, Tsit5(),
     LogLikeLoss(t, data_distributions, diff_distributions),
-    Optimization.AutoForwardDiff(), maxiters = 10000,
-    verbose = false
+    Optimization.AutoForwardDiff(), maxiters = 10000
 )
 optprob = Optimization.OptimizationProblem(
     obj, [2.0, 2.0], lb = [0.5, 0.5],
@@ -63,8 +61,7 @@ diff_distributions = [
 obj = build_loss_objective(
     prob1, Tsit5(),
     LogLikeLoss(t, data_distributions, diff_distributions, 0.3),
-    Optimization.AutoForwardDiff(), maxiters = 10000,
-    verbose = false
+    Optimization.AutoForwardDiff(), maxiters = 10000
 )
 optprob = Optimization.OptimizationProblem(
     obj, [2.0, 2.0], lb = [0.5, 0.5],
@@ -89,7 +86,7 @@ obj = build_loss_objective(
     prob1, Tsit5(),
     LogLikeLoss(t, distributions, diff_distributions),
     Optimization.AutoForwardDiff(), maxiters = 10000,
-    verbose = false, priors = priors
+    priors = priors
 )
 optprob = Optimization.OptimizationProblem(
     obj, [2.0, 2.0], lb = [0.5, 0.5],

@@ -15,7 +15,7 @@ println("Use Genetic Algorithm to fit the parameter")
 
 cost_function = build_loss_objective(
     prob1, Tsit5(), L2Loss(t, data),
-    maxiters = 10000, verbose = false
+    maxiters = 10000
 )
 N = 1
 result, fitness,

@@ -4,7 +4,7 @@ cost_function_1 = build_loss_objective(
     prob1, Tsit5(), L2Loss(t, data),
     Optimization.AutoZygote(),
     Regularization(0.6, L2Penalty()), maxiters = 10000,
-    verbose = false, abstol = 1.0e-8, reltol = 1.0e-8
+    abstol = 1.0e-8, reltol = 1.0e-8
 )
 cost_function_2 = build_loss_objective(
     prob2, Tsit5(), L2Loss(t, data),
@@ -13,7 +13,6 @@ cost_function_2 = build_loss_objective(
         0.1,
         MahalanobisPenalty(Matrix(1.0I, 2, 2))
     ),
-    verbose = false,
     abstol = 1.0e-8, reltol = 1.0e-8,
     maxiters = 10000
 )
@@ -24,7 +23,6 @@ cost_function_3 = build_loss_objective(
         0.1,
         MahalanobisPenalty(Matrix(1.0I, 4, 4))
     ),
-    verbose = false,
     abstol = 1.0e-8, reltol = 1.0e-8,
     maxiters = 10000
 )

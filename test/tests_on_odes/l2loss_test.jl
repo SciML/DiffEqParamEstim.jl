@@ -2,7 +2,7 @@ using BlackBoxOptim, Optim
 
 cost_function = build_loss_objective(
     prob1, Tsit5(), L2Loss(t, data),
-    maxiters = 10000, verbose = false
+    maxiters = 10000
 )
 bound1 = Tuple{Float64, Float64}[(1, 2)]
 result = bboptimize(cost_function; search_range = bound1, max_steps = 11.0e3)
@@ -14,7 +14,7 @@ cost_function = build_loss_objective(
         t, data, differ_weight = nothing,
         data_weight = 1.0
     ),
-    maxiters = 10000, verbose = false
+    maxiters = 10000
 )
 bound2 = Tuple{Float64, Float64}[(1, 2), (1, 4)]
 result = bboptimize(cost_function; search_range = bound2, max_steps = 11.0e3)
@@ -22,7 +22,7 @@ result = bboptimize(cost_function; search_range = bound2, max_steps = 11.0e3)
 
 cost_function = build_loss_objective(
     prob3, Tsit5(), L2Loss(t, data, differ_weight = 10),
-    maxiters = 10000, verbose = false
+    maxiters = 10000
 )
 bound3 = Tuple{Float64, Float64}[
     (1, 2), (0, 2), (
@@ -38,7 +38,7 @@ cost_function = build_loss_objective(
         t, data, differ_weight = 0.3,
         data_weight = 0.7
     ),
-    maxiters = 10000, verbose = false
+    maxiters = 10000
 )
 bound3 = Tuple{Float64, Float64}[
     (1, 2), (0, 2), (

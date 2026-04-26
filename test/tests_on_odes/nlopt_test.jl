@@ -4,7 +4,7 @@ println("Use NLOpt to fit the parameter")
 
 obj = build_loss_objective(
     prob1, Tsit5(), L2Loss(t, data), Optimization.AutoZygote(),
-    maxiters = 10000, verbose = false
+    maxiters = 10000
 )
 
 opt = Opt(:LN_COBYLA, 1)

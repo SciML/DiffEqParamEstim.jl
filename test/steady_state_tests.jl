@@ -18,7 +18,7 @@ obj = build_loss_objective(
     s_prob, SSRootfind(), L2Loss([Inf], data),
     Optimization.AutoZygote(),
     maxiters = Int(1.0e8),
-    abstol = 1.0e-10, reltol = 1.0e-10, verbose = true
+    abstol = 1.0e-10, reltol = 1.0e-10
 )
 result = Optim.optimize(obj, [2.0], Optim.BFGS())
 @test result.minimizer[1] ≈ 2.0 atol = 2.0e-1
