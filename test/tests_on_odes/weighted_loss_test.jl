@@ -29,7 +29,7 @@ weighted_cost_function = build_loss_objective(
         t, weighted_data,
         data_weight = weight
     ),
-    maxiters = 10000, verbose = false
+    maxiters = 10000
 )
 opt = Opt(:LN_COBYLA, 1)
 min_objective!(opt, weighted_cost_function)

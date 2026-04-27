@@ -3,7 +3,7 @@ using BlackBoxOptim
 println("Use BlackBoxOptim to fit the parameter")
 cost_function = build_loss_objective(
     prob1, Tsit5(), L2Loss(t, data),
-    maxiters = 10000, verbose = false
+    maxiters = 10000
 )
 bound1 = Tuple{Float64, Float64}[(1, 2)]
 result = bboptimize(cost_function; search_range = bound1, max_steps = 11.0e3)
@@ -11,7 +11,7 @@ result = bboptimize(cost_function; search_range = bound1, max_steps = 11.0e3)
 
 cost_function = build_loss_objective(
     prob2, Tsit5(), L2Loss(t, data),
-    maxiters = 10000, verbose = false
+    maxiters = 10000
 )
 bound2 = Tuple{Float64, Float64}[(1, 2), (2, 4)]
 result = bboptimize(cost_function; search_range = bound2, max_steps = 11.0e3)
@@ -19,7 +19,7 @@ result = bboptimize(cost_function; search_range = bound2, max_steps = 11.0e3)
 
 cost_function = build_loss_objective(
     prob3, Tsit5(), L2Loss(t, data),
-    maxiters = 10000, verbose = false
+    maxiters = 10000
 )
 bound3 = Tuple{Float64, Float64}[
     (1, 2), (0, 2), (

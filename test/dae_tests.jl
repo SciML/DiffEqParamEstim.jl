@@ -22,7 +22,7 @@ using DiffEqParamEstim, OptimizationNLopt, OptimizationOptimJL, ForwardDiff, Zyg
 cost_function = build_loss_objective(
     prob, DFBDF(), L2Loss(t, data),
     Optimization.AutoZygote(), abstol = 1.0e-8,
-    reltol = 1.0e-8, verbose = false
+    reltol = 1.0e-8
 )
 optprob = Optimization.OptimizationProblem(cost_function, [0.01]; lb = [0.0], ub = [1.0])
 res = solve(optprob, OptimizationOptimJL.BFGS())
@@ -30,7 +30,7 @@ res = solve(optprob, OptimizationOptimJL.BFGS())
 cost_function = build_loss_objective(
     prob, DFBDF(), L2Loss(t, data),
     Optimization.AutoForwardDiff(), abstol = 1.0e-8,
-    reltol = 1.0e-8, verbose = false
+    reltol = 1.0e-8
 )
 optprob = Optimization.OptimizationProblem(cost_function, [0.01]; lb = [0.0], ub = [1.0])
 res = solve(optprob, OptimizationOptimJL.BFGS())
