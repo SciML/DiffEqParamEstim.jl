@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, SteadyStateDiffEq, DiffEqParamEstim, Optim, Test
+using OrdinaryDiffEq, SteadyStateDiffEq, DiffEqParamEstim, Optim, Optimization, Test
 
 function f(du, u, p, t)
     α = p[1]
