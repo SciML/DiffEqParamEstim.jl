@@ -1,4 +1,5 @@
-using OrdinaryDiffEq, DiffEqParamEstim, Distributions, Zygote, OptimizationBBO
+using OrdinaryDiffEq, DiffEqParamEstim, Distributions, Zygote,
+    Optimization, OptimizationBBO, OptimizationOptimJL
 ms_f = function (du, u, p, t)
     du[1] = p[1] * u[1] - p[2] * u[1] * u[2]
     return du[2] = -3.0 * u[2] + u[1] * u[2]

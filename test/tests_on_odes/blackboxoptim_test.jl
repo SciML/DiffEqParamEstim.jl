@@ -1,4 +1,4 @@
-using OptimizationBBO
+using Optimization, OptimizationBBO
 
 println("Use BlackBoxOptim to fit the parameter")
 cost_function = build_loss_objective(

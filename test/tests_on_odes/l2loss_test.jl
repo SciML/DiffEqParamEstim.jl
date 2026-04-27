@@ -1,4 +1,4 @@
-using OptimizationBBO, Optim
+using Optimization, OptimizationBBO, Optim
 
 cost_function = build_loss_objective(
     prob1, Tsit5(), L2Loss(t, data),
