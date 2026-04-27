@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, DiffEqParamEstim, Distributions, Zygote
+using OrdinaryDiffEq, DiffEqParamEstim, Distributions, Zygote, OptimizationBBO
 ms_f = function (du, u, p, t)
     du[1] = p[1] * u[1] - p[2] * u[1] * u[2]
     return du[2] = -3.0 * u[2] + u[1] * u[2]
@@ -30,8 +30,15 @@ ms_obj = multiple_shooting_objective(
     discontinuity_weight = 1.0, abstol = 1.0e-12,
     reltol = 1.0e-12
 )
-result = bboptimize(ms_obj; search_range = bound, max_steps = 21.0e3)
-@test result.archive_output.best_candidate[(end - 1):end] ≈ [1.5, 1.0] atol = 2.0e-1
+optprob = Optimization.OptimizationProblem(
+    ms_obj, fill(5.0, 18),
+    lb = first.(bound), ub = last.(bound)
+)
+result = solve(
+    optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(),
+    maxiters = 21.0e3
+)
+@test result.u[(end - 1):end] ≈ [1.5, 1.0] atol = 2.0e-1
 
 priors = [Truncated(Normal(1.5, 0.5), 0, 2), Truncated(Normal(1.0, 0.5), 0, 1.5)]
 ms_obj1 = multiple_shooting_objective(
