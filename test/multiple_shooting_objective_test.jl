@@ -29,7 +29,7 @@ ms_obj = multiple_shooting_objective(
     ms_prob, Tsit5(), L2Loss(t, data),
     Optimization.AutoZygote();
     discontinuity_weight = 1.0, abstol = 1.0e-12,
-    reltol = 1.0e-12
+    reltol = 1.0e-12, verbose = false
 )
 optprob = Optimization.OptimizationProblem(
     ms_obj, fill(5.0, 18),
@@ -37,7 +37,7 @@ optprob = Optimization.OptimizationProblem(
 )
 result = solve(
     optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(),
-    maxiters = 21.0e3
+    maxiters = 5000
 )
 @test result.u[(end - 1):end] ≈ [1.5, 1.0] atol = 2.0e-1
 
