@@ -1,5 +1,5 @@
 using OrdinaryDiffEq, DiffEqParamEstim, Distributions, Zygote,
-    Optimization, OptimizationBBO, OptimizationOptimJL
+    Optimization, OptimizationBBO, OptimizationOptimJL, Logging
 ms_f = function (du, u, p, t)
     du[1] = p[1] * u[1] - p[2] * u[1] * u[2]
     return du[2] = -3.0 * u[2] + u[1] * u[2]
@@ -35,10 +35,12 @@ optprob = Optimization.OptimizationProblem(
     ms_obj, fill(5.0, 18),
     lb = first.(bound), ub = last.(bound)
 )
-result = solve(
-    optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(),
-    maxiters = 7000
-)
+result = with_logger(NullLogger()) do
+    solve(
+        optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(),
+        maxiters = 7000
+    )
+end
 @test result.u[(end - 1):end] ≈ [1.5, 1.0] atol = 2.0e-1
 
 priors = [Truncated(Normal(1.5, 0.5), 0, 2), Truncated(Normal(1.0, 0.5), 0, 1.5)]
