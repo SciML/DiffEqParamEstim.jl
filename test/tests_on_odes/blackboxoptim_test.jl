@@ -1,9 +1,5 @@
 using Optimization, OptimizationBBO, Logging
 
-# Restore u0 in case earlier tests' AD-driven `remake` mutated it.
-# AutoZygote / AutoForwardDiff pipelines in build_loss_objective
-# write through prob.u0 in place, leaving Lotka-Volterra integrations
-# to diverge with `dt_epsilon`.
 prob1.u0 .= [1.0, 1.0]
 prob2.u0 .= [1.0, 1.0]
 prob3.u0 .= [1.0, 1.0]

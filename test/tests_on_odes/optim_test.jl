@@ -7,15 +7,8 @@ obj = build_loss_objective(
 ### Optim Method
 
 println("Use Optim Brent to fit the parameter")
-# Brent's univariate optimizer passes a scalar p to remake, which is no
-# longer supported by ModelingToolkit's late-binding initialization. Mark
-# the call itself as broken so the failure does not abort the test set.
-@test_broken try
-    result = Optim.optimize(obj, 1.0, 10.0)
-    isapprox(result.minimizer[1], 1.5; atol = 3.0e-1)
-catch
-    false
-end
+result = Optim.optimize(obj, 1.0, 10.0)
+@test result.minimizer ≈ 1.5 atol = 3.0e-1
 
 println("Use Optim BFGS to fit the parameter")
 result = Optim.optimize(obj, [1.0], Optim.BFGS())
