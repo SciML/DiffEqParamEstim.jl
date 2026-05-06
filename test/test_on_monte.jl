@@ -1,4 +1,4 @@
-using DiffEqParamEstim, OrdinaryDiffEq, StochasticDiffEq, ParameterizedFunctions,
+using DiffEqParamEstim, OrdinaryDiffEq, StochasticDiffEq,
     DiffEqBase, RecursiveArrayTools, OptimizationOptimJL, Zygote
 using Test
 
