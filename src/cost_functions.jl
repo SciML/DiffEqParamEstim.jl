@@ -144,8 +144,10 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
         end
     end
     if colloc_grad !== nothing
+        du_buf = Vector{eltype(dudt)}(undef, size(dudt, 1))
         for i in 1:size(colloc_grad)[2]
-            sol.prob.f.f(@view(dudt[:, i]), sol.u[i], sol.prob.p, sol.t[i])
+            sol.prob.f.f(du_buf, sol.u[i], sol.prob.p, sol.t[i])
+            dudt[:, i] .= du_buf
         end
         sumsq += sum(abs2, x - y for (x, y) in zip(dudt, colloc_grad))
     end
