@@ -25,6 +25,9 @@ bound = Tuple{Float64, Float64}[
     ),
 ]
 
+# MTK late-binding init mutates ms_prob.u0 through AutoZygote/AutoForwardDiff
+# pipelines; restore before each objective build to keep the integrator stable.
+ms_prob.u0 .= [1.0, 1.0]
 ms_obj = multiple_shooting_objective(
     ms_prob, Tsit5(), L2Loss(t, data),
     Optimization.AutoZygote();
@@ -44,6 +47,7 @@ end
 @test result.u[(end - 1):end] ≈ [1.5, 1.0] atol = 2.0e-1
 
 priors = [Truncated(Normal(1.5, 0.5), 0, 2), Truncated(Normal(1.0, 0.5), 0, 1.5)]
+ms_prob.u0 .= [1.0, 1.0]
 ms_obj1 = multiple_shooting_objective(
     ms_prob, Tsit5(), L2Loss(t, data),
     Optimization.AutoForwardDiff(); priors = priors,
