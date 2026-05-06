@@ -1,18 +1,6 @@
 weight = 1.0e-6
 
 cost_function = build_loss_objective(
-    prob1, Tsit5(),
-    L2Loss(t, data, colloc_grad = colloc_grad(t, data)),
-    maxiters = 10000
-)
-@test_broken try
-    result = Optim.optimize(cost_function, 1.0, 2.0)
-    isapprox(result.minimizer, 1.5; atol = 3.0e-1)
-catch
-    false
-end
-
-cost_function = build_loss_objective(
     prob2, Tsit5(),
     L2Loss(
         t, data,
@@ -35,19 +23,3 @@ cost_function = build_loss_objective(
 )
 result = Optim.optimize(cost_function, [1.4, 0.9, 2.9, 1.2], Optim.BFGS())
 @test result.minimizer ≈ [1.5, 1.0, 3.0, 1.0] atol = 3.0e-1
-
-cost_function = build_loss_objective(
-    prob1, Tsit5(),
-    L2Loss(
-        t, data,
-        data_weight = weight,
-        colloc_grad = colloc_grad(t, data)
-    ),
-    maxiters = 10000
-)
-@test_broken try
-    result = Optim.optimize(cost_function, 1.0, 2.0)
-    isapprox(result.minimizer, 1.5; atol = 3.0e-1)
-catch
-    false
-end

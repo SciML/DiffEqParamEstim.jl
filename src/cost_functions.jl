@@ -23,13 +23,14 @@ function prior_loss(prior, p)
     return ll
 end
 
-struct L2Loss{T, D, U, W, G} <: DiffEqBase.DECostFunction
+struct L2Loss{T, D, U, W, G, B} <: DiffEqBase.DECostFunction
     t::T
     data::D
     differ_weight::U
     data_weight::W
     colloc_grad::G
     dudt::G
+    du_buf::B
 end
 
 function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
@@ -144,7 +145,7 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
         end
     end
     if colloc_grad !== nothing
-        du_buf = Vector{eltype(dudt)}(undef, size(dudt, 1))
+        du_buf = f.du_buf
         for i in 1:size(colloc_grad)[2]
             sol.prob.f.f(du_buf, sol.u[i], sol.prob.p, sol.t[i])
             dudt[:, i] .= du_buf
@@ -166,7 +167,8 @@ function L2Loss(
     return L2Loss(
         t, matrixize(data), matrixize(differ_weight),
         matrixize(data_weight), matrixize(colloc_grad),
-        colloc_grad === nothing ? nothing : zeros(size(colloc_grad))
+        colloc_grad === nothing ? nothing : zeros(size(colloc_grad)),
+        colloc_grad === nothing ? nothing : zeros(size(colloc_grad, 1))
     )
 end
 
