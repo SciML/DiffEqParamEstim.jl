@@ -11,7 +11,7 @@ optprob = Optimization.OptimizationProblem(
 result = with_logger(NullLogger()) do
     solve(
         optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(),
-        maxiters = 5000
+        maxiters = 3000
     )
 end
 @test result.u[1] ≈ 1.5 atol = 3.0e-1
@@ -31,7 +31,7 @@ optprob = Optimization.OptimizationProblem(
 result = with_logger(NullLogger()) do
     solve(
         optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(),
-        maxiters = 5000
+        maxiters = 3000
     )
 end
 @test result.u ≈ [1.5; 3.0] atol = 3.0e-1
@@ -52,7 +52,7 @@ optprob = Optimization.OptimizationProblem(
 result = with_logger(NullLogger()) do
     solve(
         optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(),
-        maxiters = 5000
+        maxiters = 3000
     )
 end
 @test result.u ≈ [1.5; 1.0; 3.0; 1.0] atol = 5.0e-1
@@ -77,7 +77,7 @@ optprob = Optimization.OptimizationProblem(
 result = with_logger(NullLogger()) do
     solve(
         optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(),
-        maxiters = 5000
+        maxiters = 3000
     )
 end
 @test result.u ≈ [1.5; 1.0; 3.0; 1.0] atol = 5.0e-1
