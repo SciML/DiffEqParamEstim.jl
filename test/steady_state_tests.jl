@@ -10,7 +10,7 @@ p = [2.0]
 u0 = zeros(2)
 s_prob = SteadyStateProblem(f, u0, p)
 s_sol = solve(s_prob, SSRootfind())
-s_sol = solve(s_prob, DynamicSS(Tsit5(), abstol = 1.0e-4, reltol = 1.0e-3))
+s_sol = solve(s_prob, DynamicSS(Tsit5()); abstol = 1.0e-4, reltol = 1.0e-3)
 
 # true data is 1.00, 0.25
 data = [1.05, 0.23]
