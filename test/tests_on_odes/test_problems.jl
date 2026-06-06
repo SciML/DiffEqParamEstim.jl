@@ -26,6 +26,8 @@ p = [1.5, 1.0, 3.0, 1.0]
 prob3 = ODEProblem(f3, u0, tspan, p)
 
 # Generate random data based off of the known solution
+using Random
+Random.seed!(123)
 sol = solve(prob1, Tsit5())
 t = collect(range(0, stop = 10, length = 200))
 randomized = VectorOfArray([(sol(t[i]) + 0.01randn(2)) for i in 1:length(t)])
