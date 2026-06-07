@@ -16,9 +16,9 @@ concurrency:
 jobs:
   downgrade:
     name: "Downgrade"
-    if: false
     uses: "SciML/.github/.github/workflows/downgrade.yml@v1"
     with:
+      allow-reresolve: false
       julia-version: "1.10"
       skip: "Pkg,TOML"
     secrets: "inherit"
