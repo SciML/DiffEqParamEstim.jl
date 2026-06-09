@@ -15,18 +15,5 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 jobs:
   tests:
-    name: "Tests"
-    strategy:
-      fail-fast: false
-      matrix:
-        group:
-          - All
-        version:
-          - '1'
-          - 'lts'
-          - 'pre'
-    uses: "SciML/.github/.github/workflows/tests.yml@v1"
-    with:
-      group: "${{ matrix.group }}"
-      julia-version: "${{ matrix.version }}"
+    uses: "SciML/.github/.github/workflows/grouped-tests.yml@v1"
     secrets: "inherit"
