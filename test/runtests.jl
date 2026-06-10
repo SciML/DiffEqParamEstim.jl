@@ -1,4 +1,5 @@
 using Pkg
+using DiffEqParamEstim, Test
 
 const GROUP = get(ENV, "GROUP", "All")
 
@@ -8,8 +9,6 @@ if GROUP == "QA"
     Pkg.instantiate()
     include("qa/qa.jl")
 else
-    using DiffEqParamEstim, Test
-
     @time @testset "Explicit Imports" begin
         include("explicit_imports.jl")
     end
