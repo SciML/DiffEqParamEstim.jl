@@ -55,4 +55,4 @@ optprob = Optimization.OptimizationProblem(
     ub = last.(bound)
 )
 result = solve(optprob, BFGS(), maxiters = 500)
-@test result.u[(end - 1):end] ≈ [1.5, 1.0] atol = 2.0e-1 broken=true
+@test result.u[(end - 1):end] ≈ [1.5, 1.0] atol = 2.0e-1 broken = true

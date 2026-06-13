@@ -4,7 +4,7 @@ using OrdinaryDiffEq, RecursiveArrayTools
 
 f1 = function (du, u, p, t)
     du[1] = p[1] * u[1] - u[1] * u[2]
-    du[2] = -3 * u[2] + u[1] * u[2]
+    return du[2] = -3 * u[2] + u[1] * u[2]
 end
 u0 = [1.0; 1.0]
 tspan = (0.0, 10.0)
@@ -13,14 +13,14 @@ prob1 = ODEProblem(f1, u0, tspan, [1.5])
 
 f2 = function (du, u, p, t)
     du[1] = p[1] * u[1] - u[1] * u[2]
-    du[2] = -p[2] * u[2] + u[1] * u[2]
+    return du[2] = -p[2] * u[2] + u[1] * u[2]
 end
 p = [1.5, 3.0]
 prob2 = ODEProblem(f2, u0, tspan, p)
 
 f3 = function (du, u, p, t)
     du[1] = p[1] * u[1] - p[2] * u[1] * u[2]
-    du[2] = -p[3] * u[2] + p[4] * u[1] * u[2]
+    return du[2] = -p[3] * u[2] + p[4] * u[1] * u[2]
 end
 p = [1.5, 1.0, 3.0, 1.0]
 prob3 = ODEProblem(f3, u0, tspan, p)
