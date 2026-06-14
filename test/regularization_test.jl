@@ -1,4 +1,6 @@
-using PenaltyFunctions, OptimizationOptimJL, LinearAlgebra, SciMLSensitivity
+using DiffEqParamEstim, OrdinaryDiffEq
+using Optimization, PenaltyFunctions, OptimizationOptimJL, LinearAlgebra, SciMLSensitivity
+include(joinpath(@__DIR__, "shared", "test_problems.jl"))
 
 cost_function_1 = build_loss_objective(
     prob1, Tsit5(), L2Loss(t, data),

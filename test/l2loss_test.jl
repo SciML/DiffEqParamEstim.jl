@@ -1,4 +1,6 @@
+using DiffEqParamEstim, OrdinaryDiffEq
 using Optimization, OptimizationBBO, Optim, Logging
+include(joinpath(@__DIR__, "shared", "test_problems.jl"))
 
 cost_function = build_loss_objective(
     prob1, Tsit5(), L2Loss(t, data),

@@ -1,4 +1,6 @@
-using OptimizationNLopt, Zygote
+using DiffEqParamEstim, OrdinaryDiffEq
+using Optimization, OptimizationNLopt, Zygote
+include(joinpath(@__DIR__, "shared", "test_problems.jl"))
 
 println("Use NLOpt to fit the parameter")
 
