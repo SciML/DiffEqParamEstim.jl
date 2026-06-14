@@ -1,5 +1,6 @@
 using Pkg
 using DiffEqParamEstim, Test
+using SafeTestsets
 
 const GROUP = get(ENV, "GROUP", "All")
 
@@ -9,11 +10,12 @@ if GROUP == "QA"
     Pkg.instantiate()
     include("qa/qa.jl")
 else
-    @time @testset "Explicit Imports" begin
+    @time @safetestset "Explicit Imports" begin
         include("explicit_imports.jl")
     end
 
-    @time @testset "Tests on ODEs" begin
+    @time @safetestset "Tests on ODEs" begin
+        using DiffEqParamEstim
         include("tests_on_odes/test_problems.jl")
         include("tests_on_odes/l2loss_test.jl")
         include("tests_on_odes/optim_test.jl")
@@ -26,25 +28,25 @@ else
         #include("tests_on_odes/genetic_algorithm_test.jl") # Not updated to v0.6
     end
 
-    @time @testset "Multiple Shooting Objective" begin
+    @time @safetestset "Multiple Shooting Objective" begin
         include("multiple_shooting_objective_test.jl")
     end
-    @time @testset "Likelihood Loss" begin
+    @time @safetestset "Likelihood Loss" begin
         include("likelihood.jl")
     end
-    @time @testset "Out-of-place ODE Tests" begin
+    @time @safetestset "Out-of-place ODE Tests" begin
         include("out_of_place_odes.jl")
     end
-    @time @testset "Steady State Tests" begin
+    @time @safetestset "Steady State Tests" begin
         include("steady_state_tests.jl")
     end
-    @time @testset "DAE Tests" begin
+    @time @safetestset "DAE Tests" begin
         include("dae_tests.jl")
     end
-    @time @testset "DDE Tests" begin
+    @time @safetestset "DDE Tests" begin
         include("dde_tests.jl")
     end
-    @time @testset "Test on Monte" begin
+    @time @safetestset "Test on Monte" begin
         include("test_on_monte.jl")
     end
 end
