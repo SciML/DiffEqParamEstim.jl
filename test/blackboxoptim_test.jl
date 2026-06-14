@@ -1,4 +1,6 @@
+using DiffEqParamEstim, OrdinaryDiffEq
 using Optimization, OptimizationBBO, Logging
+include(joinpath(@__DIR__, "shared", "test_problems.jl"))
 
 prob1.u0 .= [1.0, 1.0]
 prob2.u0 .= [1.0, 1.0]

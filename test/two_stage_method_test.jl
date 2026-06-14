@@ -1,4 +1,6 @@
-using Optim, NLopt, OptimizationOptimJL
+using DiffEqParamEstim, OrdinaryDiffEq
+using Optimization, OptimizationNLopt, Optim, NLopt, OptimizationOptimJL
+include(joinpath(@__DIR__, "shared", "test_problems.jl"))
 
 println("Use Two Stage Method to fit the parameter")
 

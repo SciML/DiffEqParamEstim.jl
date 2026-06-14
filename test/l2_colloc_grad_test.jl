@@ -1,3 +1,7 @@
+using DiffEqParamEstim, OrdinaryDiffEq
+using Optim
+include(joinpath(@__DIR__, "shared", "test_problems.jl"))
+
 weight = 1.0e-6
 
 cost_function = build_loss_objective(

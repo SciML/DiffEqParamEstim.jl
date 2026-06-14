@@ -1,4 +1,6 @@
+using DiffEqParamEstim, OrdinaryDiffEq
 using Optim, Random
+include(joinpath(@__DIR__, "shared", "test_problems.jl"))
 obj = build_loss_objective(
     prob1, Tsit5(), L2Loss(t, data),
     maxiters = 10000

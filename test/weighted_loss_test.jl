@@ -1,4 +1,6 @@
+using DiffEqParamEstim, OrdinaryDiffEq
 using Distributions, RecursiveArrayTools, NLopt, Random
+include(joinpath(@__DIR__, "shared", "test_problems.jl"))
 Random.seed!(123)
 
 original_solution = VectorOfArray([(sol(t[i])) for i in 1:length(t)])
