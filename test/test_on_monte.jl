@@ -1,5 +1,5 @@
 using DiffEqParamEstim, OrdinaryDiffEq, StochasticDiffEq,
-    DiffEqBase, RecursiveArrayTools, OptimizationOptimJL, Zygote
+    DiffEqBase, RecursiveArrayTools, Optimization, OptimizationOptimJL, Zygote
 using Test
 
 pf_func = function (du, u, p, t)
