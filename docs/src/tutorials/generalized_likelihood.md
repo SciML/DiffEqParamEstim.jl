@@ -6,6 +6,7 @@ but in this case, fit just two parameters.
 
 ```@example likelihood
 using DifferentialEquations, DiffEqParamEstim, Optimization, OptimizationBBO
+using SciMLLogging: None
 f1 = function (du, u, p, t)
     du[1] = p[1] * u[1] - p[2] * u[1] * u[2]
     du[2] = -3.0 * u[2] + u[1] * u[2]
@@ -69,7 +70,7 @@ corresponding to that distribution fit:
 
 ```@example likelihood
 obj = build_loss_objective(prob1, Tsit5(), LogLikeLoss(t, distributions),
-    maxiters = 10000, verbose = false)
+    maxiters = 10000, verbose = None())
 ```
 
 First, let's use the objective function to plot the likelihood landscape:
