@@ -1,4 +1,5 @@
-using OrdinaryDiffEq, Test, SciMLSensitivity, Optimization, OptimizationOptimJL
+using OrdinaryDiffEq, Test, SciMLSensitivity, Optimization, OptimizationOptimJL,
+    DiffEqParamEstim
 
 function LotkaVolterraTest_not_inplace(u, a, t)
     b, c, d = 1.0, 3.0, 1.0
