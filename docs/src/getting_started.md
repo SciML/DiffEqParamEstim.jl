@@ -33,6 +33,7 @@ by defining the equation as a function with a single parameter `p=[a]`:
 ```@example ode
 using DifferentialEquations, RecursiveArrayTools, Plots, DiffEqParamEstim
 using Optimization, ForwardDiff, OptimizationOptimJL, OptimizationBBO
+using SciMLLogging: None
 
 function f(du, u, p, t)
     a = p[]
@@ -79,7 +80,7 @@ function:
 ```@example ode
 cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t, data),
     Optimization.AutoForwardDiff(),
-    maxiters = 10000, verbose = false)
+    maxiters = 10000, verbose = None())
 ```
 
 This objective function internally is calling the ODE solver to get solutions
@@ -88,7 +89,8 @@ Note that we set `maxiters` in a way that causes the differential equation solve
 error more quickly when in bad regions of the parameter space, speeding up the
 process. If the integrator stops early (due to divergence), then those parameters
 are given an infinite loss, and thus this is a quick way to avoid bad parameters.
-We set `verbose=false` because this divergence can get noisy. The `Optimization.AutoForwardDiff()`
+We set `verbose = None()` (from [SciMLLogging.jl](https://docs.sciml.ai/SciMLLogging/stable/))
+to silence the solver because this divergence can get noisy. The `Optimization.AutoForwardDiff()`
 is a choice of automatic differentiation, i.e., how the gradients are calculated.
 For more information on this choice, see
 [the automatic differentiation choice API](https://docs.sciml.ai/Optimization/stable/API/optimization_function/#Automatic-Differentiation-Construction-Choice-Recommendations).
@@ -171,7 +173,7 @@ We can build an objective function and solve the multiple parameter version just
 ```@example ode
 cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t, data),
     Optimization.AutoForwardDiff(),
-    maxiters = 10000, verbose = false)
+    maxiters = 10000, verbose = None())
 optprob = Optimization.OptimizationProblem(cost_function, [1.3, 0.8, 2.8, 1.2])
 result_bfgs = solve(optprob, BFGS())
 ```
@@ -189,7 +191,7 @@ cost_function = build_loss_objective(prob, Tsit5(),
     L2Loss(t, data, differ_weight = 0.3,
         data_weight = 0.7),
     Optimization.AutoForwardDiff(),
-    maxiters = 10000, verbose = false)
+    maxiters = 10000, verbose = None())
 optprob = Optimization.OptimizationProblem(cost_function, [1.3, 0.8, 2.8, 1.2])
 result_bfgs = solve(optprob, BFGS())
 ```

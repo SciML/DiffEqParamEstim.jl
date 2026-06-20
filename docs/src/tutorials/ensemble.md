@@ -89,7 +89,7 @@ losses = [L2Loss(data_times, data[:, :, i]) for i in 1:N]
 So `losses[i]` is a function which computes the loss of a solution against the data of the ith trajectory. So to build our true loss function, we sum the losses:
 
 ```@example ensemble
-loss(sim) = sum(losses[i](sim[i]) for i in 1:N)
+loss(sim) = sum(losses[i](sim.u[i]) for i in 1:N)
 ```
 
 As a double check, make sure that `loss(sim)` outputs zero (since we generated the data from sim). Now we generate data with other parameters:

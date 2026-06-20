@@ -1,5 +1,5 @@
 using OrdinaryDiffEq, DiffEqParamEstim, Distributions, Test, RecursiveArrayTools,
-    OptimizationBBO
+    Optimization, OptimizationBBO
 # ,BlackBoxOptim,
 
 pf_func = function (du, u, p, t)
