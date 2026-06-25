@@ -1,13 +1,31 @@
-using DiffEqParamEstim, Aqua, JET, Test
+using SciMLTesting, DiffEqParamEstim, JET, Test
 
-@testset "Aqua" begin
-    # stale_deps and deps_compat disabled: genuine findings tracked in
-    # https://github.com/SciML/DiffEqParamEstim.jl/issues/306
-    Aqua.test_all(DiffEqParamEstim; stale_deps = false, deps_compat = false)
-    @test_broken false  # Aqua stale_deps: Calculus is a stale dep — tracked in https://github.com/SciML/DiffEqParamEstim.jl/issues/306
-    @test_broken false  # Aqua deps_compat: LinearAlgebra dep + Pkg extra missing compat entries — tracked in https://github.com/SciML/DiffEqParamEstim.jl/issues/306
-end
-
-@testset "JET" begin
-    JET.test_package(DiffEqParamEstim; target_defined_modules = true)
-end
+run_qa(
+    DiffEqParamEstim;
+    explicit_imports = true,
+    ei_kwargs = (
+        # SciMLBase/DiffEqBase solution+problem supertypes and helpers that
+        # DiffEqParamEstim dispatches on / subtypes; not (yet) declared public in
+        # their owner module. They go public as those base libraries release.
+        all_qualified_accesses_are_public = (;
+            ignore = (
+                :AbstractDEProblem,        # SciMLBase
+                :AbstractEnsembleSolution, # SciMLBase
+                :AbstractNoTimeSolution,   # SciMLBase
+                :AbstractSciMLProblem,     # SciMLBase
+                :AbstractSciMLSolution,    # SciMLBase
+                :NoAD,                     # SciMLBase
+                :build_solution,           # SciMLBase
+                :successful_retcode,       # SciMLBase (flagged on Julia 1.10 only)
+                :Success,                  # SciMLBase.ReturnCode (flagged on Julia 1.10 only)
+                :DECostFunction,           # DiffEqBase
+            ),
+        ),
+        all_explicit_imports_are_public = (;
+            ignore = (
+                :solve,         # CommonSolve canonical entry point, not declared public there
+                :loglikelihood, # StatsAPI (flagged on Julia 1.10 only)
+            ),
+        ),
+    ),
+)

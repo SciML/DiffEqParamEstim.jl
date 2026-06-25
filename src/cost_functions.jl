@@ -33,14 +33,14 @@ struct L2Loss{T, D, U, W, G, B} <: DiffEqBase.DECostFunction
     du_buf::B
 end
 
-function (f::L2Loss)(sol::DiffEqBase.AbstractNoTimeSolution)
+function (f::L2Loss)(sol::SciMLBase.AbstractNoTimeSolution)
     data = f.data
     weight = f.data_weight
     diff_weight = f.differ_weight
     colloc_grad = f.colloc_grad
     dudt = f.dudt
 
-    if sol isa DiffEqBase.AbstractEnsembleSolution
+    if sol isa SciMLBase.AbstractEnsembleSolution
         failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol.u)
     else
         failure = !SciMLBase.successful_retcode(sol.retcode)
@@ -73,7 +73,7 @@ function (f::L2Loss)(sol::SciMLBase.AbstractSciMLSolution)
     colloc_grad = f.colloc_grad
     dudt = f.dudt
 
-    if sol isa DiffEqBase.AbstractEnsembleSolution
+    if sol isa SciMLBase.AbstractEnsembleSolution
         failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol.u)
     else
         failure = !SciMLBase.successful_retcode(sol.retcode)
@@ -172,7 +172,7 @@ function L2Loss(
     )
 end
 
-function (f::L2Loss)(sol::DiffEqBase.AbstractEnsembleSolution)
+function (f::L2Loss)(sol::SciMLBase.AbstractEnsembleSolution)
     return mean(f.(sol.u))
 end
 
@@ -200,7 +200,7 @@ end
 
 function (f::LogLikeLoss)(sol::SciMLBase.AbstractSciMLSolution)
     distributions = f.data_distributions
-    if sol isa DiffEqBase.AbstractEnsembleSolution
+    if sol isa SciMLBase.AbstractEnsembleSolution
         failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol.u)
     else
         failure = !SciMLBase.successful_retcode(sol.retcode)
@@ -248,7 +248,7 @@ function (f::LogLikeLoss)(sol::SciMLBase.AbstractSciMLSolution)
     return ll
 end
 
-function (f::LogLikeLoss)(sol::DiffEqBase.AbstractEnsembleSolution)
+function (f::LogLikeLoss)(sol::SciMLBase.AbstractEnsembleSolution)
     distributions = f.data_distributions
     failure = any(!SciMLBase.successful_retcode(s.retcode) for s in sol.u)
     failure && return Inf
