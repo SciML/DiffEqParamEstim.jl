@@ -4,7 +4,6 @@ version = "2.4.0"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 
 [deps]
-Calculus = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
 CommonSolve = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
 Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
 DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
@@ -19,14 +18,13 @@ StatsAPI = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
 
 [compat]
 BlackBoxOptim = "0.6"
-Calculus = "0.5.2"
 CommonSolve = "0.2.6"
 DelayDiffEq = "5.63, 6"
 Dierckx = "0.5"
 DiffEqBase = "6.213, 7"
 Distributions = "0.25.87"
-ExplicitImports = "1"
 ForwardDiff = "0.10.38"
+LinearAlgebra = "1.10"
 Logging = "1"
 NLopt = "0.6, 1"
 Optim = "1"
@@ -55,7 +53,6 @@ julia = "1.10"
 [extras]
 BlackBoxOptim = "a134a8b2-14d6-55f6-9291-3336d3ab0209"
 DelayDiffEq = "bcd4f6db-9728-5f36-b5f7-82caef46ccdb"
-ExplicitImports = "7d51a73a-1435-4ff3-83d9-f097790105c7"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 NLopt = "76087f3c-5699-56af-9a33-bf431cd00edd"
@@ -76,4 +73,4 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [targets]
-test = ["Test", "ExplicitImports", "BlackBoxOptim", "DelayDiffEq", "ForwardDiff", "Logging", "NLopt", "Optim", "Optimization", "OptimizationBBO", "OptimizationNLopt", "OptimizationOptimJL", "OrdinaryDiffEq", "Random", "SafeTestsets", "SciMLSensitivity", "SciMLTesting", "StochasticDiffEq", "SteadyStateDiffEq", "Sundials", "Zygote"]
+test = ["Test", "BlackBoxOptim", "DelayDiffEq", "ForwardDiff", "Logging", "NLopt", "Optim", "Optimization", "OptimizationBBO", "OptimizationNLopt", "OptimizationOptimJL", "OrdinaryDiffEq", "Random", "SafeTestsets", "SciMLSensitivity", "SciMLTesting", "StochasticDiffEq", "SteadyStateDiffEq", "Sundials", "Zygote"]
