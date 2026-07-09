@@ -21,6 +21,54 @@ struct Merged_Solution{T1, T2, T3}
     sol::T3
 end
 
+"""
+    multiple_shooting_objective(prob::SciMLBase.AbstractDEProblem, alg, loss,
+        adtype = SciMLBase.NoAD(), regularization = nothing;
+        priors = nothing, discontinuity_weight = 1.0,
+        prob_generator = STANDARD_MS_PROB_GENERATOR, kwargs...)
+
+Build an `OptimizationFunction` that fits parameters by multiple shooting.
+
+Multiple shooting splits `prob.tspan` into `K` shorter intervals and treats both
+the differential equation parameters and the initial state of each interval as
+optimization variables. The returned cost function solves each interval with
+`alg`, merges the segment solutions into a single trajectory, evaluates `loss`
+on it, and adds a discontinuity penalty for the mismatch between the end of each
+segment and the start of the next. This is often more robust than a single-shot
+objective, as in boundary value problems.
+
+The parameter vector `p` is laid out as the concatenation of the per-interval
+initial states followed by the `length(prob.p)` differential equation
+parameters; the default `prob_generator = STANDARD_MS_PROB_GENERATOR` slices `p`
+into the correct per-segment problems.
+
+# Arguments
+
+  - `prob`: the `AbstractDEProblem` to fit.
+  - `alg`: the solver algorithm matching `prob`.
+  - `loss`: a callable mapping the merged solution to a scalar, e.g.
+    [`L2Loss`](@ref) or [`LogLikeLoss`](@ref).
+  - `adtype`: the automatic differentiation choice passed to `OptimizationFunction`
+    (defaults to `SciMLBase.NoAD()`).
+  - `regularization`: an optional callable of `p` (e.g. [`Regularization`](@ref))
+    added to the loss; `nothing` (the default) adds none.
+
+# Keyword Arguments
+
+  - `priors`: univariate distributions (one per parameter) or a multivariate
+    distribution; when given, the negative log prior from [`prior_loss`](@ref)
+    over the differential equation parameters is added, giving a MAP objective.
+  - `discontinuity_weight`: a scalar or array weight on the squared mismatch
+    between consecutive segments (defaults to `1.0`).
+  - `prob_generator`: a function `(prob, p, k) -> segment_prob` producing the
+    problem for interval `k` from `p`. Defaults to `STANDARD_MS_PROB_GENERATOR`.
+  - `kwargs...`: extra keyword arguments forwarded to the differential equation
+    `solve`.
+
+# Returns
+
+An `OptimizationFunction` wrapping the multiple-shooting cost with `adtype`.
+"""
 function multiple_shooting_objective(
         prob::SciMLBase.AbstractDEProblem, alg, loss,
         adtype = SciMLBase.NoAD(),

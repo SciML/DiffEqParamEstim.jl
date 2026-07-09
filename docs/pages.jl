@@ -12,4 +12,5 @@ pages = [
         "methods/optimization_based_methods.md",
         "methods/collocation_loss.md",
     ],
+    "API" => "api.md",
 ]

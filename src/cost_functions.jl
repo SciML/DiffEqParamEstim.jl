@@ -1,6 +1,23 @@
 export L2Loss, Regularization, LogLikeLoss, prior_loss, l2lossgradient!,
     colloc_grad
 
+"""
+    Regularization(λ, penalty = L2Penalty())
+
+A regularization term for use with an objective builder such as
+[`build_loss_objective`](@ref).
+
+Calling a `Regularization` on a parameter vector `p` returns
+`λ * value(penalty, p)`, i.e. the penalty evaluated on `p` scaled by `λ`.
+The penalty is any penalty function from
+[PenaltyFunctions.jl](https://github.com/JuliaML/PenaltyFunctions.jl); when
+omitted it defaults to `L2Penalty()`, giving standard L2 (ridge) regularization.
+
+# Fields
+
+  - `λ`: the scalar weight applied to the penalty term.
+  - `penalty`: the penalty function evaluated on the parameter vector.
+"""
 struct Regularization{L, P} <: DiffEqBase.DECostFunction
     λ::L
     penalty::P
@@ -11,6 +28,19 @@ function (f::Regularization)(p)
     return f.λ * value(f.penalty, p)
 end
 
+"""
+    prior_loss(prior, p)
+
+Return the negative log prior of the parameter vector `p` under `prior`.
+
+If `eltype(prior) <: UnivariateDistribution`, `prior` is treated as a collection
+of univariate distributions and the result is `-sum(logpdf(prior[i], p[i]))`.
+Otherwise `prior` is treated as a single (multivariate) distribution and the
+result is `-logpdf(prior, p)`. Adding this term to a loss turns a maximum
+likelihood objective into a maximum a posteriori (MAP) objective; it is used
+internally by [`build_loss_objective`](@ref) and
+[`multiple_shooting_objective`](@ref) when `priors` is supplied.
+"""
 function prior_loss(prior, p)
     ll = 0.0
     if eltype(prior) <: UnivariateDistribution
@@ -23,6 +53,44 @@ function prior_loss(prior, p)
     return ll
 end
 
+"""
+    L2Loss(t, data; differ_weight = nothing, data_weight = nothing,
+        colloc_grad = nothing, dudt = nothing)
+
+An optimized L2-distance loss for fitting a differential equation solution to
+data. Calling an `L2Loss` on a solution `sol` returns the (weighted) sum of
+squared residuals between `sol` and `data` at the timepoints `t`, returning
+`Inf` if the solve was unsuccessful.
+
+# Arguments
+
+  - `t`: the timepoints at which the data are given.
+  - `data`: the measured values, where column `i` holds the state at `t[i]`. A
+    vector is reshaped to a `1 x N` matrix.
+
+# Keyword Arguments
+
+  - `data_weight`: a scalar or array of weights matching the size of `data`, used
+    to weight each squared residual. `nothing` (the default) gives uniform unit
+    weights. Minimizing a weighted `L2Loss` is equivalent to maximum likelihood
+    estimation of a heteroskedastic Normal likelihood.
+  - `differ_weight`: a scalar or array weight on the first-difference residuals
+    `sol[i] - sol[i-1]` against the data first differences, which smooths the
+    loss and can improve identifiability (e.g. for stochastic models). `nothing`
+    (the default) disables the first-difference term.
+  - `colloc_grad`: a matrix of collocation gradients for the data (see
+    [`colloc_grad`](@ref)). When supplied, an interpolation-derivative term is
+    added to the loss; combined with regularization this makes the loss
+    equivalent to a 4DVAR objective.
+  - `dudt`: a buffer used to accumulate the derivative estimates when
+    `colloc_grad` is used; allocated automatically when `colloc_grad` is given.
+
+# Fields
+
+  - `t`, `data`, `differ_weight`, `data_weight`, `colloc_grad`, `dudt`: as above.
+  - `du_buf`: an internal buffer for the derivative evaluation used with
+    `colloc_grad`.
+"""
 struct L2Loss{T, D, U, W, G, B} <: DiffEqBase.DECostFunction
     t::T
     data::D
@@ -176,7 +244,26 @@ function (f::L2Loss)(sol::SciMLBase.AbstractEnsembleSolution)
     return mean(f.(sol.u))
 end
 
-#t - 1xN array, data - mxN array, returns mxN array
+"""
+    colloc_grad(t, data)
+
+Estimate the time-derivative of `data` by spline collocation, for use as the
+`colloc_grad` argument of [`L2Loss`](@ref).
+
+For each state (row of `data`), a cubic (3rd order) `Dierckx.Spline1D` is fit to
+`data` against `t` and differentiated at the timepoints `t`. The per-timepoint
+derivatives are collected into a matrix of the same shape as `data`, where
+column `i` is the estimated derivative at `t[i]`.
+
+# Arguments
+
+  - `t`: the timepoints, a length-`N` vector.
+  - `data`: an `m x N` matrix of measured state values.
+
+# Returns
+
+An `m x N` matrix of the collocation-estimated derivatives.
+"""
 function colloc_grad(t::T, data::D) where {T, D}
     splines = [Dierckx.Spline1D(t, data[i, :]) for i in 1:size(data)[1]]
     grad = [Dierckx.derivative(spline, t[1:end]) for spline in splines]
@@ -185,6 +272,42 @@ function colloc_grad(t::T, data::D) where {T, D}
     return grad
 end
 
+"""
+    LogLikeLoss(t, data_distributions)
+    LogLikeLoss(t, data_distributions, diff_distributions)
+
+A negative log-likelihood loss for fitting a differential equation solution to a
+field of distributions. Calling a `LogLikeLoss` on a solution `sol` returns the
+negative total log-likelihood of `sol` under `data_distributions` at the
+timepoints `t` (so minimizing it performs maximum likelihood estimation),
+returning `Inf` if the solve was unsuccessful.
+
+There are two forms for `data_distributions`:
+
+  - If `data_distributions[i, j]` is a `UnivariateDistribution`, it gives the
+    likelihood at `t[i]` for component `j`.
+  - If `data_distributions[i]` is a `MultivariateDistribution`, it gives the
+    likelihood at `t[i]` over the full state vector.
+
+These distributions can be produced with `fit_mle` on a dataset against a chosen
+distribution type.
+
+# Arguments
+
+  - `t`: the timepoints at which the distributions apply.
+  - `data_distributions`: the field of likelihood distributions (a vector is
+    reshaped to a `1 x N` matrix).
+  - `diff_distributions`: an optional field of distributions placed on the
+    first-difference terms `sol[i] - sol[i-1]`, contributing an additional
+    log-likelihood term. When supplied via the three-argument constructor its
+    contribution is scaled by `weight = 1`.
+
+# Fields
+
+  - `t`, `data_distributions`, `diff_distributions`: as above.
+  - `weight`: the scalar weight applied to the first-difference log-likelihood
+    term (`nothing` when `diff_distributions` is not used).
+"""
 struct LogLikeLoss{T, D} <: DiffEqBase.DECostFunction
     t::T
     data_distributions::D
@@ -292,6 +415,27 @@ function (f::LogLikeLoss)(sol::SciMLBase.AbstractEnsembleSolution)
     return ll
 end
 
+"""
+    l2lossgradient!(grad, sol, data, sensitivities, num_p)
+
+Compute, in place, the gradient of an L2 loss with respect to `num_p`
+parameters and write it into `grad`.
+
+Given a solution `sol`, the target `data`, and the parameter `sensitivities`
+(where `sensitivities[i]` is the derivative of the solution with respect to
+parameter `i`), this accumulates
+`grad[i] -= sum(2 * (data - sol) .* sensitivities[i])` over all state components
+and timepoints. `grad` is zeroed before accumulation. Returns `nothing`.
+
+# Arguments
+
+  - `grad`: a length-`num_p` vector, overwritten with the loss gradient.
+  - `sol`: the solution values, shaped like `data`.
+  - `data`: the target data.
+  - `sensitivities`: a collection of length `num_p` of parameter sensitivities,
+    each shaped like `data`.
+  - `num_p`: the number of parameters.
+"""
 function l2lossgradient!(grad, sol, data, sensitivities, num_p)
     fill!(grad, 0.0)
     data_x_size = size(data, 1)
