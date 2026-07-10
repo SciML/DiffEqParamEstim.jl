@@ -6,8 +6,8 @@ IPOPT, NLopt, MOSEK, etc. Building off of the previous example, we can build a
 cost function for the single parameter optimization problem like:
 
 ```@example global_optimization
-using DifferentialEquations, Plots, DiffEqParamEstim, Optimization, OptimizationMOI,
-      OptimizationNLopt, NLopt
+using DifferentialEquations, DiffEqParamEstim, Optimization, OptimizationMOI,
+      OptimizationNLopt, NLopt, RecursiveArrayTools
 
 function f(du, u, p, t)
     du[1] = p[1] * u[1] - u[1] * u[2]
@@ -35,6 +35,7 @@ Constrained Optimization BY Linear Approximations algorithm, we can simply do:
 
 ```@example global_optimization
 opt = Opt(:LN_COBYLA, 1)
+maxeval!(opt, 10)
 optprob = Optimization.OptimizationProblem(obj, [1.3])
 res = solve(optprob, opt)
 ```
@@ -46,7 +47,7 @@ opt = Opt(:GN_ESCH, 1)
 lower_bounds!(opt, [0.0])
 upper_bounds!(opt, [5.0])
 xtol_rel!(opt, 1e-3)
-maxeval!(opt, 100000)
+maxeval!(opt, 10)
 res = solve(optprob, opt)
 ```
 
@@ -59,7 +60,7 @@ res = solve(optprob,
     OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
         "algorithm" => :GN_ISRES,
         "xtol_rel" => 1e-3,
-        "maxeval" => 10000))
+        "maxeval" => 10))
 ```
 
 which is very robust to the initial condition. We can also directly use the NLopt interface as below. The fastest result comes from the
