@@ -96,7 +96,7 @@ LogLikeLoss(t, distributions, diff_distributions = nothing)
 
 In this case, there are two forms. The simple case is where `distributions[i,j]`
 is the likelihood distributions from a `UnivariateDistribution` from
-[Distributions.jl](https://juliastats.github.io/Distributions.jl/dev/), where it
+[Distributions.jl](https://juliastats.org/Distributions.jl/stable/), where it
 corresponds to the likelihood at `t[i]` for component `j`. The second case is
 where `distributions[i]` is a `MultivariateDistribution` which corresponds to
 the likelihood at `t[i]` over the vector of components. This likelihood function

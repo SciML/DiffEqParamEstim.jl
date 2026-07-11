@@ -28,7 +28,7 @@ prob = SDEProblem(pf_func, pg_func, u0, tspan, p)
 sol = solve(prob, SRIW1())
 ```
 
-Now let's generate a dataset from 10,000 solutions of the SDE
+Now let's generate a compact dataset from repeated solutions of the SDE:
 
 ```@example sde
 using RecursiveArrayTools # for VectorOfArray
@@ -38,7 +38,7 @@ function generate_data(t)
     randomized = VectorOfArray([(sol(t[i]) + 0.01randn(2)) for i in 1:length(t)])
     data = convert(Array, randomized)
 end
-aggregate_data = convert(Array, VectorOfArray([generate_data(t) for i in 1:10000]))
+aggregate_data = convert(Array, VectorOfArray([generate_data(t) for i in 1:10]))
 ```
 
 Now let's estimate the parameters. Instead of using single runs from the SDE, we
@@ -55,9 +55,9 @@ We use Optim.jl for optimization below
 ```@example sde
 obj = build_loss_objective(monte_prob, SOSRI(), L2Loss(t, aggregate_data),
     Optimization.AutoForwardDiff(),
-    maxiters = 10000, verbose = None(), trajectories = 1000)
+    maxiters = 1000, verbose = None(), trajectories = 10)
 optprob = Optimization.OptimizationProblem(obj, [1.0, 0.5])
-result = solve(optprob, Optim.BFGS())
+result = solve(optprob, Optim.BFGS(); maxiters = 10)
 ```
 
 Parameter Estimation in case of SDE's with a regular `L2Loss` can have poor accuracy due to only fitting against the mean properties as mentioned in [First Differencing](@ref fd).
@@ -72,14 +72,14 @@ Instead, when we use `L2Loss` with first differencing enabled, we get much more 
 obj = build_loss_objective(monte_prob, SRIW1(),
     L2Loss(t, aggregate_data, differ_weight = 1.0,
         data_weight = 0.5), Optimization.AutoForwardDiff(),
-    verbose = None(), trajectories = 1000, maxiters = 1000)
+    verbose = None(), trajectories = 10, maxiters = 1000)
 optprob = Optimization.OptimizationProblem(obj, [1.0, 0.5])
-result = solve(optprob, Optim.BFGS())
+result = solve(optprob, Optim.BFGS(); maxiters = 10)
 result.original
 ```
 
-Here, we see that we successfully recovered the drift parameter, and got close to
-the original noise parameter after searching a two-orders-of-magnitude range.
+Larger ensembles reduce the Monte Carlo noise in the recovered drift and noise
+parameters.
 
 ```@example sde
 println(result.u)

@@ -126,7 +126,7 @@ Let's start the optimization with [1.3,0.9], Optim spits out that the true param
 lower = zeros(2)
 upper = fill(2.0, 2)
 optprob = OptimizationProblem(obj, [1.3, 0.9], lb = lower, ub = upper)
-result = solve(optprob, Fminbox(BFGS()))
+result = solve(optprob, Fminbox(BFGS()); maxiters = 10)
 ```
 
 ```@example ensemble
@@ -145,7 +145,7 @@ obj = build_loss_objective(enprob, Tsit5(), loss, Optimization.AutoForwardDiff()
     abstol = 1e-8, reltol = 1e-8,
     saveat = data_times)
 optprob = OptimizationProblem(obj, [1.3, 0.9], lb = lower, ub = upper)
-result = solve(optprob, BFGS()) #OptimizationOptimJL detects that it's a box constrained problem and use Fminbox wrapper over BFGS
+result = solve(optprob, BFGS(); maxiters = 10) #OptimizationOptimJL detects that it's a box constrained problem and use Fminbox wrapper over BFGS
 ```
 
 ```@example ensemble
