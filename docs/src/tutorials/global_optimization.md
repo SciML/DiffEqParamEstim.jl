@@ -47,7 +47,7 @@ opt = Opt(:GN_ESCH, 1)
 lower_bounds!(opt, [0.0])
 upper_bounds!(opt, [5.0])
 xtol_rel!(opt, 1e-3)
-maxeval!(opt, 10)
+maxeval!(opt, 100000)
 res = solve(optprob, opt)
 ```
 
@@ -60,7 +60,7 @@ res = solve(optprob,
     OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
         "algorithm" => :GN_ISRES,
         "xtol_rel" => 1e-3,
-        "maxeval" => 10))
+        "maxeval" => 10000))
 ```
 
 which is very robust to the initial condition. We can also directly use the NLopt interface as below. The fastest result comes from the
