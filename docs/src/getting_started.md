@@ -238,7 +238,7 @@ a global optimization method to improve robustness even more:
 optprob = Optimization.OptimizationProblem(ms_obj, zeros(18), lb = first.(bound),
     ub = last.(bound))
 Random.seed!(1234)
-optsol_ms = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10_000)
+optsol_ms = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 21_000)
 @assert isapprox(optsol_ms.u[(end - 1):end], ms_p; atol = 0.1)
 ```
 
