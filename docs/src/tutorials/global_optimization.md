@@ -8,6 +8,7 @@ cost function for the single parameter optimization problem like:
 ```@example global_optimization
 using DifferentialEquations, DiffEqParamEstim, Optimization, OptimizationMOI,
       OptimizationNLopt, NLopt, RecursiveArrayTools
+using Random
 
 function f(du, u, p, t)
     du[1] = p[1] * u[1] - u[1] * u[2]
@@ -21,6 +22,7 @@ prob = ODEProblem(f, u0, tspan, p)
 sol = solve(prob, Tsit5())
 
 t = collect(range(0, stop = 10, length = 200))
+Random.seed!(1234)
 randomized = VectorOfArray([(sol(t[i]) + 0.01randn(2)) for i in 1:length(t)])
 data = convert(Array, randomized)
 
@@ -38,6 +40,7 @@ opt = Opt(:LN_COBYLA, 1)
 maxeval!(opt, 10)
 optprob = Optimization.OptimizationProblem(obj, [1.3])
 res = solve(optprob, opt)
+@assert isapprox(res.u, p; atol = 0.05)
 ```
 
 For a modified evolutionary algorithm, we can use:
@@ -47,8 +50,10 @@ opt = Opt(:GN_ESCH, 1)
 lower_bounds!(opt, [0.0])
 upper_bounds!(opt, [5.0])
 xtol_rel!(opt, 1e-3)
-maxeval!(opt, 100000)
+maxeval!(opt, 100_000)
+NLopt.srand(1234)
 res = solve(optprob, opt)
+@assert isapprox(res.u, p; atol = 0.05)
 ```
 
 We can even use things like the Improved Stochastic Ranking Evolution Strategy
@@ -60,16 +65,24 @@ res = solve(optprob,
     OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
         "algorithm" => :GN_ISRES,
         "xtol_rel" => 1e-3,
-        "maxeval" => 10000))
+        "seed" => 1234,
+        "maxeval" => 10_000))
+@assert isapprox(res.u, p; atol = 0.05)
 ```
 
 which is very robust to the initial condition. We can also directly use the NLopt interface as below. The fastest result comes from the
 following algorithm choice:
 
-```example global_optimization
+```@example global_optimization
 opt = Opt(:LN_BOBYQA, 1)
-min_objective!(opt, obj)
-(minf,minx,ret) = NLopt.optimize(opt,[1.3])
+lower_bounds!(opt, [0.0])
+upper_bounds!(opt, [5.0])
+xtol_rel!(opt, 1e-6)
+maxeval!(opt, 100)
+min_objective!(opt, (x, _) -> obj(x))
+minf, minx, ret = NLopt.optimize(opt, [1.3])
+@assert isapprox(minx, p; atol = 0.01)
+(minf, minx, ret)
 ```
 
 For more information, see the NLopt documentation for more details.
