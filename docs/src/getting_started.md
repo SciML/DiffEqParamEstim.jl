@@ -33,6 +33,7 @@ by defining the equation as a function with a single parameter `p=[a]`:
 ```@example ode
 using DifferentialEquations, RecursiveArrayTools, Plots, DiffEqParamEstim
 using Optimization, ForwardDiff, OptimizationOptimJL, OptimizationBBO
+using Random
 using SciMLLogging: None
 
 function f(du, u, p, t)
@@ -55,6 +56,7 @@ We create synthetic data using the numerical result with `a=1.5` and additive wh
 sol = solve(prob, Tsit5())
 t = collect(range(0, stop = 10, length = 200))
 using RecursiveArrayTools # for VectorOfArray
+Random.seed!(1234)
 randomized = VectorOfArray([(sol(t[i]) + 0.05randn(2)) for i in 1:length(t)])
 data = convert(Array, randomized)
 ```
@@ -119,7 +121,8 @@ do this by creating an optimization problem and solving that with `BFGS()`:
 
 ```@example ode
 optprob = Optimization.OptimizationProblem(cost_function, [1.42])
-optsol = solve(optprob, BFGS(); maxiters = 10)
+optsol = solve(optprob, BFGS())
+@assert isapprox(optsol.u, p; atol = 0.01)
 ```
 
 Now let's see how well the fit performed:
@@ -148,7 +151,8 @@ arguments to the `OptimizationProblem` to pass these bounds to the optimizer:
 lower = [0.0]
 upper = [3.0]
 optprob = Optimization.OptimizationProblem(cost_function, [1.42], lb = lower, ub = upper)
-result = solve(optprob, BFGS(); maxiters = 10)
+result = solve(optprob, BFGS())
+@assert isapprox(result.u, p; atol = 0.01)
 ```
 
 ## Estimating Multiple Parameters Simultaneously
@@ -175,7 +179,8 @@ cost_function = build_loss_objective(prob, Tsit5(), L2Loss(t, data),
     Optimization.AutoForwardDiff(),
     maxiters = 10000, verbose = None())
 optprob = Optimization.OptimizationProblem(cost_function, [1.3, 0.8, 2.8, 1.2])
-result_bfgs = solve(optprob, BFGS(); maxiters = 10)
+result_bfgs = solve(optprob, BFGS())
+@assert isapprox(result_bfgs.u, p; atol = 0.05)
 ```
 
 ### Alternative Cost Functions for Increased Robustness
@@ -193,7 +198,8 @@ cost_function = build_loss_objective(prob, Tsit5(),
     Optimization.AutoForwardDiff(),
     maxiters = 10000, verbose = None())
 optprob = Optimization.OptimizationProblem(cost_function, [1.3, 0.8, 2.8, 1.2])
-result_bfgs = solve(optprob, BFGS(); maxiters = 10)
+result_bfgs = solve(optprob, BFGS())
+@assert isapprox(result_bfgs.u, p; atol = 0.05)
 ```
 
 We can also use Multiple Shooting method by creating a `multiple_shooting_objective`
@@ -231,7 +237,9 @@ a global optimization method to improve robustness even more:
 ```@example ode
 optprob = Optimization.OptimizationProblem(ms_obj, zeros(18), lb = first.(bound),
     ub = last.(bound))
-optsol_ms = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 100)
+Random.seed!(1234)
+optsol_ms = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10_000)
+@assert isapprox(optsol_ms.u[(end - 1):end], ms_p; atol = 0.1)
 ```
 
 ```@example ode
@@ -243,7 +251,8 @@ the rest of the values are the initial values of the shorter timespans as descri
 We can also use a gradient-based optimizer with the multiple shooting objective.
 
 ```@example ode
-optsol_ms = solve(optprob, BFGS(); maxiters = 10)
+optsol_ms = solve(optprob, BFGS())
+@assert isapprox(optsol_ms.u[(end - 1):end], ms_p; atol = 0.05)
 optsol_ms.u[(end - 1):end]
 ```
 
@@ -251,8 +260,9 @@ The objective function for the Two Stage method can be created and passed to an 
 
 ```@example ode
 two_stage_obj = two_stage_objective(ms_prob, t, data, Optimization.AutoForwardDiff())
-optprob = Optimization.OptimizationProblem(two_stage_obj, [1.3, 0.8, 2.8, 1.2])
-result = solve(optprob, Optim.BFGS(); maxiters = 10)
+optprob = Optimization.OptimizationProblem(two_stage_obj, [1.3, 0.8])
+result = solve(optprob, Optim.BFGS())
+@assert isapprox(result.u, ms_p; atol = 0.05)
 ```
 
 The default kernel used in the method is `Epanechnikov`, available others are `Uniform`,  `Triangular`,
