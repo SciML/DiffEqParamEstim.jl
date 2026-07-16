@@ -1,6 +1,6 @@
 name = "DiffEqParamEstim"
 uuid = "1130ab10-4a5a-5621-a13d-e4788d82bd4c"
-version = "2.4.1"
+version = "2.4.2"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 
 [deps]
