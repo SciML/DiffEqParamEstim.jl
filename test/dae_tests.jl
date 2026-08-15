@@ -1,5 +1,6 @@
 using DelayDiffEq, OrdinaryDiffEq, RecursiveArrayTools, Test,
     Sundials
+using OrdinaryDiffEqBDF: DFBDF
 
 function f(out, du, u, p, t)
     out[1] = -p[1] * u[1] + 1.0e4 * u[2] * u[3] - du[1]
