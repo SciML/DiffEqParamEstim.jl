@@ -13,4 +13,7 @@ pages = [
         "methods/collocation_loss.md",
     ],
     "API" => "api.md",
+    "Developer API" => Any[
+        "interfaces/collocation.md",
+    ],
 ]

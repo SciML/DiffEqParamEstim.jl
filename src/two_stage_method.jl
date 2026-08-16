@@ -1,7 +1,7 @@
 export TwoStageCost, two_stage_objective
 
 """
-    TwoStageCost(cost_function, estimated_solution, estimated_derivative)
+    TwoStageCost(cost_function, estimated_solution, estimated_derivative) -> TwoStageCost
 
 The callable cost object produced by [`two_stage_objective`](@ref).
 
@@ -13,11 +13,19 @@ stored so they can be inspected after construction.
 
 # Fields
 
-  - `cost_function`: the underlying cost closure of signature `(p, _p = nothing)`.
-  - `estimated_solution`: the kernel-smoothed estimate of the state trajectory at
-    the collocation points.
-  - `estimated_derivative`: the kernel-smoothed estimate of the state derivative
-    at the collocation points.
+- `cost_function::F`: the underlying cost closure with signature
+  `(p, _p = nothing)`.
+- `estimated_solution::D`: the kernel-smoothed state trajectory at the
+  collocation points.
+- `estimated_derivative::D`: the kernel-smoothed state derivative at the
+  collocation points.
+
+# Examples
+
+```julia
+cost = TwoStageCost((p, _) -> sum(abs2, p), [1.0], [0.0])
+value = cost([1.0])
+```
 """
 struct TwoStageCost{F, D} <: Function
     cost_function::F
@@ -118,7 +126,8 @@ end
 
 """
     two_stage_objective(prob::SciMLBase.AbstractDEProblem, tpoints, data,
-        adtype = SciMLBase.NoAD(); kernel = EpanechnikovKernel())
+        adtype = SciMLBase.NoAD(); kernel = EpanechnikovKernel()) ->
+        SciMLBase.OptimizationFunction
 
 Build an `OptimizationFunction` for the two-stage (non-parametric collocation)
 parameter estimation method.
@@ -133,26 +142,33 @@ good parameters before refining with another method.
 
 # Arguments
 
-  - `prob`: the `AbstractDEProblem` whose right-hand side is being fit. Both
-    in-place and out-of-place `prob.f` are supported.
-  - `tpoints`: the timepoints at which `data` is sampled.
-  - `data`: the measured state values used for the collocation smoothing.
-  - `adtype`: the automatic differentiation choice passed to `OptimizationFunction`
-    (defaults to `SciMLBase.NoAD()`).
+- `prob`: the `AbstractDEProblem` whose right-hand side is being fit. Both
+  in-place and out-of-place right-hand sides are supported.
+- `tpoints`: the timepoints at which `data` is sampled.
+- `data`: the measured state values used for collocation smoothing.
+- `adtype`: the automatic differentiation choice passed to
+  `OptimizationFunction`. Defaults to `SciMLBase.NoAD()`.
 
-# Keyword Arguments
+# Keywords
 
-  - `kernel`: the collocation smoothing kernel, either a `CollocationKernel`
-    instance or a `Symbol` selecting one (`:Epanechnikov`, `:Uniform`,
-    `:Triangular`, `:Quartic`, `:Triweight`, `:Tricube`, `:Gaussian`,
-    `:Cosine`, `:Logistic`, `:Sigmoid`, `:Silverman`). Defaults to
-    `EpanechnikovKernel()`.
+- `kernel`: the collocation smoothing kernel, either a
+  [`CollocationKernel`](@ref) instance or a `Symbol` selecting one of
+  `:Epanechnikov`, `:Uniform`, `:Triangular`, `:Quartic`, `:Triweight`,
+  `:Tricube`, `:Gaussian`, `:Cosine`, `:Logistic`, `:Sigmoid`, and
+  `:Silverman`. Defaults to `EpanechnikovKernel()`.
 
 # Returns
 
 An `OptimizationFunction` wrapping a [`TwoStageCost`](@ref) with `adtype`. The
 returned cost also exposes the smoothed `estimated_solution` and
 `estimated_derivative`.
+
+# Examples
+
+```julia
+objective = two_stage_objective(prob, tpoints, data; kernel = :Triangular)
+cost = objective([1.0])
+```
 """
 function two_stage_objective(
         prob::SciMLBase.AbstractDEProblem, tpoints, data,

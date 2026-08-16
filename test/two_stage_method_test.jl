@@ -29,3 +29,11 @@ opt = Opt(:LD_LBFGS, 4)
 optprob = OptimizationNLopt.OptimizationProblem(obj, [1.3, 0.8, 2.8, 1.2])
 res = solve(optprob, opt)
 @test res.u ≈ [1.5; 1.0; 3.0; 1.0] atol = 5.0e-1
+
+# Verify the documented developer interface with a package-independent kernel.
+struct ContractKernel <: DiffEqParamEstim.CollocationKernel end
+DiffEqParamEstim.calckernel(::ContractKernel, t) = one(t)
+
+contract_objective = two_stage_objective(prob1, t, data; kernel = ContractKernel())
+@test contract_objective([1.5]) isa Number
+@test isfinite(contract_objective([1.5]))

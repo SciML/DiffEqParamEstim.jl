@@ -25,7 +25,8 @@ end
     multiple_shooting_objective(prob::SciMLBase.AbstractDEProblem, alg, loss,
         adtype = SciMLBase.NoAD(), regularization = nothing;
         priors = nothing, discontinuity_weight = 1.0,
-        prob_generator = STANDARD_MS_PROB_GENERATOR, kwargs...)
+        prob_generator = STANDARD_MS_PROB_GENERATOR,
+        kwargs...) -> SciMLBase.OptimizationFunction
 
 Build an `OptimizationFunction` that fits parameters by multiple shooting.
 
@@ -44,30 +45,37 @@ into the correct per-segment problems.
 
 # Arguments
 
-  - `prob`: the `AbstractDEProblem` to fit.
-  - `alg`: the solver algorithm matching `prob`.
-  - `loss`: a callable mapping the merged solution to a scalar, e.g.
-    [`L2Loss`](@ref) or [`LogLikeLoss`](@ref).
-  - `adtype`: the automatic differentiation choice passed to `OptimizationFunction`
-    (defaults to `SciMLBase.NoAD()`).
-  - `regularization`: an optional callable of `p` (e.g. [`Regularization`](@ref))
-    added to the loss; `nothing` (the default) adds none.
+- `prob`: the `AbstractDEProblem` to fit.
+- `alg`: the solver algorithm matching `prob`.
+- `loss`: a callable mapping the merged solution to a scalar, such as
+  [`L2Loss`](@ref) or [`LogLikeLoss`](@ref).
+- `adtype`: the automatic differentiation choice passed to
+  `OptimizationFunction`. Defaults to `SciMLBase.NoAD()`.
+- `regularization`: an optional callable of `p`, such as
+  [`Regularization`](@ref). The default `nothing` adds no regularization.
 
-# Keyword Arguments
+# Keywords
 
-  - `priors`: univariate distributions (one per parameter) or a multivariate
-    distribution; when given, the negative log prior from [`prior_loss`](@ref)
-    over the differential equation parameters is added, giving a MAP objective.
-  - `discontinuity_weight`: a scalar or array weight on the squared mismatch
-    between consecutive segments (defaults to `1.0`).
-  - `prob_generator`: a function `(prob, p, k) -> segment_prob` producing the
-    problem for interval `k` from `p`. Defaults to `STANDARD_MS_PROB_GENERATOR`.
-  - `kwargs...`: extra keyword arguments forwarded to the differential equation
-    `solve`.
+- `priors`: univariate distributions (one per parameter) or a multivariate
+  distribution. The negative log prior from [`prior_loss`](@ref) is applied to
+  the differential-equation parameters when supplied.
+- `discontinuity_weight`: a scalar or array weight on the squared mismatch
+  between consecutive segments. Defaults to `1.0`.
+- `prob_generator`: a function `(prob, p, k) -> segment_prob` producing the
+  problem for interval `k` from `p`. The default splits the initial states and
+  parameters according to the layout described above.
+- `kwargs...`: extra keyword arguments forwarded to `solve`.
 
 # Returns
 
 An `OptimizationFunction` wrapping the multiple-shooting cost with `adtype`.
+
+# Examples
+
+```julia
+objective = multiple_shooting_objective(prob, Tsit5(), L2Loss(tpoints, data))
+value = objective(initial_state_and_parameter_vector)
+```
 """
 function multiple_shooting_objective(
         prob::SciMLBase.AbstractDEProblem, alg, loss,
