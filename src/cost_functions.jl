@@ -2,21 +2,26 @@ export L2Loss, Regularization, LogLikeLoss, prior_loss, l2lossgradient!,
     colloc_grad
 
 """
-    Regularization(λ, penalty = L2Penalty())
+    Regularization(λ, penalty = L2Penalty()) -> Regularization
 
-A regularization term for use with an objective builder such as
-[`build_loss_objective`](@ref).
+A callable regularization term for use with an objective builder such as
+[`build_loss_objective`](@ref). Calling it with a parameter vector `p` returns
+`λ * value(penalty, p)`. The default penalty is `L2Penalty()`.
 
-Calling a `Regularization` on a parameter vector `p` returns
-`λ * value(penalty, p)`, i.e. the penalty evaluated on `p` scaled by `λ`.
-The penalty is any penalty function from
-[PenaltyFunctions.jl](https://github.com/JuliaML/PenaltyFunctions.jl); when
-omitted it defaults to `L2Penalty()`, giving standard L2 (ridge) regularization.
+`penalty` can be any penalty function supported by
+[PenaltyFunctions.jl](https://github.com/JuliaML/PenaltyFunctions.jl).
 
 # Fields
 
-  - `λ`: the scalar weight applied to the penalty term.
-  - `penalty`: the penalty function evaluated on the parameter vector.
+- `λ::L`: the scalar weight applied to the penalty term.
+- `penalty::P`: the penalty function evaluated on the parameter vector.
+
+# Examples
+
+```julia
+regularization = Regularization(0.1)
+penalty = regularization([1.0, 2.0])
+```
 """
 struct Regularization{L, P} <: DiffEqBase.DECostFunction
     λ::L
@@ -29,17 +34,32 @@ function (f::Regularization)(p)
 end
 
 """
-    prior_loss(prior, p)
+    prior_loss(prior, p) -> Real
 
 Return the negative log prior of the parameter vector `p` under `prior`.
 
-If `eltype(prior) <: UnivariateDistribution`, `prior` is treated as a collection
-of univariate distributions and the result is `-sum(logpdf(prior[i], p[i]))`.
-Otherwise `prior` is treated as a single (multivariate) distribution and the
-result is `-logpdf(prior, p)`. Adding this term to a loss turns a maximum
-likelihood objective into a maximum a posteriori (MAP) objective; it is used
-internally by [`build_loss_objective`](@ref) and
+If `eltype(prior) <: UnivariateDistribution`, `prior` is treated as a
+collection of univariate distributions and the result is
+`-sum(logpdf(prior[i], p[i]))`. Otherwise `prior` is treated as a single
+multivariate distribution and the result is `-logpdf(prior, p)`. Adding this
+term to a loss turns maximum likelihood estimation into a maximum a posteriori
+(MAP) objective. It is used by [`build_loss_objective`](@ref) and
 [`multiple_shooting_objective`](@ref) when `priors` is supplied.
+
+# Arguments
+
+- `prior`: a collection of univariate distributions or one multivariate
+  distribution.
+- `p`: the parameter vector at which to evaluate the prior.
+
+# Examples
+
+```julia
+using Distributions
+
+priors = [Normal(1.0, 0.2), Normal(2.0, 0.5)]
+map_penalty = prior_loss(priors, [1.1, 1.8])
+```
 """
 function prior_loss(prior, p)
     ll = 0.0
@@ -55,41 +75,48 @@ end
 
 """
     L2Loss(t, data; differ_weight = nothing, data_weight = nothing,
-        colloc_grad = nothing, dudt = nothing)
+        colloc_grad = nothing, dudt = nothing) -> L2Loss
 
 An optimized L2-distance loss for fitting a differential equation solution to
-data. Calling an `L2Loss` on a solution `sol` returns the (weighted) sum of
-squared residuals between `sol` and `data` at the timepoints `t`, returning
-`Inf` if the solve was unsuccessful.
+data. Calling the loss with a solution `sol` returns the weighted sum of
+squared residuals between `sol` and `data` at `t`. It returns `Inf` when the
+solution has an unsuccessful return code.
 
 # Arguments
 
-  - `t`: the timepoints at which the data are given.
-  - `data`: the measured values, where column `i` holds the state at `t[i]`. A
-    vector is reshaped to a `1 x N` matrix.
+- `t`: the timepoints at which the data are given.
+- `data`: the measured values. Column `i` holds the state at `t[i]`; a vector
+  is reshaped to a `1 x N` matrix.
 
-# Keyword Arguments
+# Keywords
 
-  - `data_weight`: a scalar or array of weights matching the size of `data`, used
-    to weight each squared residual. `nothing` (the default) gives uniform unit
-    weights. Minimizing a weighted `L2Loss` is equivalent to maximum likelihood
-    estimation of a heteroskedastic Normal likelihood.
-  - `differ_weight`: a scalar or array weight on the first-difference residuals
-    `sol[i] - sol[i-1]` against the data first differences, which smooths the
-    loss and can improve identifiability (e.g. for stochastic models). `nothing`
-    (the default) disables the first-difference term.
-  - `colloc_grad`: a matrix of collocation gradients for the data (see
-    [`colloc_grad`](@ref)). When supplied, an interpolation-derivative term is
-    added to the loss; combined with regularization this makes the loss
-    equivalent to a 4DVAR objective.
-  - `dudt`: a buffer used to accumulate the derivative estimates when
-    `colloc_grad` is used; allocated automatically when `colloc_grad` is given.
+- `data_weight`: a scalar or an array matching `data` that weights each
+  squared residual. The default `nothing` gives unit weights.
+- `differ_weight`: a scalar or an array weighting the first-difference
+  residuals between consecutive solution and data values. The default
+  `nothing` disables this term.
+- `colloc_grad`: a matrix of collocation gradients for `data`, usually created
+  by [`colloc_grad`](@ref). When supplied, a derivative-residual term is added.
+- `dudt`: a derivative buffer used with `colloc_grad`. The default `nothing`
+  allocates a buffer automatically.
 
 # Fields
 
-  - `t`, `data`, `differ_weight`, `data_weight`, `colloc_grad`, `dudt`: as above.
-  - `du_buf`: an internal buffer for the derivative evaluation used with
-    `colloc_grad`.
+- `t::T`: the loss timepoints.
+- `data::D`: the observed values, stored as a matrix.
+- `differ_weight::U`: the first-difference weight or `nothing`.
+- `data_weight::W`: the data weight or `nothing`.
+- `colloc_grad::G`: the collocation derivative matrix or `nothing`.
+- `dudt::G`: the derivative buffer used during evaluation.
+- `du_buf::B`: an internal buffer used for derivative evaluation.
+
+# Examples
+
+```julia
+t = range(0, 1; length = 11)
+data = reshape(sin.(t), 1, :)
+loss = L2Loss(t, data; data_weight = 2.0)
+```
 """
 struct L2Loss{T, D, U, W, G, B} <: DiffEqBase.DECostFunction
     t::T
@@ -245,24 +272,32 @@ function (f::L2Loss)(sol::SciMLBase.AbstractEnsembleSolution)
 end
 
 """
-    colloc_grad(t, data)
+    colloc_grad(t, data) -> AbstractMatrix
 
 Estimate the time-derivative of `data` by spline collocation, for use as the
 `colloc_grad` argument of [`L2Loss`](@ref).
 
-For each state (row of `data`), a cubic (3rd order) `Dierckx.Spline1D` is fit to
-`data` against `t` and differentiated at the timepoints `t`. The per-timepoint
-derivatives are collected into a matrix of the same shape as `data`, where
-column `i` is the estimated derivative at `t[i]`.
+For each state (row of `data`), a cubic (third-order) `Dierckx.Spline1D` is fit
+to `data` against `t` and differentiated at the timepoints in `t`. The
+derivatives are returned in a matrix with the same shape as `data`, where
+column `i` is the estimate at `t[i]`.
 
 # Arguments
 
-  - `t`: the timepoints, a length-`N` vector.
-  - `data`: an `m x N` matrix of measured state values.
+- `t`: a length-`N` vector of strictly ordered timepoints.
+- `data`: an `m x N` matrix of measured state values.
 
 # Returns
 
-An `m x N` matrix of the collocation-estimated derivatives.
+An `m x N` matrix of collocation-estimated derivatives.
+
+# Examples
+
+```julia
+t = range(0, 1; length = 11)
+data = reshape(sin.(t), 1, :)
+grad = colloc_grad(t, data)
+```
 """
 function colloc_grad(t::T, data::D) where {T, D}
     splines = [Dierckx.Spline1D(t, data[i, :]) for i in 1:size(data)[1]]
@@ -275,6 +310,7 @@ end
 """
     LogLikeLoss(t, data_distributions)
     LogLikeLoss(t, data_distributions, diff_distributions)
+    LogLikeLoss(t, data_distributions, diff_distributions, weight)
 
 A negative log-likelihood loss for fitting a differential equation solution to a
 field of distributions. Calling a `LogLikeLoss` on a solution `sol` returns the
@@ -294,19 +330,31 @@ distribution type.
 
 # Arguments
 
-  - `t`: the timepoints at which the distributions apply.
-  - `data_distributions`: the field of likelihood distributions (a vector is
-    reshaped to a `1 x N` matrix).
-  - `diff_distributions`: an optional field of distributions placed on the
-    first-difference terms `sol[i] - sol[i-1]`, contributing an additional
-    log-likelihood term. When supplied via the three-argument constructor its
-    contribution is scaled by `weight = 1`.
+- `t`: the timepoints at which the distributions apply.
+- `data_distributions`: the likelihood distributions. A vector is reshaped to
+  a `1 x N` matrix.
+- `diff_distributions`: an optional field of distributions for the
+  first-difference terms `sol[i] - sol[i - 1]`. The three-argument constructor
+  uses `weight = 1` for this term.
+- `weight`: the scalar multiplier for the first-difference likelihood term.
+  Use `nothing` when `diff_distributions` is not supplied.
 
 # Fields
 
-  - `t`, `data_distributions`, `diff_distributions`: as above.
-  - `weight`: the scalar weight applied to the first-difference log-likelihood
-    term (`nothing` when `diff_distributions` is not used).
+- `t::T`: the loss timepoints.
+- `data_distributions::D`: the distributions for the observed state values.
+- `diff_distributions`: the optional first-difference distributions.
+- `weight`: the first-difference likelihood weight.
+
+# Examples
+
+```julia
+using Distributions
+
+t = 0:2
+data_distributions = [Normal(0, 1) for _ in t]
+loss = LogLikeLoss(t, data_distributions)
+```
 """
 struct LogLikeLoss{T, D} <: DiffEqBase.DECostFunction
     t::T
@@ -416,7 +464,7 @@ function (f::LogLikeLoss)(sol::SciMLBase.AbstractEnsembleSolution)
 end
 
 """
-    l2lossgradient!(grad, sol, data, sensitivities, num_p)
+    l2lossgradient!(grad, sol, data, sensitivities, num_p) -> nothing
 
 Compute, in place, the gradient of an L2 loss with respect to `num_p`
 parameters and write it into `grad`.
@@ -429,12 +477,20 @@ and timepoints. `grad` is zeroed before accumulation. Returns `nothing`.
 
 # Arguments
 
-  - `grad`: a length-`num_p` vector, overwritten with the loss gradient.
-  - `sol`: the solution values, shaped like `data`.
-  - `data`: the target data.
-  - `sensitivities`: a collection of length `num_p` of parameter sensitivities,
-    each shaped like `data`.
-  - `num_p`: the number of parameters.
+- `grad`: a length-`num_p` vector, overwritten with the loss gradient.
+- `sol`: the solution values, shaped like `data`.
+- `data`: the target data.
+- `sensitivities`: a collection of length `num_p` of parameter sensitivities,
+  each shaped like `data`.
+- `num_p`: the number of parameters.
+
+# Examples
+
+```julia
+grad = zeros(1)
+sensitivities = [ones(1, 2)]
+l2lossgradient!(grad, zeros(1, 2), ones(1, 2), sensitivities, 1)
+```
 """
 function l2lossgradient!(grad, sol, data, sensitivities, num_p)
     fill!(grad, 0.0)
