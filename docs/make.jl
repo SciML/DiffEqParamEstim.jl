@@ -11,7 +11,7 @@ makedocs(
     sitename = "DiffEqParamEstim.jl",
     authors = "Chris Rackauckas et al.",
     modules = [DiffEqParamEstim],
-    clean = true, doctest = false, linkcheck = true,
+    clean = true, linkcheck = true,
     format = Documenter.HTML(
         assets = ["assets/favicon.ico"],
         canonical = "https://docs.sciml.ai/DiffEqParamEstim/stable/"
