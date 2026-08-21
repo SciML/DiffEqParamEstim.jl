@@ -12,6 +12,7 @@ using StatsAPI: loglikelihood
 using CommonSolve: solve
 
 import PreallocationTools
+using PrecompileTools: @compile_workload, @setup_workload
 STANDARD_PROB_GENERATOR(prob, p) = remake(prob; u0 = eltype(p).(prob.u0), p = p)
 function STANDARD_PROB_GENERATOR(prob::EnsembleProblem, p)
     return EnsembleProblem(
@@ -38,5 +39,6 @@ include("build_loss_objective.jl")
 include("kernels.jl")
 include("two_stage_method.jl")
 include("multiple_shooting_objective.jl")
+include("precompile.jl")
 
 end # module
