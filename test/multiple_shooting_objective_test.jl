@@ -10,6 +10,18 @@ ms_p = [1.5, 1.0]
 ms_prob = ODEProblem(ms_f, ms_u0, tspan, ms_p)
 t = collect(range(0, stop = 10, length = 200))
 data = Array(solve(ms_prob, Tsit5(), saveat = t, abstol = 1.0e-12, reltol = 1.0e-12))
+
+prior_prob = ODEProblem((u, p, t) -> zero(u), [0.0], (0.0, 1.0), [10.0, 20.0])
+prior_t = [0.0, 1.0]
+prior_data = zeros(1, 2)
+parameter_priors = [Normal(10.0, 1.0), Normal(20.0, 1.0)]
+prior_obj = multiple_shooting_objective(
+    prior_prob, Tsit5(), L2Loss(prior_t, prior_data),
+    Optimization.AutoForwardDiff(); priors = parameter_priors
+)
+prior_variables = [0.0, 10.0, 20.0]
+@test prior_obj(prior_variables) ≈ prior_loss(parameter_priors, prior_variables[(end - 1):end])
+
 bound = Tuple{Float64, Float64}[
     (0, 10), (0, 10), (
         0, 10,

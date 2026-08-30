@@ -119,7 +119,7 @@ function multiple_shooting_objective(
         )
         loss_val = loss(sol_new)
         if priors !== nothing
-            loss_val += prior_loss(priors, p[(end - length(priors)):end])
+            loss_val += prior_loss(priors, p[(end - length(priors) + 1):end])
         end
         if !isnothing(regularization)
             loss_val += regularization(p)
