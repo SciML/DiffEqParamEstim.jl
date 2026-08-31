@@ -33,9 +33,9 @@ result = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 1
 data_distributions = [fit_mle(Normal, aggregate_data[i, j, :]) for i in 1:2, j in 1:200]
 diff_distributions = [
     fit_mle(
-            Normal,
-            aggregate_data[i, j, :] - aggregate_data[i, j - 1, :]
-        )
+        Normal,
+        aggregate_data[i, j, :] - aggregate_data[i, j - 1, :]
+    )
         for j in 2:200, i in 1:2
 ]
 obj = build_loss_objective(
@@ -53,9 +53,9 @@ result = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 1
 data_distributions = [fit_mle(Normal, aggregate_data[i, j, :]) for i in 1:2, j in 1:200]
 diff_distributions = [
     fit_mle(
-            Normal,
-            aggregate_data[i, j, :] - aggregate_data[i, j - 1, :]
-        )
+        Normal,
+        aggregate_data[i, j, :] - aggregate_data[i, j - 1, :]
+    )
         for j in 2:200, i in 1:2
 ]
 obj = build_loss_objective(
@@ -79,9 +79,9 @@ result = solve(optprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 1
 distributions = [fit_mle(MvNormal, aggregate_data[:, j, :]) for j in 1:200]
 diff_distributions = [
     fit_mle(
-            MvNormal,
-            aggregate_data[:, j, :] - aggregate_data[:, j - 1, :]
-        )
+        MvNormal,
+        aggregate_data[:, j, :] - aggregate_data[:, j - 1, :]
+    )
         for j in 2:200
 ]
 priors = [Truncated(Normal(1.5, 0.1), 0, 2), Truncated(Normal(1.0, 0.1), 0, 1.5)]
