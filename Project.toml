@@ -78,3 +78,7 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [targets]
 test = ["Test", "BlackBoxOptim", "DelayDiffEq", "ForwardDiff", "Logging", "NLopt", "Optim", "Optimization", "OptimizationBBO", "OptimizationNLopt", "OptimizationOptimJL", "OrdinaryDiffEq", "OrdinaryDiffEqBDF", "Random", "SafeTestsets", "SciMLSensitivity", "SciMLTesting", "StochasticDiffEq", "SteadyStateDiffEq", "Sundials", "Zygote"]
+
+[sources]
+Sundials = {url = "https://github.com/ChrisRackauckas-Claude/Sundials.jl.git", rev = "fix-32bit-nvector-length"}
+
