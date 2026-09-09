@@ -82,4 +82,5 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 test = ["Symbolics", "Test", "BlackBoxOptim", "DelayDiffEq", "ForwardDiff", "Logging", "NLopt", "Optim", "Optimization", "OptimizationBBO", "OptimizationNLopt", "OptimizationOptimJL", "OrdinaryDiffEq", "OrdinaryDiffEqBDF", "Random", "SafeTestsets", "SciMLSensitivity", "SciMLTesting", "StochasticDiffEq", "SteadyStateDiffEq", "Sundials", "Zygote"]
 
 [sources]
+DiffEqBase = {url = "https://github.com/ChrisRackauckas-Claude/OrdinaryDiffEq.jl.git", rev = "fix-32bit-interp-points-range", subdir = "lib/DiffEqBase"}
 Sundials = {url = "https://github.com/ChrisRackauckas-Claude/Sundials.jl.git", rev = "fix-32bit-nvector-length"}
