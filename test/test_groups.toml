@@ -1,11 +1,9 @@
 [Core]
 versions = ["lts", "1", "pre"]
 
-["Core 32-bit"]
-group = "Core"
-versions = ["1"]
-os = ["ubuntu-latest"]
-arch = "x86"
+# Core 32-bit dropped: SciMLSensitivity → Enzyme → BFloat16s LLVM soft-promote
+# fails on i686 (JuliaMath/BFloat16s#127 was closed without merge). Re-enable
+# when BFloat16s soft-promote works on i686.
 
 [QA]
 versions = ["lts", "1"]
