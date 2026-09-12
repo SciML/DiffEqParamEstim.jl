@@ -5,7 +5,8 @@ import Dierckx
 using PenaltyFunctions: L2Penalty, value
 using RecursiveArrayTools: VectorOfArray
 using Distributions: UnivariateDistribution, logpdf
-using LinearAlgebra: Diagonal, mul!, transpose
+using Base: transpose
+using LinearAlgebra: Diagonal, mul!
 using SciMLBase: EnsembleProblem, OptimizationFunction, ReturnCode, isinplace, remake
 using Statistics: mean
 using StatsAPI: loglikelihood
