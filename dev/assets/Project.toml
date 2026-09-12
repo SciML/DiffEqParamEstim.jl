@@ -21,7 +21,7 @@ StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [sources]
-DiffEqParamEstim = {path = "/home/runner/_work/DiffEqParamEstim.jl/DiffEqParamEstim.jl"}
+DiffEqParamEstim = {path = "/home/runner/work/DiffEqParamEstim.jl/DiffEqParamEstim.jl"}
 
 [compat]
 BlackBoxOptim = "0.6"
