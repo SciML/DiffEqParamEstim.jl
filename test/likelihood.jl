@@ -84,7 +84,7 @@ diff_distributions = [
     )
         for j in 2:200
 ]
-priors = [Truncated(Normal(1.5, 0.1), 0, 2), Truncated(Normal(1.0, 0.1), 0, 1.5)]
+priors = [truncated(Normal(1.5, 0.1), 0, 2), truncated(Normal(1.0, 0.1), 0, 1.5)]
 obj = build_loss_objective(
     prob1, Tsit5(),
     LogLikeLoss(t, distributions, diff_distributions),

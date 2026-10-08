@@ -55,7 +55,7 @@ result = with_logger(NullLogger()) do
 end
 @test result.u[(end - 1):end] ≈ [1.5, 1.0] atol = 2.0e-1
 
-priors = [Truncated(Normal(1.5, 0.5), 0, 2), Truncated(Normal(1.0, 0.5), 0, 1.5)]
+priors = [truncated(Normal(1.5, 0.5), 0, 2), truncated(Normal(1.0, 0.5), 0, 1.5)]
 ms_obj1 = multiple_shooting_objective(
     ms_prob, Tsit5(), L2Loss(t, data),
     Optimization.AutoForwardDiff(); priors = priors,
