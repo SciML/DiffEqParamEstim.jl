@@ -27,19 +27,19 @@ t: 568-element Vector{Float64}:
   0.010686492535510766
   0.01258475107800281
   0.01472029193830636
-  0.017122775406147855
-  0.019825569307469537
-  0.022866212446456428
-  0.02628693597781668
+  0.01712277540614785
+  0.01982556930746953
+  0.022866212446456417
+  0.026286935977816665
   ⋮
-  9.83071659821914
-  9.851140215391485
-  9.871892501523662
-  9.892989212703517
-  9.914446719704191
-  9.93628188508557
-  9.958511944177802
-  9.98115430879565
+  9.83071659821905
+  9.851140215391395
+  9.871892501523572
+  9.892989212703426
+  9.9144467197041
+  9.93628188508548
+  9.958511944177712
+  9.98115430879556
  10.0
 u: 568-element Vector{Vector{Float64}}:
  [1.0, 1.0]
@@ -53,15 +53,15 @@ u: 568-element Vector{Vector{Float64}}:
  [1.0120188103055885, 0.9554272767861642]
  [1.0139170892225018, 0.9489552219857249]
  ⋮
- [0.9547257083612182, 1.2819367476811905]
- [0.9595110248985509, 1.229560112378899]
- [0.9654317656552531, 1.1786634503399018]
- [0.972516327365775, 1.129236508104995]
- [0.980799373519557, 1.0812687843292341]
- [0.9903220730903995, 1.0347496582943934]
- [1.0011305055713684, 0.9896683352838453]
- [1.0132775085799297, 0.9460154213759546]
- [1.024252260506165, 0.9113503993180596]</code></pre><p>Now let&#39;s generate a compact dataset from repeated solutions of the SDE:</p><pre><code class="language-julia hljs">using RecursiveArrayTools # for VectorOfArray
+ [0.9547257083612022, 1.2819367476814112]
+ [0.9595110248985305, 1.2295601123791116]
+ [0.9654317656552284, 1.1786634503401054]
+ [0.9725163273657459, 1.12923650810519]
+ [0.9807993735195238, 1.0812687843294195]
+ [0.9903220730903624, 1.0347496582945694]
+ [1.001130505571327, 0.9896683352840128]
+ [1.013277508579884, 0.9460154213761146]
+ [1.0242522605061706, 0.9113503993180498]</code></pre><p>Now let&#39;s generate a compact dataset from repeated solutions of the SDE:</p><pre><code class="language-julia hljs">using RecursiveArrayTools # for VectorOfArray
 t = collect(range(0, stop = 10, length = 200))
 Random.seed!(1234)
 function generate_data(t)
@@ -94,14 +94,14 @@ result = solve(optprob, Optim.BFGS())
     Algorithm:     Fminbox with BFGS
 
  * Convergence measures
-    |x - x&#39;|               = 7.04e-11 ≰ 0.0e+00
-    |x - x&#39;|/|x&#39;|          = 4.70e-11 ≰ 0.0e+00
+    |x - x&#39;|               = 7.02e-11 ≰ 0.0e+00
+    |x - x&#39;|/|x&#39;|          = 4.68e-11 ≰ 0.0e+00
     |f(x) - f(x&#39;)|         = 3.41e-12 ≰ 0.0e+00
     |f(x) - f(x&#39;)|/|f(x&#39;)| = 8.00e-10 ≰ 0.0e+00
-    |g(x)|                 = 2.41e-09 ≤ 1.0e-08
+    |g(x)|                 = 1.88e-09 ≤ 1.0e-08
 
  * Work counters
-    Seconds run:   14  (vs limit Inf)
+    Seconds run:   18  (vs limit Inf)
     Iterations:    4
     f(x) calls:    29
     ∇f(x) calls:   29
@@ -127,12 +127,12 @@ result.original</code></pre><pre class="documenter-example-output"><code class="
     |x - x&#39;|/|x&#39;|          = 4.27e-11 ≰ 0.0e+00
     |f(x) - f(x&#39;)|         = 8.31e-11 ≰ 0.0e+00
     |f(x) - f(x&#39;)|/|f(x&#39;)| = 7.84e-09 ≰ 0.0e+00
-    |g(x)|                 = 8.16e-10 ≤ 1.0e-08
+    |g(x)|                 = 8.21e-10 ≤ 1.0e-08
 
  * Work counters
-    Seconds run:   13  (vs limit Inf)
+    Seconds run:   17  (vs limit Inf)
     Iterations:    4
     f(x) calls:    32
     ∇f(x) calls:   32
     ∇f(x)ᵀv calls: 0
-</code></pre><p>Both drift parameters are recovered from the synthetic data. Larger ensembles reduce the Monte Carlo error in the objective.</p><pre><code class="language-julia hljs">println(result.u)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">[1.4998893369007587, 0.9995757680575369]</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../generalized_likelihood/">« Generalized Likelihood Inference</a><a class="docs-footer-nextpage" href="../ensemble/">Fitting Ensembles of ODE Models to Data »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Sunday 13 September 2026 01:08">Sunday 13 September 2026</span>. Using Julia version 1.13.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</code></pre><p>Both drift parameters are recovered from the synthetic data. Larger ensembles reduce the Monte Carlo error in the objective.</p><pre><code class="language-julia hljs">println(result.u)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">[1.4998893369007589, 0.9995757680575363]</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../generalized_likelihood/">« Generalized Likelihood Inference</a><a class="docs-footer-nextpage" href="../ensemble/">Fitting Ensembles of ODE Models to Data »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Saturday 10 October 2026 17:38">Saturday 10 October 2026</span>. Using Julia version 1.13.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
