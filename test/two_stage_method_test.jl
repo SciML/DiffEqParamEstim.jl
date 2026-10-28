@@ -1,5 +1,6 @@
 using DiffEqParamEstim, OrdinaryDiffEq
 using Optimization, OptimizationNLopt, Optim, NLopt, OptimizationOptimJL
+using OptimizationBase: OptimizationProblem
 include(joinpath(@__DIR__, "shared", "test_problems.jl"))
 
 println("Use Two Stage Method to fit the parameter")
@@ -15,18 +16,18 @@ result = Optim.optimize(cost_function, [1.3, 0.8, 2.8, 1.2], Optim.BFGS())
 @test result.minimizer ≈ [1.5; 1.0; 3.0; 1.0] atol = 5.0e-1
 # test differentiation
 obj = two_stage_objective(prob2, t, data, Optimization.AutoForwardDiff())
-optprob = OptimizationNLopt.OptimizationProblem(obj, [1.3, 0.8])
+optprob = OptimizationProblem(obj, [1.3, 0.8])
 result = solve(optprob, Optim.ConjugateGradient())
 @test result.u ≈ [1.5; 3.0] atol = 3.0e-1
 
 obj = two_stage_objective(prob2, t, data, Optimization.AutoForwardDiff())
 opt = Opt(:LD_LBFGS, 2)
-optprob = OptimizationNLopt.OptimizationProblem(obj, [1.0, 2.5])
+optprob = OptimizationProblem(obj, [1.0, 2.5])
 res = solve(optprob, opt)
 @test res.u ≈ [1.5; 3.0] atol = 3.0e-1
 obj = two_stage_objective(prob3, t, data, Optimization.AutoForwardDiff())
 opt = Opt(:LD_LBFGS, 4)
-optprob = OptimizationNLopt.OptimizationProblem(obj, [1.3, 0.8, 2.8, 1.2])
+optprob = OptimizationProblem(obj, [1.3, 0.8, 2.8, 1.2])
 res = solve(optprob, opt)
 @test res.u ≈ [1.5; 1.0; 3.0; 1.0] atol = 5.0e-1
 
