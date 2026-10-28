@@ -1,5 +1,6 @@
 using DiffEqParamEstim, OrdinaryDiffEq
 using Optimization, OptimizationNLopt, NLopt, Zygote
+using OptimizationBase: OptimizationProblem
 include(joinpath(@__DIR__, "shared", "test_problems.jl"))
 
 println("Use NLOpt to fit the parameter")
@@ -10,7 +11,7 @@ obj = build_loss_objective(
 )
 
 opt = Opt(:LN_COBYLA, 1)
-optprob = OptimizationNLopt.OptimizationProblem(obj, [1.4])
+optprob = OptimizationProblem(obj, [1.4])
 res = solve(optprob, opt)
 @test res.u[1] ≈ 1.5 atol = 1.0e-3
 
@@ -39,6 +40,6 @@ obj = build_loss_objective(
 opt = Opt(:LD_MMA, 1)
 xtol_rel!(opt, 1.0e-3)
 maxeval!(opt, 10000)
-optprob = OptimizationNLopt.OptimizationProblem(obj, [1.3])
+optprob = OptimizationProblem(obj, [1.3])
 res = solve(optprob, opt)
 @test res.u[1] ≈ 1.5 atol = 1.0e-1
