@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Parameter Estimation for Stochastic Differential Equations and Ensembles · DiffEqParamEstim.jl</title><link rel="canonical" href="https://diffeqparamestim.sciml.ai/stable/tutorials/stochastic_evaluations/"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="DiffEqParamEstim.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">DiffEqParamEstim.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">DiffEqParamEstim.jl: Parameter Estimation for Differential Equations</a></li><li><span class="tocitem">Methods</span><ul><li><a class="tocitem" href="../../methods/recommended_methods/">Recommended Methods</a></li><li><a class="tocitem" href="../../methods/optimization_based_methods/">Optimization-Based Methods</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples/ODE_inference/">Optimization-Based ODE Inference Examples</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li class="is-active"><a class="tocitem" href>Parameter Estimation for Stochastic Differential Equations and Ensembles</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Parameter Estimation for Stochastic Differential Equations and Ensembles</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Parameter Estimation for Stochastic Differential Equations and Ensembles</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/SciML/DiffEqParamEstim.jl/blob/master/docs/src/tutorials/stochastic_evaluations.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Parameter-Estimation-for-Stochastic-Differential-Equations-and-Ensembles"><a class="docs-heading-anchor" href="#Parameter-Estimation-for-Stochastic-Differential-Equations-and-Ensembles">Parameter Estimation for Stochastic Differential Equations and Ensembles</a><a id="Parameter-Estimation-for-Stochastic-Differential-Equations-and-Ensembles-1"></a><a class="docs-heading-anchor-permalink" href="#Parameter-Estimation-for-Stochastic-Differential-Equations-and-Ensembles" title="Permalink"></a></h1><p>We can use any <code>DEProblem</code>, which not only includes <code>DAEProblem</code> and <code>DDEProblem</code>s, but also stochastic problems. In this case, let&#39;s use the generalized maximum likelihood to fit the parameters of an SDE&#39;s ensemble evaluation.</p><p>Let&#39;s use the same Lotka-Volterra equation as before, but this time add noise:</p><pre><code class="language-julia">pf_func = function (du,u,p,t)
+  du[1] = p[1] * u[1] - p[2] * u[1]*u[2]
+  du[2] = -3 * u[2] + u[1]*u[2]
+end
+
+u0 = [1.0;1.0]
+tspan = (0.0,10.0)
+p = [1.5,1.0]
+pg_func = function (du,u,p,t)
+  du[1] = 1e-6u[1]
+  du[2] = 1e-6u[2]
+end
+prob = SDEProblem(pf_func,pg_func,u0,tspan,p)
+sol = solve(prob,SRIW1())</code></pre><p>Now lets generate a dataset from 10,000 solutions of the SDE</p><pre><code class="language-julia">using RecursiveArrayTools # for VectorOfArray
+t = collect(range(0, stop=10, length=200))
+function generate_data(t)
+  sol = solve(prob,SRIW1())
+  randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
+  data = convert(Array,randomized)
+end
+aggregate_data = convert(Array,VectorOfArray([generate_data(t) for i in 1:10000]))</code></pre><p>Now let&#39;s estimate the parameters. Instead of using single runs from the SDE, we will use a <code>EnsembleProblem</code>. This means that it will solve the SDE <code>N</code> times to come up with an approximate probability distribution at each time point and use that in the likelihood estimate.</p><pre><code class="language-julia">monte_prob = EnsembleProblem(prob)</code></pre><p>We use Optim.jl for optimization below</p><pre><code class="language-julia">obj = build_loss_objective(monte_prob,SOSRI(),L2Loss(t,aggregate_data),
+                                     maxiters=10000,verbose=false,num_monte = 1000,
+                                     parallel_type = :threads)
+result = Optim.optimize(obj, [1.0,0.5], Optim.BFGS())</code></pre><p>Parameter Estimation in case of SDE&#39;s with a regular <code>L2Loss</code> can have poor accuracy due to only fitting against the mean properties as mentioned in <a href="http://docs.juliadiffeq.org/dev/analysis/parameter_estimation/#First-differencing-1">First Differencing</a>.</p><pre><code class="language-julia">Results of Optimization Algorithm
+ * Algorithm: BFGS
+ * Starting Point: [1.0,0.5]
+ * Minimizer: [6.070728870478734,5.113357737345448]
+ * Minimum: 1.700440e+03
+ * Iterations: 14
+ * Convergence: false
+   * |x - x&#39;| ≤ 0.0e+00: false
+     |x - x&#39;| = 1.00e-03
+   * |f(x) - f(x&#39;)| ≤ 0.0e+00 |f(x)|: false
+     |f(x) - f(x&#39;)| = 1.81e-07 |f(x)|
+   * |g(x)| ≤ 1.0e-08: false
+     |g(x)| = 2.34e+00
+   * Stopped by an increasing objective: true
+   * Reached Maximum Number of Iterations: false
+ * Objective Calls: 61
+ * Gradient Calls: 61</code></pre><p>Instead when we use <code>L2Loss</code> with first differencing enabled we get much more accurate estimates.</p><pre><code class="language-julia"> obj = build_loss_objective(monte_prob,SRIW1(),L2Loss(t,data,differ_weight=1.0,data_weight=0.5),maxiters=1000,
+                                  verbose=false,verbose_opt=false,verbose_steps=1,num_monte=50)
+result = Optim.optimize(obj, [1.0,0.5], Optim.BFGS())
+Results of Optimization Algorithm
+ * Algorithm: BFGS
+ * Starting Point: [1.0,0.5]
+ * Minimizer: [1.5010687426045128,1.0023453619050238]
+ * Minimum: 1.166650e-01
+ * Iterations: 16
+ * Convergence: false
+   * |x - x&#39;| ≤ 0.0e+00: false
+     |x - x&#39;| = 6.84e-09
+   * |f(x) - f(x&#39;)| ≤ 0.0e+00 |f(x)|: false
+     |f(x) - f(x&#39;)| = 5.85e-06 |f(x)|
+   * |g(x)| ≤ 1.0e-08: false
+     |g(x)| = 1.81e-01
+   * Stopped by an increasing objective: true
+   * Reached Maximum Number of Iterations: false
+ * Objective Calls: 118
+ * Gradient Calls: 118</code></pre><p>Here, we see that we successfully recovered the drift parameter, and got close to the original noise parameter after searching a two-orders-of-magnitude range.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../examples/ODE_inference/">« Optimization-Based ODE Inference Examples</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 30 November 2020 22:47">Monday 30 November 2020</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

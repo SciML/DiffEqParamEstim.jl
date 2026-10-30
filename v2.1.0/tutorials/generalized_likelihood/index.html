@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Generalized Likelihood Inference · DiffEqParamEstim.jl</title><meta name="title" content="Generalized Likelihood Inference · DiffEqParamEstim.jl"/><meta property="og:title" content="Generalized Likelihood Inference · DiffEqParamEstim.jl"/><meta property="twitter:title" content="Generalized Likelihood Inference · DiffEqParamEstim.jl"/><meta name="description" content="Documentation for DiffEqParamEstim.jl."/><meta property="og:description" content="Documentation for DiffEqParamEstim.jl."/><meta property="twitter:description" content="Documentation for DiffEqParamEstim.jl."/><meta property="og:url" content="https://docs.sciml.ai/DiffEqParamEstim/stable/tutorials/generalized_likelihood/"/><meta property="twitter:url" content="https://docs.sciml.ai/DiffEqParamEstim/stable/tutorials/generalized_likelihood/"/><link rel="canonical" href="https://docs.sciml.ai/DiffEqParamEstim/stable/tutorials/generalized_likelihood/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="DiffEqParamEstim.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">DiffEqParamEstim.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">DiffEqParamEstim.jl: Parameter Estimation for Differential Equations</a></li><li><a class="tocitem" href="../../getting_started/">Getting Started with Optimization-Based ODE Parameter Estimation</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../global_optimization/">Global Optimization via NLopt</a></li><li class="is-active"><a class="tocitem" href>Generalized Likelihood Inference</a></li><li><a class="tocitem" href="../stochastic_evaluations/">Parameter Estimation for Stochastic Differential Equations and Ensembles</a></li><li><a class="tocitem" href="../ensemble/">Fitting Ensembles of ODE Models to Data</a></li></ul></li><li><span class="tocitem">Methods</span><ul><li><a class="tocitem" href="../../methods/recommended_methods/">Recommended Methods</a></li><li><a class="tocitem" href="../../methods/optimization_based_methods/">Optimization-Based Methods</a></li><li><a class="tocitem" href="../../methods/collocation_loss/">Two Stage method (Non-Parametric Collocation)</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Generalized Likelihood Inference</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Generalized Likelihood Inference</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/SciML/DiffEqParamEstim.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/SciML/DiffEqParamEstim.jl/blob/master/docs/src/tutorials/generalized_likelihood.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Generalized-Likelihood-Inference"><a class="docs-heading-anchor" href="#Generalized-Likelihood-Inference">Generalized Likelihood Inference</a><a id="Generalized-Likelihood-Inference-1"></a><a class="docs-heading-anchor-permalink" href="#Generalized-Likelihood-Inference" title="Permalink"></a></h1><p>In this example, we will demo the likelihood-based approach to parameter fitting. First, let&#39;s generate a dataset to fit. We will re-use the Lotka-Volterra equation, but in this case, fit just two parameters.</p><pre><code class="language-julia hljs">using DifferentialEquations, DiffEqParamEstim, Optimization, OptimizationBBO
+f1 = function (du, u, p, t)
+    du[1] = p[1] * u[1] - p[2] * u[1] * u[2]
+    du[2] = -3.0 * u[2] + u[1] * u[2]
+end
+p = [1.5, 1.0]
+u0 = [1.0; 1.0]
+tspan = (0.0, 10.0)
+prob1 = ODEProblem(f1, u0, tspan, p)
+sol = solve(prob1, Tsit5())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">retcode: Success
+Interpolation: specialized 4th order &quot;free&quot; interpolation
+t: 34-element Vector{Float64}:
+  0.0
+  0.0776084743154256
+  0.23264513699277584
+  0.4291185174543143
+  0.6790821987497083
+  0.9444046158046306
+  1.2674601546021105
+  1.6192913303893046
+  1.9869754428624007
+  2.2640902393538296
+  ⋮
+  7.584863345264154
+  7.978068981329682
+  8.48316543760351
+  8.719248247740158
+  8.949206788834692
+  9.200185054623292
+  9.438029017301554
+  9.711808134779586
+ 10.0
+u: 34-element Vector{Vector{Float64}}:
+ [1.0, 1.0]
+ [1.0454942346944578, 0.8576684823217127]
+ [1.1758715885138267, 0.639459570317544]
+ [1.4196809607170826, 0.4569962601282084]
+ [1.876719395008001, 0.32473342927911314]
+ [2.5882500645533466, 0.26336255535952163]
+ [3.8607089092207665, 0.2794458098285253]
+ [5.750812667710396, 0.5220072537934558]
+ [6.814978999130169, 1.9177826328390666]
+ [4.3929992925714245, 4.194670792850584]
+ ⋮
+ [2.614253967788294, 0.26416945387525886]
+ [4.241076127191749, 0.3051236762921916]
+ [6.791123785297795, 1.1345287797146113]
+ [6.265370675764892, 2.74169350754023]
+ [3.7807651118880545, 4.431165685863461]
+ [1.816420140681761, 4.064056625315978]
+ [1.1465021407690728, 2.7911706616216976]
+ [0.9557986135403302, 1.6235622951850799]
+ [1.0337581256020607, 0.9063703842886133]</code></pre><p>This is a function with two parameters, <code>[1.5,1.0]</code> which generates the same ODE solution as before. This time, let&#39;s generate 100 datasets where at each point adds a little bit of randomness:</p><pre><code class="language-julia hljs">using RecursiveArrayTools # for VectorOfArray
+t = collect(range(0, stop = 10, length = 200))
+function generate_data(sol, t)
+    randomized = VectorOfArray([(sol(t[i]) + 0.01randn(2)) for i in 1:length(t)])
+    data = convert(Array, randomized)
+end
+aggregate_data = convert(Array, VectorOfArray([generate_data(sol, t) for i in 1:100]))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2×200×100 Array{Float64, 3}:
+[:, :, 1] =
+ 0.996851  1.0186    1.05992   1.09685   …  0.981119  1.01009  1.03311
+ 0.992779  0.895861  0.840902  0.751521     1.1005    1.00605  0.904109
+
+[:, :, 2] =
+ 0.998605  1.02841   1.07578   1.08046   …  0.978278  1.0037    1.03878
+ 0.982052  0.887536  0.812932  0.740458     1.1155    0.976752  0.891125
+
+[:, :, 3] =
+ 0.982174  1.01095   1.05998   1.09602   …  0.980687  0.998288  1.01652
+ 0.995605  0.889753  0.836611  0.754587     1.10114   0.987994  0.895729
+
+;;; … 
+
+[:, :, 98] =
+ 0.980222  1.05357   1.05535   1.09447   …  0.981112  1.01282  1.03519
+ 0.995314  0.906899  0.838491  0.755946     1.09356   1.00651  0.907116
+
+[:, :, 99] =
+ 0.988649  1.01001  1.05428   1.08523   …  0.986223  1.01927  1.03643
+ 0.995205  0.9128   0.814275  0.748556     1.10551   1.00176  0.910189
+
+[:, :, 100] =
+ 1.0096    1.02825   1.06589   1.10323   …  0.990236  1.00997  1.03729
+ 0.994661  0.889335  0.812885  0.745082     1.10078   1.00653  0.904641</code></pre><p>here, with <code>t</code> we measure the solution at 200 evenly spaced points. Thus, <code>aggregate_data</code> is a 2x200x100 matrix where <code>aggregate_data[i,j,k]</code> is the <code>i</code>th component at time <code>j</code> of the <code>k</code>th dataset. What we first want to do is get a matrix of distributions where <code>distributions[i,j]</code> is the likelihood of component <code>i</code> at take <code>j</code>. We can do this via <code>fit_mle</code> on a chosen distributional form. For simplicity, we choose the <code>Normal</code> distribution. <code>aggregate_data[i,j,:]</code> is the array of points at the given component and time, and thus we find the distribution parameters which fits best at each time point via:</p><pre><code class="language-julia hljs">using Distributions
+distributions = [fit_mle(Normal, aggregate_data[i, j, :]) for i in 1:2, j in 1:200]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2×200 Matrix{Distributions.Normal{Float64}}:
+ Distributions.Normal{Float64}(μ=1.00071, σ=0.0105011)  …  Distributions.Normal{Float64}(μ=1.03498, σ=0.0111673)
+ Distributions.Normal{Float64}(μ=1.00031, σ=0.0106247)     Distributions.Normal{Float64}(μ=0.906462, σ=0.00936741)</code></pre><p>Notice for example that we have:</p><pre><code class="language-julia hljs">distributions[1, 1]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Distributions.Normal{Float64}(μ=1.0007118367421721, σ=0.010501125916945546)</code></pre><p>that is, it fits the distribution to have its mean just about where our original solution was, and the variance is about how much noise we added to the dataset. This is a good check to see that the distributions we are trying to fit our parameters to makes sense.</p><p>Note that in this case the <code>Normal</code> distribution was a good choice, and often it&#39;s a nice go-to choice, but one should experiment with other choices of distributions as well. For example, a <code>TDist</code> can be an interesting way to incorporate robustness to outliers since low degrees of free T-distributions act like Normal distributions but with longer tails (though <code>fit_mle</code> does not work with a T-distribution, you can get the means/variances and build appropriate distribution objects yourself).</p><p>Once we have the matrix of distributions, we can build the objective function corresponding to that distribution fit:</p><pre><code class="language-julia hljs">obj = build_loss_objective(prob1, Tsit5(), LogLikeLoss(t, distributions),
+                           maxiters = 10000, verbose = false)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(::SciMLBase.OptimizationFunction{true, SciMLBase.NoAD, DiffEqParamEstim.var&quot;#29#30&quot;{Nothing, typeof(DiffEqParamEstim.STANDARD_PROB_GENERATOR), Base.Pairs{Symbol, Integer, Tuple{Symbol, Symbol}, NamedTuple{(:maxiters, :verbose), Tuple{Int64, Bool}}}, SciMLBase.ODEProblem{Vector{Float64}, Tuple{Float64, Float64}, true, Vector{Float64}, SciMLBase.ODEFunction{true, SciMLBase.AutoSpecialize, Main.var&quot;#1#2&quot;, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, typeof(SciMLBase.DEFAULT_OBSERVED), Nothing, Nothing}, Base.Pairs{Symbol, Union{}, Tuple{}, NamedTuple{(), Tuple{}}}, SciMLBase.StandardODEProblem}, OrdinaryDiffEq.Tsit5{typeof(OrdinaryDiffEq.trivial_limiter!), typeof(OrdinaryDiffEq.trivial_limiter!), Static.False}, LogLikeLoss{Vector{Float64}, Matrix{Distributions.Normal{Float64}}}, Nothing, Tuple{}}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, typeof(SciMLBase.DEFAULT_OBSERVED_NO_TIME), Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing}) (generic function with 1 method)</code></pre><p>First, let&#39;s use the objective function to plot the likelihood landscape:</p><pre><code class="language-julia hljs">using Plots;
+plotly();
+prange = 0.5:0.1:5.0
+heatmap(prange, prange, [obj([j, i]) for i in prange, j in prange],
+        yscale = :log10, xlabel = &quot;Parameter 1&quot;, ylabel = &quot;Parameter 2&quot;,
+        title = &quot;Likelihood Landscape&quot;)</code></pre><p><img src="../../assets/2paramlike.png" alt="2 Parameter Likelihood"/></p><p>Recall that this is the negative log-likelihood, and thus the minimum is the maximum of the likelihood. There is a clear valley where the first parameter is 1.5, while the second parameter&#39;s likelihood is more muddled. By taking a one-dimensional slice:</p><pre><code class="language-julia hljs">plot(prange, [obj([1.5, i]) for i in prange], lw = 3,
+     title = &quot;Parameter 2 Likelihood (Parameter 1 = 1.5)&quot;,
+     xlabel = &quot;Parameter 2&quot;, ylabel = &quot;Objective Function Value&quot;)</code></pre><p><img src="../../assets/1paramlike.png" alt="1 Parameter Likelihood"/></p><p>we can see that there&#39;s still a clear minimum at the true value. Thus, we will use the global optimizers from BlackBoxOptim.jl to find the values. We set our search range to be from <code>0.5</code> to <code>5.0</code> for both of the parameters and let it optimize:</p><pre><code class="language-julia hljs">bound1 = Tuple{Float64, Float64}[(0.5, 5), (0.5, 5)]
+optprob = OptimizationProblem(obj, [2.0, 2.0], lb = first.(bound1), ub = last.(bound1))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"><span class="sgr38_2" style="color:#56b6c2">OptimizationProblem</span>. In-place: <span class="sgr38_2" style="color:#56b6c2">true</span>
+u0: 2-element Vector{Float64}:
+ 2.0
+ 2.0</code></pre><p>This shows that it found the true parameters as the best fit to the likelihood.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../global_optimization/">« Global Optimization via NLopt</a><a class="docs-footer-nextpage" href="../stochastic_evaluations/">Parameter Estimation for Stochastic Differential Equations and Ensembles »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.0.1 on <span class="colophon-date" title="Sunday 24 September 2023 20:12">Sunday 24 September 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

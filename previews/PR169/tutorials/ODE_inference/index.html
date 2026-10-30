@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Optimization-Based ODE Parameter Estimation · DiffEqParamEstim.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://diffeqparamestim.sciml.ai/stable/tutorials/ODE_inference/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.044/juliamono.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="DiffEqParamEstim.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">DiffEqParamEstim.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">DiffEqParamEstim.jl: Parameter Estimation for Differential Equations</a></li><li><span class="tocitem">Tutorials</span><ul><li class="is-active"><a class="tocitem" href>Optimization-Based ODE Parameter Estimation</a></li><li><a class="tocitem" href="../global_optimization/">Global Optimization via NLopt</a></li><li><a class="tocitem" href="../jump/">Using JuMP with DiffEqParamEstim</a></li><li><a class="tocitem" href="../generalized_likelihood/">Generalized Likelihood Inference</a></li><li><a class="tocitem" href="../stochastic_evaluations/">Parameter Estimation for Stochastic Differential Equations and Ensembles</a></li></ul></li><li><span class="tocitem">Methods</span><ul><li><a class="tocitem" href="../../methods/recommended_methods/">Recommended Methods</a></li><li><a class="tocitem" href="../../methods/optimization_based_methods/">Optimization-Based Methods</a></li><li><a class="tocitem" href="../../methods/collocation_loss/">Two Stage method (Non-Parametric Collocation)</a></li><li><a class="tocitem" href="../../methods/alternative_objectives/">Alternative Objective Functions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Optimization-Based ODE Parameter Estimation</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Optimization-Based ODE Parameter Estimation</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/SciML/DiffEqParamEstim.jl/blob/master/docs/src/tutorials/ODE_inference.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Optimization-Based-ODE-Parameter-Estimation"><a class="docs-heading-anchor" href="#Optimization-Based-ODE-Parameter-Estimation">Optimization-Based ODE Parameter Estimation</a><a id="Optimization-Based-ODE-Parameter-Estimation-1"></a><a class="docs-heading-anchor-permalink" href="#Optimization-Based-ODE-Parameter-Estimation" title="Permalink"></a></h1><p>We choose to optimize the parameters on the Lotka-Volterra equation. We do so by defining the function as a function with parameters:</p><pre><code class="language-julia hljs">function f(du,u,p,t)
+  du[1] = dx = p[1]*u[1] - u[1]*u[2]
+  du[2] = dy = -3*u[2] + u[1]*u[2]
+end
+
+u0 = [1.0;1.0]
+tspan = (0.0,10.0)
+p = [1.5]
+prob = ODEProblem(f,u0,tspan,p)</code></pre><p>We create data using the numerical result with <code>a=1.5</code>:</p><pre><code class="language-julia hljs">sol = solve(prob,Tsit5())
+t = collect(range(0,stop=10,length=200))
+using RecursiveArrayTools # for VectorOfArray
+randomized = VectorOfArray([(sol(t[i]) + .01randn(2)) for i in 1:length(t)])
+data = convert(Array,randomized)</code></pre><p>Here we used <code>VectorOfArray</code> from <a href="https://github.com/ChrisRackauckas/RecursiveArrayTools.jl">RecursiveArrayTools.jl</a> to turn the result of an ODE into a matrix.</p><p>If we plot the solution with the parameter at <code>a=1.42</code>, we get the following:</p><p><img src="../../assets/paramest_notfit.png" alt="Parameter Estimation Not Fit"/></p><p>Notice that after one period this solution begins to drift very far off: this problem is sensitive to the choice of <code>a</code>.</p><p>To build the objective function for Optim.jl, we simply call the <code>build_loss_objective</code> function:</p><pre><code class="language-julia hljs">cost_function = build_loss_objective(prob,Tsit5(),L2Loss(t,data),
+                                     maxiters=10000,verbose=false)</code></pre><p>This objective function internally is calling the ODE solver to get solutions to test against the data. The keyword arguments are passed directly to the solver. Note that we set <code>maxiters</code> in a way that causes the differential equation solvers to error more quickly when in bad regions of the parameter space, speeding up the process. If the integrator stops early (due to divergence), then those parameters are given an infinite loss, and thus this is a quick way to avoid bad parameters. We set <code>verbose=false</code> because this divergence can get noisy.</p><p>Before optimizing, let&#39;s visualize our cost function by plotting it for a range of parameter values:</p><pre><code class="language-julia hljs">vals = 0.0:0.1:10.0
+using Plots; plotly()
+plot(vals,[cost_function(i) for i in vals],yscale=:log10,
+     xaxis = &quot;Parameter&quot;, yaxis = &quot;Cost&quot;, title = &quot;1-Parameter Cost Function&quot;,
+     lw = 3)</code></pre><p><img src="../../assets/1paramcost.png" alt="1 Parameter Likelihood"/></p><p>Here we see that there is a very well-defined minimum in our cost function at the real parameter (because this is where the solution almost exactly fits the dataset).</p><p>Now this cost function can be used with Optim.jl in order to get the parameters. For example, we can use Brent&#39;s algorithm to search for the best solution on the interval <code>[0,10]</code> by:</p><pre><code class="language-julia hljs">using Optim
+result = optimize(cost_function, 0.0, 10.0)</code></pre><p>This returns <code>result.minimizer[1]==1.5</code> as the best parameter to match the data. When we plot the fitted equation on the data, we receive the following:</p><p><img src="../../assets/paramest_fit.png" alt="Parameter Estimation Fit"/></p><p>Thus we see that after fitting, the lines match up with the generated data and receive the right parameter value.</p><p>We can also use the multivariate optimization functions. For example, we can use the <code>BFGS</code> algorithm to optimize the parameter starting at <code>a=1.42</code> using:</p><pre><code class="language-julia hljs">result = optimize(cost_function, [1.42], BFGS())</code></pre><p>Note that some of the algorithms may be sensitive to the initial condition. For more details on using Optim.jl, see the <a href="https://julianlsolvers.github.io/Optim.jl/stable/">documentation for Optim.jl</a>. We can improve our solution by noting that the Lotka-Volterra equation requires that the parameters are positive. Thus <a href="https://julianlsolvers.github.io/Optim.jl/stable/#user/minimization/#box-constrained-optimization">following the Optim.jl documentation</a> we can add box constraints to ensure the optimizer only checks between 0.0 and 3.0 which improves the efficiency of our algorithm:</p><pre><code class="language-julia hljs">lower = [0.0]
+upper = [3.0]
+result = optimize(cost_function, lower, upper, [1.42], Fminbox(BFGS()))</code></pre><p>Lastly, we can use the same tools to estimate multiple parameters simultaneously. Let&#39;s use the Lotka-Volterra equation with all parameters free:</p><pre><code class="language-julia hljs">function f2(du,u,p,t)
+  du[1] = dx = p[1]*u[1] - p[2]*u[1]*u[2]
+  du[2] = dy = -p[3]*u[2] + p[4]*u[1]*u[2]
+end
+
+u0 = [1.0;1.0]
+tspan = (0.0,10.0)
+p = [1.5,1.0,3.0,1.0]
+prob = ODEProblem(f2,u0,tspan,p)</code></pre><p>We can build an objective function and solve the multiple parameter version just as before:</p><pre><code class="language-julia hljs">cost_function = build_loss_objective(prob,Tsit5(),L2Loss(t,data),
+                                      maxiters=10000,verbose=false)
+result_bfgs = Optim.optimize(cost_function, [1.3,0.8,2.8,1.2], Optim.BFGS())</code></pre><p>We can also use First-Differences in L2Loss by passing the kwarg <code>differ_weight</code> which decides the contribution of the differencing loss to the total loss.</p><pre><code class="language-julia hljs">cost_function = build_loss_objective(prob,Tsit5(),L2Loss(t,data,differ_weight=0.3,data_weight=0.7),
+                                      maxiters=10000,verbose=false)
+result_bfgs = Optim.optimize(cost_function, [1.3,0.8,2.8,1.2], Optim.BFGS())</code></pre><p>To solve it using LeastSquaresOptim.jl, we use the <code>build_lsoptim_objective</code> function:</p><pre><code class="language-julia hljs">cost_function = build_lsoptim_objective(prob1,t,data,Tsit5())</code></pre><p>The result is a cost function which can be used with LeastSquaresOptim. For more details, consult the <a href="https://github.com/matthieugomez/LeastSquaresOptim.jl">documentation for LeastSquaresOptim.jl</a>:</p><pre><code class="language-julia hljs">using LeastSquaresOptim # for LeastSquaresProblem
+x = [1.3,0.8,2.8,1.2]
+res = optimize!(LeastSquaresProblem(x = x, f! = cost_function,
+                output_length = length(t)*length(prob.u0)),
+                LeastSquaresOptim.Dogleg(LeastSquaresOptim.LSMR()))</code></pre><p>We can see the results are:</p><pre><code class="language-julia hljs">println(res.minimizer)
+
+Results of Optimization Algorithm
+ * Algorithm: Dogleg
+ * Minimizer: [1.4995074428834114,0.9996531871795851,3.001556360700904,1.0006272074128821]
+ * Sum of squares at Minimum: 0.035730
+ * Iterations: 63
+ * Convergence: true
+ * |x - x&#39;| &lt; 1.0e-15: true
+ * |f(x) - f(x&#39;)| / |f(x)| &lt; 1.0e-14: false
+ * |g(x)| &lt; 1.0e-14: false
+ * Function Calls: 64
+ * Gradient Calls: 9
+ * Multiplication Calls: 135</code></pre><p>and thus this algorithm was able to correctly identify all four parameters.</p><p>We can also use Multiple Shooting method by creating a <code>multiple_shooting_objective</code></p><pre><code class="language-julia hljs">function ms_f(du,u,p,t)
+  dx = p[1]*u[1] - p[2]*u[1]*u[2]
+  dy = -3*u[2] + u[1]*u[2]
+end
+ms_u0 = [1.0;1.0]
+tspan = (0.0,10.0)
+ms_p = [1.5,1.0]
+ms_prob = ODEProblem(ms_f,ms_u0,tspan,ms_p)
+t = collect(range(0,stop=10,length=200))
+data = Array(solve(ms_prob,Tsit5(),saveat=t,abstol=1e-12,reltol=1e-12))
+bound = Tuple{Float64, Float64}[(0, 10),(0, 10),(0, 10),(0, 10),
+                                (0, 10),(0, 10),(0, 10),(0, 10),
+                                (0, 10),(0, 10),(0, 10),(0, 10),
+                                (0, 10),(0, 10),(0, 10),(0, 10),(0, 10),(0, 10)]
+
+
+ms_obj = multiple_shooting_objective(ms_prob,Tsit5(),L2Loss(t,data);discontinuity_weight=1.0,abstol=1e-12,reltol=1e-12)</code></pre><p>This creates the objective function that can be passed to an optimizer from which we can then get the parameter values and the initial values of the short time periods keeping in mind the indexing.</p><pre><code class="language-julia hljs"># ]add BlackBoxOptim
+using BlackBoxOptim
+
+result = bboptimize(ms_obj;SearchRange = bound, MaxSteps = 21e3)
+result.archive_output.best_candidate[end-1:end]</code></pre><p>Giving us the results as</p><pre><code class="language-julia hljs">Starting optimization with optimizer BlackBoxOptim.DiffEvoOpt{BlackBoxOptim.FitPopulation{Float64},BlackBoxOptim.RadiusLimitedSelector,BlackBoxOptim.AdaptiveDiffEvoRandBin{3},BlackBoxOptim.RandomBound{BlackBoxOptim.RangePerDimSearchSpace}}
+
+Optimization stopped after 21001 steps and 136.60030698776245 seconds
+Termination reason: Max number of steps (21000) reached
+Steps per second = 153.7405036862868
+Function evals per second = 154.43596332393247
+Improvements/step = 0.17552380952380953
+Total function evaluations = 21096
+
+
+Best candidate found: [0.997396, 1.04664, 3.77834, 0.275823, 2.14966, 4.33106, 1.43777, 0.468442, 6.22221, 0.673358, 0.970036, 2.05182, 2.4216, 0.274394, 5.64131, 3.38132, 1.52826, 1.01721]
+
+Fitness: 0.126884213
+
+Out[4]:2-element Array{Float64,1}:
+        1.52826
+        1.01721</code></pre><p>Here as our model had 2 parameters, we look at the last two indexes of <code>result</code> to get our parameter values and the rest of the values are the initial values of the shorter timespans as described in the reference section.</p><p>The objective function for Two Stage method can be created and passed to an optimizer as</p><pre><code class="language-julia hljs">two_stage_obj = two_stage_method(ms_prob,t,data)
+result = Optim.optimize(two_stage_obj, [1.3,0.8,2.8,1.2], Optim.BFGS()
+)
+Results of Optimization Algorithm
+ * Algorithm: BFGS
+ * Starting Point: [1.3,0.8,2.8,1.2]
+ * Minimizer: [1.5035938533664717,0.9925731153746833, ...]
+ * Minimum: 1.513400e+00
+ * Iterations: 9
+ * Convergence: true
+   * |x - x&#39;| ≤ 0.0e+00: false
+     |x - x&#39;| = 4.58e-10
+   * |f(x) - f(x&#39;)| ≤ 0.0e+00 |f(x)|: false
+     |f(x) - f(x&#39;)| = 5.87e-16 |f(x)|
+   * |g(x)| ≤ 1.0e-08: true
+     |g(x)| = 7.32e-11
+   * Stopped by an increasing objective: false
+   * Reached Maximum Number of Iterations: false
+ * Objective Calls: 31
+ * Gradient Calls: 31</code></pre><p>The default kernel used in the method is <code>Epanechnikov</code> others that are available are <code>Uniform</code>,  <code>Triangular</code>, <code>Quartic</code>, <code>Triweight</code>, <code>Tricube</code>, <code>Gaussian</code>, <code>Cosine</code>, <code>Logistic</code> and <code>Sigmoid</code>, this can be passed by the <code>kernel</code> keyword argument. <code>loss_func</code> keyword argument can be used to pass the loss function (cost function) you want  to use and <code>mpg_autodiff</code> enables Auto Differentiation.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« DiffEqParamEstim.jl: Parameter Estimation for Differential Equations</a><a class="docs-footer-nextpage" href="../global_optimization/">Global Optimization via NLopt »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.19 on <span class="colophon-date" title="Thursday 23 June 2022 17:46">Thursday 23 June 2022</span>. Using Julia version 1.7.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
